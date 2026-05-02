@@ -1,0 +1,2 @@
+# kwiky
+QR code generator
