@@ -296,6 +296,7 @@ Build the MVP as a sequence of shippable vertical slices. Each slice must delive
 Goal: Prove the core trust promise.
 
 Scope:
+
 - Anonymous user enters a website URL.
 - System validates and safely normalizes the URL.
 - Generated QR payload encodes the final destination URL directly.
@@ -305,6 +306,7 @@ Scope:
 - Tests prove the encoded payload equals the intended direct URL.
 
 Done when:
+
 - A user can create and download a direct URL QR code without logging in.
 - The QR code scans to the entered destination.
 - Payload generation, validation, preview, and export have tests.
@@ -314,6 +316,7 @@ Done when:
 Goal: Establish the extensible QR type model.
 
 Scope:
+
 - Define the QR type registry and versioned QR type schemas.
 - Add static/direct QR types for URL, plain text, email, phone, SMS, Wi-Fi, vCard/contact, location/map link, and crypto wallet address.
 - Add QR type picker and type-specific forms.
@@ -321,6 +324,7 @@ Scope:
 - Add validation for each type.
 
 Done when:
+
 - Users can switch QR types and generate valid payloads.
 - Each QR type has tests for valid and invalid inputs.
 - The registry is clean enough for contributors to add new QR types.
@@ -330,6 +334,7 @@ Done when:
 Goal: Make QR codes visually customizable without breaking scannability.
 
 Scope:
+
 - Add foreground/background colors.
 - Add module/dot styles.
 - Add finder/marker styles.
@@ -339,6 +344,7 @@ Scope:
 - Add scannability warnings for contrast, logo size, quiet zone, dense payloads, and risky styling.
 
 Done when:
+
 - Users can customize a QR code and see live preview updates.
 - Design settings are represented as a canonical versioned config.
 - Scannability validation runs before download.
@@ -349,6 +355,7 @@ Done when:
 Goal: Make downloaded assets production-ready.
 
 Scope:
+
 - Add PNG, JPG, SVG, and PDF export where practical for MVP.
 - Decide whether EPS ships in MVP or whether SVG/PDF is the initial print-vector strategy.
 - Add export size controls.
@@ -359,6 +366,7 @@ Scope:
 - Add preview/export parity tests.
 
 Done when:
+
 - Users can download reliable assets for digital and print use.
 - Format limitations are clearly explained.
 - Exported files materially match preview.
@@ -369,6 +377,7 @@ Done when:
 Goal: Let users save work only after the free value moment.
 
 Scope:
+
 - Add sign up, sign in, sign out, and basic session handling.
 - Preserve anonymous QR editor state through signup/login.
 - Let users save the current QR code after account creation.
@@ -376,6 +385,7 @@ Scope:
 - Add backend ownership model from the beginning.
 
 Done when:
+
 - Anonymous users can create/download without login.
 - Anonymous users can create an account and save the current QR without losing work.
 - Auth and ownership are enforced server-side.
@@ -385,6 +395,7 @@ Done when:
 Goal: Turn the product from a one-time generator into a useful workspace.
 
 Scope:
+
 - Saved QR dashboard with list/grid view.
 - QR preview thumbnails.
 - QR names, types, payload summaries, created/updated dates.
@@ -393,6 +404,7 @@ Scope:
 - Empty states.
 
 Done when:
+
 - Registered users can see and find saved QR codes.
 - Saved QR records preserve payload, design, export, and validation config.
 - Dashboard data is scoped to the authenticated user.
@@ -402,6 +414,7 @@ Done when:
 Goal: Complete the MVP account management loop.
 
 Scope:
+
 - Edit saved QR configuration.
 - Duplicate saved QR codes.
 - Favorite/unfavorite QR codes.
@@ -411,6 +424,7 @@ Scope:
 - Warn users that changing a direct static QR payload requires redistributing the QR code.
 
 Done when:
+
 - Registered users can manage saved QR codes without rebuilding them from scratch.
 - Direct QR behavior remains clear and honest.
 - Destructive actions require confirmation.
@@ -421,6 +435,7 @@ Done when:
 Goal: Make good design fast and repeatable.
 
 Scope:
+
 - Add template library for common use cases.
 - Add QR-type-specific template recommendations.
 - Let registered users save a custom design as a reusable style.
@@ -428,6 +443,7 @@ Scope:
 - Add style preview, rename, duplicate, delete, and favorite where practical.
 
 Done when:
+
 - Users can start from a template instead of building from scratch.
 - Registered users can reuse designs across QR codes.
 - Styles do not include payload data unless explicitly duplicating a QR project.
@@ -437,6 +453,7 @@ Done when:
 Goal: Support repeatable branded QR creation.
 
 Scope:
+
 - Let registered users create one basic brand kit.
 - Store brand colors.
 - Store reusable logos/assets with validation and ownership scoping.
@@ -444,6 +461,7 @@ Scope:
 - Keep multi-brand/team brand-kit complexity post-MVP unless explicitly pulled forward.
 
 Done when:
+
 - Registered users can reuse brand colors and logos.
 - Asset uploads are validated and scoped.
 - Brand kit use improves speed without complicating the anonymous flow.
@@ -453,6 +471,7 @@ Done when:
 Goal: Make the MVP feel premium, stable, and maintainable.
 
 Scope:
+
 - Responsive web polish across desktop, tablet, and mobile browsers.
 - Accessibility pass for forms, controls, warnings, keyboard navigation, and screen-reader labels.
 - Loading, empty, success, and error states.
@@ -463,6 +482,7 @@ Scope:
 - MVP release checklist.
 
 Done when:
+
 - The product feels polished enough to ship publicly.
 - Critical flows are tested.
 - CI passes.
@@ -687,6 +707,7 @@ For URL QR codes, the generated QR code must encode the exact destination URL en
 As a visitor, I want to start creating a QR code immediately without creating an account so that I can get value before deciding whether to register.
 
 Acceptance criteria:
+
 - The user can access the QR creation flow without signing in.
 - The user can create at least one QR code from start to download without signing in.
 - The interface clearly communicates that login is optional.
@@ -698,6 +719,7 @@ Acceptance criteria:
 As a visitor, I want to enter a URL and generate a QR code that points directly to that URL so that scanners go exactly where I intended without being routed through a third-party redirect domain.
 
 Acceptance criteria:
+
 - The user can enter a valid HTTP or HTTPS URL.
 - The generated QR code encodes the entered URL directly by default.
 - The product does not replace the destination with a short link, tracking URL, or platform redirect unless the user explicitly opts into tracking.
@@ -711,6 +733,7 @@ Acceptance criteria:
 As a visitor, I want to create QR codes for common static data types so that I can use the tool for more than website links.
 
 Acceptance criteria:
+
 - The user can choose from supported static QR types.
 - Initial supported types include URL, plain text, email, phone, SMS, Wi-Fi, vCard/contact, location/map link, and crypto wallet address.
 - Each QR type has a focused form with only the fields needed for that payload.
@@ -723,6 +746,7 @@ Acceptance criteria:
 As a visitor, I want the QR code preview to update as I edit content and design options so that I can see what I am creating before downloading it.
 
 Acceptance criteria:
+
 - The QR preview updates immediately or near-immediately when content changes.
 - The QR preview updates when visual design options change.
 - The preview handles loading and validation states gracefully.
@@ -734,6 +758,7 @@ Acceptance criteria:
 As a visitor, I want to choose the QR error correction level so that I can balance scan reliability, data density, and visual customization.
 
 Acceptance criteria:
+
 - The user can choose error correction levels L, M, Q, and H.
 - The product defaults to a safe level appropriate for visual customization, preferably Q or H when logos or aggressive styling are used.
 - The UI explains the tradeoff in plain language.
@@ -745,6 +770,7 @@ Acceptance criteria:
 As a visitor, I want to customize QR foreground and background colors so that the QR code matches my brand or design.
 
 Acceptance criteria:
+
 - The user can set foreground color.
 - The user can set background color.
 - The user can use a color picker.
@@ -758,6 +784,7 @@ Acceptance criteria:
 As a visitor, I want to download a QR code with a transparent background so that I can place it cleanly on designed materials.
 
 Acceptance criteria:
+
 - The user can choose transparent background for supported export formats.
 - PNG and SVG support transparent backgrounds.
 - JPG export either disables transparency or explains that JPG does not support it.
@@ -769,6 +796,7 @@ Acceptance criteria:
 As a visitor, I want to customize the shape of the QR code modules/dots so that the code looks more distinctive.
 
 Acceptance criteria:
+
 - The user can choose from multiple module styles.
 - Initial module styles include square, circle/dot, rounded square, vertical rounded, horizontal rounded, diamond, star, and teardrop.
 - The selected module style is reflected in live preview and export.
@@ -781,6 +809,7 @@ Acceptance criteria:
 As a visitor, I want to customize the large QR corner markers so that the QR code has a more branded look.
 
 Acceptance criteria:
+
 - The user can customize finder marker outer shape.
 - The user can customize finder marker inner shape.
 - Initial outer marker styles include square, rounded square, circle, extra-rounded, cut-corner, leaf, and teardrop-inspired shapes.
@@ -794,6 +823,7 @@ Acceptance criteria:
 As a visitor, I want to add a logo to the center of the QR code so that the code is branded and recognizable.
 
 Acceptance criteria:
+
 - The user can upload a logo image.
 - Supported upload formats include PNG, JPG, SVG, and WebP where technically practical.
 - The user can resize the logo within safe limits.
@@ -808,6 +838,7 @@ Acceptance criteria:
 As a visitor, I want to add a frame or sticker with optional CTA text so that the QR code is more noticeable and action-oriented.
 
 Acceptance criteria:
+
 - The user can choose from predefined frames/stickers.
 - Initial frames include simple border, scan-me label, bottom CTA banner, speech bubble, ticket/pass style, coupon style, circular badge, and minimal no-frame.
 - The user can edit CTA text.
@@ -821,6 +852,7 @@ Acceptance criteria:
 As a visitor, I want to apply overall shape treatments so that the QR code can better fit campaign artwork or brand assets.
 
 Acceptance criteria:
+
 - The user can choose standard square QR layout.
 - The user can choose visual treatments that make the overall QR appear circular, rounded, heart-like, hexagonal, star-like, or other decorative silhouettes where scannability allows.
 - The product clearly distinguishes between true QR payload structure and decorative outer masking/treatment.
@@ -833,6 +865,7 @@ Acceptance criteria:
 As a visitor, I want to download my QR code in common formats so that I can use it across print and digital materials.
 
 Acceptance criteria:
+
 - The user can download PNG.
 - The user can download JPG.
 - The user can download SVG.
@@ -848,6 +881,7 @@ Acceptance criteria:
 As a visitor, I want print-focused settings so that my QR code works reliably on physical materials.
 
 Acceptance criteria:
+
 - The user can select output size in pixels for digital use.
 - The user can select physical size guidance for print use.
 - The product provides quiet-zone recommendations.
@@ -860,6 +894,7 @@ Acceptance criteria:
 As a visitor, I want the product to help me avoid creating a QR code that looks good but does not scan reliably.
 
 Acceptance criteria:
+
 - The product performs automated validation checks before download.
 - Validation includes contrast, quiet zone, logo size, payload density, error correction level, foreground/background conflicts, and high-risk design combinations.
 - The product shows warnings without being overly restrictive.
@@ -871,6 +906,7 @@ Acceptance criteria:
 As a visitor, I want simple editing controls so that I can experiment without getting stuck.
 
 Acceptance criteria:
+
 - The user can reset design to default.
 - The user can clear the current payload.
 - The user can duplicate the current design locally within the session.
@@ -882,6 +918,7 @@ Acceptance criteria:
 As a visitor, I want my in-progress QR code to remain available during the current browser session so that I do not lose work accidentally.
 
 Acceptance criteria:
+
 - The current QR configuration persists locally during the browser session.
 - Refreshing the page does not immediately wipe the user’s work.
 - Anonymous state is stored locally, not server-side, unless the user creates an account and saves.
@@ -893,6 +930,7 @@ Acceptance criteria:
 As a visitor, I want the option to create an account after designing a QR code so that I can save it without starting over.
 
 Acceptance criteria:
+
 - The user can create an account from the completed QR flow.
 - After account creation, the current QR configuration can be saved to the new account.
 - The user is not forced to create an account to download.
@@ -932,6 +970,7 @@ The account layer should also prepare the product for future paid plans, hosted 
 As an anonymous user, I want to create an account after designing a QR code so that I can save my work without starting over.
 
 Acceptance criteria:
+
 - The user can create an account from the QR creation flow.
 - The current anonymous QR configuration is preserved during account creation.
 - After account creation, the user can save the QR code to their account.
@@ -944,6 +983,7 @@ Acceptance criteria:
 As a new user, I want to create an account with email and password so that I can access saved QR codes across devices.
 
 Acceptance criteria:
+
 - The user can sign up with a valid email address and password.
 - The product validates email format.
 - The product enforces reasonable password requirements.
@@ -957,6 +997,7 @@ Acceptance criteria:
 As a registered user, I want to sign in and sign out securely so that I can control access to my saved QR codes.
 
 Acceptance criteria:
+
 - The user can sign in with email and password.
 - The user can sign out from any authenticated page.
 - The product preserves safe return paths after login.
@@ -969,6 +1010,7 @@ Acceptance criteria:
 As a registered user, I want to reset my password if I forget it so that I can regain access to my saved QR codes.
 
 Acceptance criteria:
+
 - The user can request a password reset by email.
 - Password reset links are time-limited and single-use.
 - The product does not reveal whether an email address has an account.
@@ -980,6 +1022,7 @@ Acceptance criteria:
 As a registered user, I want a dashboard of my saved QR codes so that I can find and manage previous work.
 
 Acceptance criteria:
+
 - The user can view a list or grid of saved QR codes.
 - Each saved QR code shows a preview thumbnail.
 - Each saved QR code shows its name, type, destination or payload summary, creation date, and last updated date.
@@ -992,6 +1035,7 @@ Acceptance criteria:
 As a registered user, I want to save a QR code configuration so that I can edit, download, or reuse it later.
 
 Acceptance criteria:
+
 - The user can save a QR code from the creation flow.
 - The saved record includes payload type, payload data, design settings, logo settings, frame settings, export preferences, and validation state.
 - The user can name the saved QR code.
@@ -1004,6 +1048,7 @@ Acceptance criteria:
 As a registered user, I want to reopen and edit a saved QR code so that I can update its design or payload when needed.
 
 Acceptance criteria:
+
 - The user can open a saved QR code in the editor.
 - The editor loads the saved payload and design settings accurately.
 - The user can modify supported fields.
@@ -1017,6 +1062,7 @@ Acceptance criteria:
 As a registered user, I want to duplicate an existing QR code so that I can reuse a design without rebuilding it from scratch.
 
 Acceptance criteria:
+
 - The user can duplicate a saved QR code from the dashboard or detail page.
 - The duplicate preserves payload type, design settings, logo settings, frame settings, and export preferences.
 - The duplicate receives a distinct name, such as “Copy of [Original Name].”
@@ -1028,6 +1074,7 @@ Acceptance criteria:
 As a registered user, I want to favorite important QR codes so that I can quickly find the ones I use most.
 
 Acceptance criteria:
+
 - The user can mark a saved QR code as a favorite.
 - The user can remove a QR code from favorites.
 - Favorites are visible in the dashboard.
@@ -1039,6 +1086,7 @@ Acceptance criteria:
 As a registered user, I want to search my saved QR codes so that I can quickly locate a specific code.
 
 Acceptance criteria:
+
 - The user can search by QR code name.
 - The user can search by destination URL or payload summary where safe and appropriate.
 - Search results update quickly.
@@ -1050,6 +1098,7 @@ Acceptance criteria:
 As a registered user, I want to filter and sort saved QR codes so that I can manage larger collections efficiently.
 
 Acceptance criteria:
+
 - The user can filter by QR type.
 - The user can filter by direct, self-tracked, or hosted-tracked status once tracking exists.
 - The user can filter by favorite status.
@@ -1062,6 +1111,7 @@ Acceptance criteria:
 As a registered user, I want to group saved QR codes into folders or collections so that I can organize work by campaign, customer, location, brand, or use case.
 
 Acceptance criteria:
+
 - The user can create a folder or collection.
 - The user can rename a folder or collection.
 - The user can move saved QR codes into and out of folders.
@@ -1074,6 +1124,7 @@ Acceptance criteria:
 As a registered user, I want to tag saved QR codes so that I can organize and find them across folders or campaigns.
 
 Acceptance criteria:
+
 - The user can add one or more tags to a saved QR code.
 - The user can remove tags.
 - The user can filter by tag.
@@ -1086,6 +1137,7 @@ Acceptance criteria:
 As a registered user, I want to archive old QR codes instead of deleting them so that I can clean up my dashboard without losing history.
 
 Acceptance criteria:
+
 - The user can archive a saved QR code.
 - Archived QR codes are hidden from the default dashboard view.
 - The user can view archived QR codes.
@@ -1098,6 +1150,7 @@ Acceptance criteria:
 As a registered user, I want to delete saved QR codes I no longer need so that I can manage my account cleanly.
 
 Acceptance criteria:
+
 - The user can delete a saved QR code.
 - The product requires confirmation before deletion.
 - The confirmation explains what deletion does and does not do.
@@ -1110,6 +1163,7 @@ Acceptance criteria:
 As a registered user, I want to download a saved QR code again so that I can reuse it without rebuilding it.
 
 Acceptance criteria:
+
 - The user can download a saved QR code from the dashboard, detail page, or editor.
 - The user can choose supported formats and sizes during re-download.
 - The exported file matches the saved configuration.
@@ -1121,6 +1175,7 @@ Acceptance criteria:
 As a registered user, I want a detail page for each saved QR code so that I can understand its configuration and available actions.
 
 Acceptance criteria:
+
 - The detail page shows a large preview.
 - The detail page shows name, type, destination or payload summary, created date, updated date, direct/tracking status, and design summary.
 - The detail page provides actions for edit, duplicate, favorite, download, archive, delete, and future tracking setup.
@@ -1132,6 +1187,7 @@ Acceptance criteria:
 As a user moving from anonymous to authenticated, I want my current QR work to survive login or signup so that creating an account does not interrupt my workflow.
 
 Acceptance criteria:
+
 - If the user starts anonymously and then logs in, the in-progress QR code remains available.
 - If the user starts anonymously and then signs up, the in-progress QR code remains available.
 - The user can choose whether to save the anonymous QR code into the account.
@@ -1143,6 +1199,7 @@ Acceptance criteria:
 As a registered user, I want to manage basic account information so that I can maintain access and identity.
 
 Acceptance criteria:
+
 - The user can view account email.
 - The user can update display name.
 - The user can change password if using password-based authentication.
@@ -1155,6 +1212,7 @@ Acceptance criteria:
 As a product owner, I want the Free account plan to have clear, generous limits and upgrade-ready boundaries so that we can monetize later without making the free product feel crippled.
 
 Acceptance criteria:
+
 - The system supports plan-aware limits even if v1 has generous or unlimited free limits.
 - Initial free account capabilities include saving QR codes, editing saved QR codes, favoriting, folders or collections, tags, and re-downloads.
 - Future premium capabilities can be gated without rewriting the account model.
@@ -1167,6 +1225,7 @@ Acceptance criteria:
 As a registered user, I want my saved QR codes to be private to my account so that other users cannot access or modify my work.
 
 Acceptance criteria:
+
 - Saved QR codes are scoped to the owning user.
 - Unauthorized users cannot view, edit, download, archive, or delete another user’s saved QR codes.
 - Backend authorization checks are enforced server-side.
@@ -1178,6 +1237,7 @@ Acceptance criteria:
 As a registered user, I want logos and uploaded assets used in saved QR codes to be stored safely so that my saved designs render correctly later.
 
 Acceptance criteria:
+
 - If a user saves a QR code with a logo, the logo asset can be associated with the saved QR code.
 - Uploaded assets are scanned or validated according to security policy.
 - SVG uploads are sanitized or restricted.
@@ -1190,6 +1250,7 @@ Acceptance criteria:
 As an open-source contributor, I want saved QR configurations to use a clear, versioned schema so that future renderers, import/export tools, and migrations are manageable.
 
 Acceptance criteria:
+
 - Saved QR configurations are represented using a documented schema.
 - The schema includes a version field.
 - The schema separates payload, design, frame, logo, export, and tracking configuration.
@@ -1239,6 +1300,7 @@ In v1, this epic focuses on direct QR and self-managed tracking. Hosted premium 
 As a QR creator, I want to choose whether my QR code is direct or tracked so that I understand exactly what scanners will hit.
 
 Acceptance criteria:
+
 - The QR creation flow defaults to Direct QR.
 - The user can switch to Self-managed tracking.
 - The UI clearly explains the difference between Direct QR and Self-managed tracking.
@@ -1252,6 +1314,7 @@ Acceptance criteria:
 As a user who does not need analytics, I want QR codes to point directly to my destination by default so that I avoid unnecessary redirects, subscriptions, platform lock-in, and privacy concerns.
 
 Acceptance criteria:
+
 - For URL QR codes, Direct QR mode encodes the entered destination URL exactly after safe normalization.
 - The generated QR payload does not use the product’s domain.
 - The generated QR payload does not use a short link service.
@@ -1264,6 +1327,7 @@ Acceptance criteria:
 As a user, I want a simple explanation of direct versus tracked QR codes so that I can choose the right mode for my use case.
 
 Acceptance criteria:
+
 - The UI explains that Direct QR codes are permanent and scan straight to the encoded destination.
 - The UI explains that Direct QR codes cannot provide scan analytics through our platform.
 - The UI explains that changing the destination of an already-printed Direct QR code requires generating and redistributing a new QR code.
@@ -1276,6 +1340,7 @@ Acceptance criteria:
 As a user, I want to provide my own tracking URL so that my QR code can route through infrastructure I control before reaching the final destination.
 
 Acceptance criteria:
+
 - The user can select Self-managed tracking.
 - The user can enter a tracking URL.
 - The user can enter the final destination URL separately.
@@ -1290,6 +1355,7 @@ Acceptance criteria:
 As a user with my own tracking endpoint, I want the product to append the final destination as a parameter so that my tracking service knows where to redirect after logging the scan.
 
 Acceptance criteria:
+
 - The user can configure a destination parameter name, such as `url`, `dest`, `redirect`, or a custom value.
 - The product can generate a tracking URL that includes the encoded final destination as a query parameter.
 - The product safely URL-encodes the destination parameter.
@@ -1302,6 +1368,7 @@ Acceptance criteria:
 As a marketer, I want to add UTM parameters to my destination URL so that I can track QR traffic in my existing analytics tools without needing a redirect.
 
 Acceptance criteria:
+
 - The user can enable UTM parameters in Direct QR mode.
 - The user can enter source, medium, campaign, term, and content values.
 - The product defaults source or medium values sensibly for QR usage, such as `qr` or `offline`.
@@ -1315,6 +1382,7 @@ Acceptance criteria:
 As a registered user, I want to save tracking presets so that I can reuse the same self-managed tracking configuration across multiple QR codes.
 
 Acceptance criteria:
+
 - The user can save a self-managed tracking preset.
 - A preset can include tracking base URL, destination parameter name, fixed query parameters, UTM defaults, and notes.
 - The user can name a preset.
@@ -1328,6 +1396,7 @@ Acceptance criteria:
 As a user, I want guided setup for common analytics tools so that I can track QR traffic using tools I already have.
 
 Acceptance criteria:
+
 - The product provides guidance for common analytics approaches, including UTM tracking for Google Analytics, privacy-friendly analytics tools, custom webhook endpoints, and self-hosted redirect services.
 - The product supports configurable URL parameters for third-party tools.
 - The product does not claim to integrate directly with tools unless an actual integration exists.
@@ -1339,6 +1408,7 @@ Acceptance criteria:
 As a technical user, I want example code for a self-hosted tracking endpoint so that I can run tracking myself.
 
 Acceptance criteria:
+
 - The product includes documentation for a minimal self-hosted tracking endpoint.
 - The example includes request logging and redirect behavior.
 - The example warns against unsafe open redirects.
@@ -1352,6 +1422,7 @@ Acceptance criteria:
 As a user tracking multiple QR codes through my own endpoint, I want each QR code to include an identifier so that I can distinguish scans by code or campaign.
 
 Acceptance criteria:
+
 - The user can add a QR identifier parameter to self-managed tracking URLs.
 - The user can choose a parameter name, such as `qr`, `qid`, or `campaign`.
 - The user can enter a custom identifier or use a generated one.
@@ -1364,6 +1435,7 @@ Acceptance criteria:
 As a user, I want the product to validate my self-managed tracking URL so that I can avoid broken QR codes.
 
 Acceptance criteria:
+
 - The product validates tracking URL syntax client-side.
 - The product can optionally perform a server-side reachability check for registered users.
 - The product can show whether the tracking URL appears reachable.
@@ -1377,6 +1449,7 @@ Acceptance criteria:
 As a user, I want to preview the scan path so that I understand where a scanner will go.
 
 Acceptance criteria:
+
 - Direct QR mode shows a single-step path from QR code to destination URL.
 - Self-managed tracking mode shows a multi-step path from QR code to tracking URL to final destination.
 - The preview shows the actual encoded QR payload.
@@ -1389,6 +1462,7 @@ Acceptance criteria:
 As a user, I want to use self-managed tracking without paying a subscription so that I can own my analytics workflow.
 
 Acceptance criteria:
+
 - Self-managed tracking is available on the free plan.
 - Self-managed tracking does not require a paid subscription.
 - Anonymous users can configure self-managed tracking for a downloadable QR code.
@@ -1401,6 +1475,7 @@ Acceptance criteria:
 As a product owner, I want the tracking model to support future hosted analytics so that paid tracking can be added later without redesigning the product.
 
 Acceptance criteria:
+
 - Saved QR codes include a tracking mode field.
 - Supported tracking modes include at least `direct`, `self_managed`, and future-ready `hosted`.
 - The data model can distinguish final destination URL, encoded URL, tracking provider, tracking configuration, and analytics ownership.
@@ -1413,6 +1488,7 @@ Acceptance criteria:
 As a user, I want the product to be honest about what it can and cannot track so that I can make informed decisions.
 
 Acceptance criteria:
+
 - Direct QR mode does not claim scan analytics are available through our platform.
 - UTM tracking is described as website analytics, not QR scan analytics.
 - Self-managed redirect tracking is described as dependent on the user’s endpoint.
@@ -1425,6 +1501,7 @@ Acceptance criteria:
 As a user, I want guidance on responsible tracking so that I do not accidentally collect sensitive or unnecessary scan data.
 
 Acceptance criteria:
+
 - The product includes basic privacy guidance for tracking setups.
 - The product warns against collecting unnecessary personal information.
 - The product explains that IP addresses, user agents, and precise location handling may have privacy and compliance implications.
@@ -1437,6 +1514,7 @@ Acceptance criteria:
 As a registered user, I want my tracking configuration saved with each QR code so that I can understand and reproduce the scan behavior later.
 
 Acceptance criteria:
+
 - Saved QR records include tracking mode.
 - Saved QR records include the encoded QR payload.
 - Saved QR records include final destination URL where applicable.
@@ -1450,6 +1528,7 @@ Acceptance criteria:
 As a registered user, I want clear warnings when changing saved QR codes so that I understand whether printed codes will still work as expected.
 
 Acceptance criteria:
+
 - Editing a Direct QR payload warns that already-downloaded or printed codes will not change.
 - Editing a Self-managed tracking destination explains whether the encoded tracking URL changes.
 - If the self-managed tracking endpoint uses a destination parameter embedded in the QR payload, changing the destination requires redistributing a new QR code.
@@ -1461,6 +1540,7 @@ Acceptance criteria:
 As a registered user, I want to export or copy a summary of my tracking setup so that I can configure my analytics system or share instructions with a developer.
 
 Acceptance criteria:
+
 - The user can copy the final encoded QR URL.
 - The user can copy the final destination URL.
 - The user can copy the tracking URL template.
@@ -1473,6 +1553,7 @@ Acceptance criteria:
 As a user, I want a clear visual indicator of the QR code’s scan mode so that I do not confuse direct, self-managed, and hosted-tracked codes.
 
 Acceptance criteria:
+
 - The editor shows the current tracking mode.
 - The dashboard shows the current tracking mode for saved QR codes.
 - The detail page shows the current tracking mode.
@@ -1517,6 +1598,7 @@ The user must always understand that hosted dynamic QR codes encode one of our m
 As a registered user, I want to upgrade a QR code to hosted dynamic mode so that I can change its destination later and use managed analytics.
 
 Acceptance criteria:
+
 - Hosted dynamic mode is available only to authenticated users.
 - The user can select Hosted tracking or Dynamic QR mode from the QR editor.
 - The UI clearly explains that hosted dynamic QR codes route through our managed redirect URL.
@@ -1531,6 +1613,7 @@ Acceptance criteria:
 As a hosted tracking user, I want the system to create a managed redirect link so that scans can be routed, measured, and forwarded to the final destination.
 
 Acceptance criteria:
+
 - The system creates a unique redirect identifier for each hosted dynamic QR code.
 - The redirect URL is stable after creation.
 - The redirect URL resolves quickly to the current destination URL.
@@ -1544,6 +1627,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to change the destination URL after the QR code has already been downloaded or printed so that I can update campaigns without redistributing the QR code.
 
 Acceptance criteria:
+
 - The user can edit the destination URL for a hosted dynamic QR code.
 - The encoded QR payload remains the same after destination edits.
 - Future scans route to the updated destination.
@@ -1557,6 +1641,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to see destination history so that I can audit where a QR code has pointed over time.
 
 Acceptance criteria:
+
 - The system stores destination change history.
 - Destination history includes previous URL, new URL, timestamp, and actor.
 - The user can view destination history from the QR detail page.
@@ -1569,6 +1654,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to pause a QR code so that scans stop redirecting during expired, incorrect, or risky campaigns.
 
 Acceptance criteria:
+
 - The user can pause a hosted dynamic QR code.
 - Paused QR codes do not redirect to the destination.
 - Paused QR codes show a configurable fallback page or default inactive message.
@@ -1581,6 +1667,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to configure what scanners see when a QR code is paused, expired, or unavailable so that the experience remains professional.
 
 Acceptance criteria:
+
 - The user can choose a default inactive page.
 - The user can configure a fallback URL.
 - The user can configure simple fallback copy for hosted inactive pages.
@@ -1593,6 +1680,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to set expiration rules so that campaign QR codes stop working or redirect elsewhere after a campaign ends.
 
 Acceptance criteria:
+
 - The user can set an optional expiration date and time.
 - The user can choose what happens after expiration: inactive page, fallback URL, or preserve current destination if no expiration behavior is selected.
 - Expiration status is visible on the dashboard and detail page.
@@ -1605,6 +1693,7 @@ Acceptance criteria:
 As a hosted analytics user, I want scan events recorded when people scan my hosted QR code so that I can measure engagement.
 
 Acceptance criteria:
+
 - The redirect service records scan timestamp.
 - The redirect service records QR code identifier.
 - The redirect service records destination active at the time of scan.
@@ -1620,6 +1709,7 @@ Acceptance criteria:
 As a platform owner, I want hosted tracking to collect analytics responsibly so that users get useful insights without creating unnecessary privacy risk.
 
 Acceptance criteria:
+
 - The product defines a scan data collection policy.
 - The system supports IP truncation or hashing according to privacy settings.
 - The system avoids collecting unnecessary personal information.
@@ -1633,6 +1723,7 @@ Acceptance criteria:
 As a hosted analytics user, I want a simple analytics summary so that I can quickly understand QR performance.
 
 Acceptance criteria:
+
 - The QR detail page shows total scans.
 - The QR detail page shows unique-ish scans where the system can estimate them responsibly.
 - The QR detail page shows scans over time.
@@ -1647,6 +1738,7 @@ Acceptance criteria:
 As a hosted analytics user, I want an account-level analytics dashboard so that I can compare QR performance across campaigns.
 
 Acceptance criteria:
+
 - The dashboard shows total hosted scans across selected QR codes.
 - The dashboard shows top-performing QR codes.
 - The dashboard shows scans over time.
@@ -1660,6 +1752,7 @@ Acceptance criteria:
 As a hosted analytics user, I want to filter analytics by date range so that I can measure specific campaign windows.
 
 Acceptance criteria:
+
 - The user can select common date ranges such as today, yesterday, last 7 days, last 30 days, this month, last month, and custom range.
 - Date range filters apply to charts, totals, and tables.
 - Date range filters use the user’s selected timezone where possible.
@@ -1671,6 +1764,7 @@ Acceptance criteria:
 As a hosted analytics user, I want to view a scan event table so that I can inspect individual scan records when needed.
 
 Acceptance criteria:
+
 - The user can view recent scan events for a hosted QR code.
 - Each row can show timestamp, approximate location, device type, browser, OS, referrer, destination, and bot/duplicate indicators where available.
 - The table supports pagination.
@@ -1683,6 +1777,7 @@ Acceptance criteria:
 As a hosted analytics user, I want scans filtered for bots and obvious duplicates so that analytics are more useful.
 
 Acceptance criteria:
+
 - The system attempts to identify likely bot scans using user agent, request patterns, known crawlers, and other safe heuristics.
 - The analytics UI can show total scans and filtered scans.
 - The system marks likely duplicate scans within a configurable time window.
@@ -1695,6 +1790,7 @@ Acceptance criteria:
 As a hosted analytics user, I want to export scan analytics so that I can analyze campaign performance outside the product.
 
 Acceptance criteria:
+
 - The user can export summary analytics as CSV.
 - The user can export scan event data as CSV if included in their plan.
 - Exports respect date range filters.
@@ -1707,6 +1803,7 @@ Acceptance criteria:
 As an advanced hosted analytics user, I want webhook notifications for scans so that I can send scan events into my own systems.
 
 Acceptance criteria:
+
 - The user can configure a webhook URL for hosted scan events.
 - The system sends webhook payloads for eligible scans.
 - Webhook payloads include QR identifier, timestamp, destination, and available analytics metadata.
@@ -1720,6 +1817,7 @@ Acceptance criteria:
 As a hosted dynamic QR user, I want to customize the short slug for my hosted QR code so that the encoded URL is readable and campaign-friendly.
 
 Acceptance criteria:
+
 - The user can request a custom slug where available.
 - Slugs are validated for allowed characters and length.
 - Slugs must be unique within the selected domain.
@@ -1732,6 +1830,7 @@ Acceptance criteria:
 As a business user, I want hosted QR redirects to use my own domain so that scanners trust the link and the experience is brand-aligned.
 
 Acceptance criteria:
+
 - The user can add a custom domain for hosted redirects.
 - The system provides DNS setup instructions.
 - The system verifies domain ownership.
@@ -1745,6 +1844,7 @@ Acceptance criteria:
 As a hosted QR user without a custom domain, I want a trustworthy managed short domain so that I can use hosted tracking without configuring DNS.
 
 Acceptance criteria:
+
 - The platform provides a default managed redirect domain.
 - The managed domain is short, readable, and brand-appropriate.
 - Hosted QR URLs on the managed domain are stable.
@@ -1757,6 +1857,7 @@ Acceptance criteria:
 As a marketer, I want to group hosted QR codes into campaigns so that I can measure related codes together.
 
 Acceptance criteria:
+
 - The user can create a campaign.
 - The user can assign hosted QR codes to a campaign.
 - Campaigns can have name, description, start date, end date, and tags.
@@ -1769,6 +1870,7 @@ Acceptance criteria:
 As a product owner, I want hosted dynamic QR usage to be plan-aware so that we can monetize fairly while preserving a generous free product.
 
 Acceptance criteria:
+
 - The system can enforce limits by plan.
 - Limits can include number of hosted dynamic QR codes, scan volume, analytics retention, event export, custom domains, webhooks, team seats, and API access.
 - Free users can see hosted features but are not misled into thinking they are already included.
@@ -1781,6 +1883,7 @@ Acceptance criteria:
 As a subscribed user, I want to understand what happens to hosted QR codes if I cancel or downgrade so that I can avoid breaking printed campaigns unexpectedly.
 
 Acceptance criteria:
+
 - The product clearly explains downgrade behavior before cancellation.
 - The system defines whether hosted QR codes continue redirecting, pause, switch to limited mode, or enter grace period.
 - The system can enforce grace periods.
@@ -1793,6 +1896,7 @@ Acceptance criteria:
 As a platform operator, I want hosted redirect health monitored so that paid QR scans remain fast and reliable.
 
 Acceptance criteria:
+
 - The redirect service has uptime monitoring.
 - The redirect service tracks latency.
 - The redirect service tracks error rates.
@@ -1805,6 +1909,7 @@ Acceptance criteria:
 As a platform owner, I want to prevent hosted redirects from being used for phishing, malware, spam, or abuse so that the service remains trustworthy.
 
 Acceptance criteria:
+
 - The system validates destination URLs.
 - The system can block known malicious domains.
 - The system can suspend abusive hosted QR codes.
@@ -1818,6 +1923,7 @@ Acceptance criteria:
 As an open-source contributor, I want the hosted redirect and analytics system to be clearly designed so that it can be reviewed, extended, and self-hosted where appropriate.
 
 Acceptance criteria:
+
 - The hosted redirect service has a documented architecture.
 - The scan event schema is documented and versioned.
 - The redirect flow is testable in local development.
@@ -1870,6 +1976,7 @@ The design studio should work for anonymous users at a basic level, while saved 
 As a QR creator, I want to start from a design template so that I can create a polished QR code quickly.
 
 Acceptance criteria:
+
 - The user can browse predefined QR design templates.
 - Templates include combinations of module style, marker style, colors, logo plate, frame, CTA text, and export defaults.
 - Templates are grouped by use case, such as business card, restaurant menu, coupon, event, social profile, product packaging, real estate sign, flyer, table tent, and donation/payment.
@@ -1883,6 +1990,7 @@ Acceptance criteria:
 As a user, I want templates organized by category so that I can quickly find a design appropriate to my use case.
 
 Acceptance criteria:
+
 - Templates are organized into clear categories.
 - The user can filter templates by category.
 - The user can search templates by name or use case.
@@ -1894,6 +2002,7 @@ Acceptance criteria:
 As a registered user, I want to save my current QR design as a reusable style so that I can apply the same look to future QR codes.
 
 Acceptance criteria:
+
 - The user can save the current design settings as a style.
 - Saved styles include module style, marker styles, colors, frame settings, CTA styling, logo plate settings, quiet-zone settings, and export preferences.
 - Saved styles do not include payload data unless explicitly duplicated as a QR code.
@@ -1906,6 +2015,7 @@ Acceptance criteria:
 As a registered user, I want to manage saved styles so that I can keep my design library clean and useful.
 
 Acceptance criteria:
+
 - The user can view saved styles.
 - The user can rename a saved style.
 - The user can duplicate a saved style.
@@ -1919,6 +2029,7 @@ Acceptance criteria:
 As a registered user, I want to create a brand kit so that I can reuse my brand colors, logos, and design defaults across QR codes.
 
 Acceptance criteria:
+
 - The user can create a brand kit.
 - A brand kit can include brand name, primary color, secondary color, accent colors, default foreground color, default background color, logos, and default style preferences.
 - The user can choose a default brand kit.
@@ -1931,6 +2042,7 @@ Acceptance criteria:
 As a registered user, I want to manage brand colors so that QR codes stay visually consistent with my brand.
 
 Acceptance criteria:
+
 - The user can add colors to a brand kit.
 - The user can name colors.
 - The user can enter colors by hex value.
@@ -1945,6 +2057,7 @@ Acceptance criteria:
 As a registered user, I want a logo library so that I can reuse logos without uploading them every time.
 
 Acceptance criteria:
+
 - The user can upload logos to an asset library.
 - Supported formats include PNG, JPG, SVG, and WebP where safely supported.
 - The user can name uploaded logos.
@@ -1959,6 +2072,7 @@ Acceptance criteria:
 As a QR designer, I want precise logo placement and background plate controls so that my logo looks clean without breaking scan reliability.
 
 Acceptance criteria:
+
 - The user can place a logo in the center of the QR code.
 - The user can adjust logo size within safe limits.
 - The user can choose a logo plate shape, including none, square, rounded square, circle, pill, and soft badge.
@@ -1972,6 +2086,7 @@ Acceptance criteria:
 As an advanced designer, I want detailed control over QR module shape so that I can create distinctive QR codes.
 
 Acceptance criteria:
+
 - The user can choose module styles, including square, circle/dot, rounded square, extra-rounded, vertical rounded, horizontal rounded, diamond, star, teardrop, leaf, and mixed organic styles.
 - The user can adjust roundness where applicable.
 - The user can adjust module spacing within safe limits.
@@ -1985,6 +2100,7 @@ Acceptance criteria:
 As an advanced designer, I want detailed control over finder markers so that the QR code corners fit my brand style.
 
 Acceptance criteria:
+
 - The user can configure finder marker outer shape.
 - The user can configure finder marker inner shape.
 - Outer styles include square, rounded square, circle, extra-rounded, cut-corner, bracket, leaf, shield, and teardrop-inspired styles.
@@ -1999,6 +2115,7 @@ Acceptance criteria:
 As a designer, I want advanced color options so that QR codes can match more sophisticated visual systems.
 
 Acceptance criteria:
+
 - The user can apply solid foreground and background colors.
 - The user can apply gradients to foreground modules where supported.
 - The user can choose linear or radial gradient styles where supported.
@@ -2012,6 +2129,7 @@ Acceptance criteria:
 As a designer, I want to place a QR code on a subtle background image or texture so that it fits branded creative.
 
 Acceptance criteria:
+
 - The user can upload or choose a background image or texture for the overall QR artwork, not inside critical data modules by default.
 - The product can place the QR code over the background with a safe quiet zone or background plate.
 - The user can adjust background opacity where supported.
@@ -2024,6 +2142,7 @@ Acceptance criteria:
 As a user, I want a library of frames and stickers so that my QR code has clear visual context and a call to action.
 
 Acceptance criteria:
+
 - The user can browse frame and sticker presets.
 - Presets include no frame, simple border, scan me, menu, coupon, event ticket, social follow, app download, Wi-Fi access, payment, feedback, review us, and contact card styles.
 - The user can customize frame color.
@@ -2037,6 +2156,7 @@ Acceptance criteria:
 As a user, I want to edit the text around my QR code so that scanners know what action to take.
 
 Acceptance criteria:
+
 - The user can edit CTA text on supported frames.
 - The user can choose from suggested CTA copy.
 - Suggested CTAs vary by QR type, such as “Scan to order,” “View menu,” “Join Wi-Fi,” “Save contact,” “Get coupon,” “Leave a review,” and “Follow us.”
@@ -2049,6 +2169,7 @@ Acceptance criteria:
 As a user, I want design defaults tailored to the QR type so that the QR code looks appropriate for its use case.
 
 Acceptance criteria:
+
 - URL QR codes have general-purpose templates.
 - Menu QR codes emphasize restaurant/table use.
 - Coupon QR codes emphasize offer clarity.
@@ -2063,6 +2184,7 @@ Acceptance criteria:
 As a user, I want a scannability score so that I know whether my design is likely to scan reliably.
 
 Acceptance criteria:
+
 - The product displays a scannability score or status.
 - The score considers contrast, quiet zone, logo size, error correction, payload density, module shape, marker shape, background complexity, and output size.
 - The score updates as the user edits the design.
@@ -2075,6 +2197,7 @@ Acceptance criteria:
 As a user, I want one-click fixes for scan risks so that I can improve reliability without understanding QR technical details.
 
 Acceptance criteria:
+
 - The product recommends fixes for common issues.
 - Fixes include increase contrast, restore quiet zone, reduce logo size, increase error correction, simplify module shape, simplify marker shape, remove background complexity, and increase export size.
 - The user can apply a recommended fix with one action.
@@ -2086,6 +2209,7 @@ Acceptance criteria:
 As a designer, I want to compare design variations so that I can choose the best-looking scannable option.
 
 Acceptance criteria:
+
 - The user can preview the current design and a recommended safer version.
 - The user can switch between variations.
 - The user can duplicate a design variation.
@@ -2097,6 +2221,7 @@ Acceptance criteria:
 As an open-source contributor, I want QR design configurations represented in a documented versioned schema so that renderers, saved styles, templates, and migrations remain maintainable.
 
 Acceptance criteria:
+
 - Design configuration has a version field.
 - The schema separates modules, markers, colors, logo, frame, CTA, background, quiet zone, export preferences, and validation metadata.
 - Templates and saved styles use the same underlying schema where practical.
@@ -2109,6 +2234,7 @@ Acceptance criteria:
 As an open-source contributor, I want to add community templates so that the template library can grow beyond core maintainers.
 
 Acceptance criteria:
+
 - Templates can be defined in a portable configuration format.
 - Each template includes name, category, preview metadata, design configuration, supported QR types, and attribution where appropriate.
 - Templates can be validated automatically.
@@ -2121,6 +2247,7 @@ Acceptance criteria:
 As a power user, I want to import and export design styles so that I can share branded QR styles across environments or self-hosted instances.
 
 Acceptance criteria:
+
 - The user can export a saved style as JSON.
 - The user can import a compatible style JSON file.
 - Imported styles are validated before saving.
@@ -2133,6 +2260,7 @@ Acceptance criteria:
 As a product owner, I want advanced design features to be plan-aware so that we can monetize power features without crippling the free creator.
 
 Acceptance criteria:
+
 - The plan model can gate premium templates, multiple brand kits, larger asset libraries, advanced gradients, background images, team brand kits, custom fonts, and bulk style application.
 - Free users retain enough customization to create attractive QR codes.
 - Gated features are clearly labeled.
@@ -2145,6 +2273,7 @@ Acceptance criteria:
 As a user with accessibility needs, I want the design studio to be usable with keyboard and assistive technologies so that I can create QR codes effectively.
 
 Acceptance criteria:
+
 - Design controls are keyboard accessible.
 - Color controls have text alternatives and manual input.
 - Template previews have meaningful names.
@@ -2157,6 +2286,7 @@ Acceptance criteria:
 As a mobile user, I want to customize QR codes on a phone or tablet so that I can create and edit QR codes without needing a desktop.
 
 Acceptance criteria:
+
 - The design studio works on mobile screen sizes.
 - Core controls are usable with touch.
 - The preview remains visible or easily accessible while editing.
@@ -2169,6 +2299,7 @@ Acceptance criteria:
 As a user, I want design changes to preview quickly and export accurately so that the studio feels professional and dependable.
 
 Acceptance criteria:
+
 - Common design changes update preview quickly.
 - Exports match preview.
 - Complex designs do not freeze the browser under normal use.
@@ -2220,6 +2351,7 @@ Hosted destination experiences can be free, account-required, or premium dependi
 As a creator, I want to choose a QR type from a catalog so that I start with the right fields and defaults for my use case.
 
 Acceptance criteria:
+
 - The user can view a catalog of supported QR types.
 - QR types are grouped by clear categories.
 - The catalog includes at least Website URL, Text, Email, Phone, SMS, Wi-Fi, vCard/contact, Location, Social, App Download, PDF, Image, Menu, Coupon, Event, Feedback, Review/Rating, Business Page, Multi-link Page, Crypto, and Payment Link.
@@ -2233,6 +2365,7 @@ Acceptance criteria:
 As a user, I want to create a website QR code so that scanners open a web page.
 
 Acceptance criteria:
+
 - The user can enter an HTTP or HTTPS URL.
 - The product validates URL format.
 - Direct mode encodes the destination URL directly.
@@ -2246,6 +2379,7 @@ Acceptance criteria:
 As a user, I want to create a plain text QR code so that scanners see or copy a text payload.
 
 Acceptance criteria:
+
 - The user can enter plain text.
 - The product enforces practical payload length limits.
 - The preview shows the encoded text payload.
@@ -2258,6 +2392,7 @@ Acceptance criteria:
 As a user, I want to create an email QR code so that scanners can start an email draft.
 
 Acceptance criteria:
+
 - The user can enter recipient email address.
 - The user can optionally enter subject.
 - The user can optionally enter body text.
@@ -2271,6 +2406,7 @@ Acceptance criteria:
 As a user, I want to create a phone QR code so that scanners can initiate a call.
 
 Acceptance criteria:
+
 - The user can enter a phone number.
 - The product supports international number formats.
 - The product generates a valid `tel:` payload.
@@ -2282,6 +2418,7 @@ Acceptance criteria:
 As a user, I want to create an SMS QR code so that scanners can start a text message.
 
 Acceptance criteria:
+
 - The user can enter a phone number.
 - The user can optionally enter message body.
 - The product generates a valid SMS payload.
@@ -2294,6 +2431,7 @@ Acceptance criteria:
 As a user, I want to create a Wi-Fi QR code so that scanners can join a network easily.
 
 Acceptance criteria:
+
 - The user can enter network SSID.
 - The user can enter password.
 - The user can select encryption type, including WPA/WPA2/WPA3, WEP, or none.
@@ -2307,6 +2445,7 @@ Acceptance criteria:
 As a user, I want to create a contact QR code so that scanners can save my contact details.
 
 Acceptance criteria:
+
 - The user can enter first name, last name, organization, title, phone, email, website, address, and notes.
 - The product generates a valid vCard payload.
 - Required fields are minimal so users can create simple contact cards quickly.
@@ -2319,6 +2458,7 @@ Acceptance criteria:
 As a user, I want to create a location QR code so that scanners can open a map or navigation destination.
 
 Acceptance criteria:
+
 - The user can enter an address, map URL, or coordinates.
 - Direct mode can encode a map URL.
 - The product can normalize common map links where safe.
@@ -2331,6 +2471,7 @@ Acceptance criteria:
 As a user, I want to create a social profile QR code so that scanners can open my social account.
 
 Acceptance criteria:
+
 - The user can choose a social platform.
 - Supported platforms include Instagram, TikTok, Facebook, LinkedIn, X/Twitter, YouTube, Pinterest, Snapchat, Threads, WhatsApp, and other configurable platforms.
 - The user can enter a handle or URL.
@@ -2343,6 +2484,7 @@ Acceptance criteria:
 As a creator, I want a hosted multi-link page so that one QR code can point to multiple social profiles, websites, or calls to action.
 
 Acceptance criteria:
+
 - The user can create a hosted multi-link destination page.
 - The user can add multiple links with labels.
 - The user can reorder links.
@@ -2356,6 +2498,7 @@ Acceptance criteria:
 As a user, I want to create an app download QR code so that scanners can install or open an app.
 
 Acceptance criteria:
+
 - The user can enter App Store URL.
 - The user can enter Google Play URL.
 - The user can enter fallback website URL.
@@ -2369,6 +2512,7 @@ Acceptance criteria:
 As a user, I want to create a PDF QR code so that scanners can view or download a PDF.
 
 Acceptance criteria:
+
 - The user can enter an existing PDF URL for direct mode.
 - Registered users can upload a PDF for hosted storage if supported by plan.
 - Uploaded PDFs are validated for file type and size.
@@ -2381,6 +2525,7 @@ Acceptance criteria:
 As a user, I want to create an image QR code so that scanners can view an image.
 
 Acceptance criteria:
+
 - The user can enter an existing image URL for direct mode.
 - Registered users can upload an image for hosted storage if supported by plan.
 - Supported image formats include PNG, JPG, WebP, and GIF where appropriate.
@@ -2393,6 +2538,7 @@ Acceptance criteria:
 As a restaurant operator, I want to create a menu QR code so that guests can quickly view my menu.
 
 Acceptance criteria:
+
 - The user can enter an existing menu URL for direct mode.
 - The user can optionally create a hosted menu landing page if hosted menu support exists.
 - Menu QR templates emphasize table tent, counter sign, and sticker use cases.
@@ -2405,6 +2551,7 @@ Acceptance criteria:
 As a marketer, I want to create a coupon QR code so that scanners can view or redeem an offer.
 
 Acceptance criteria:
+
 - The user can enter a coupon landing page URL for direct mode.
 - Registered users can create a hosted coupon page if supported.
 - Coupon fields include offer title, description, promo code, expiration date, redemption instructions, and terms.
@@ -2418,6 +2565,7 @@ Acceptance criteria:
 As an event organizer, I want to create an event QR code so that scanners can view event details, RSVP, or add the event to a calendar.
 
 Acceptance criteria:
+
 - The user can create a static calendar-style payload where supported.
 - The user can enter event name, location, start date/time, end date/time, timezone, description, and URL.
 - The user can create a direct QR to an external event page.
@@ -2430,6 +2578,7 @@ Acceptance criteria:
 As a business owner, I want to create a feedback QR code so that customers can send feedback after an experience.
 
 Acceptance criteria:
+
 - The user can enter an external feedback form URL for direct mode.
 - Registered users can create a hosted feedback form if supported.
 - Hosted feedback forms can collect rating, comment, name, email, phone, and optional custom fields according to configuration.
@@ -2442,6 +2591,7 @@ Acceptance criteria:
 As a business owner, I want to create a review QR code so that happy customers can leave a public review or rating.
 
 Acceptance criteria:
+
 - The user can enter a Google review URL, Yelp URL, TripAdvisor URL, Facebook review URL, or other supported review destination.
 - The product provides guidance for obtaining review links where possible.
 - The user can configure CTA copy such as “Leave us a review.”
@@ -2454,6 +2604,7 @@ Acceptance criteria:
 As a business owner, I want to create a hosted business profile page so that scanners can view my business information from one QR code.
 
 Acceptance criteria:
+
 - Registered users can create a hosted business page.
 - Business page fields include business name, logo, description, website, phone, email, address, hours, social links, and CTA buttons.
 - The hosted page is mobile-friendly.
@@ -2466,6 +2617,7 @@ Acceptance criteria:
 As a user, I want to create a crypto wallet QR code so that scanners can copy or open a wallet/payment address.
 
 Acceptance criteria:
+
 - The user can select a crypto network or asset.
 - The user can enter a wallet address.
 - The user can optionally enter an amount, label, or message where supported by the asset URI scheme.
@@ -2479,6 +2631,7 @@ Acceptance criteria:
 As a user, I want to create a payment link QR code so that scanners can pay through an existing payment provider.
 
 Acceptance criteria:
+
 - The user can enter an external payment link.
 - The product supports common payment link destinations such as Stripe Payment Links, Square, PayPal, Venmo, Cash App, Toast ordering/payment links, and other configurable providers.
 - Direct mode encodes the payment link URL.
@@ -2491,6 +2644,7 @@ Acceptance criteria:
 As a platform owner, I want a clear storage model for hosted PDFs, images, and mini-pages so that user content is secure, scalable, and plan-aware.
 
 Acceptance criteria:
+
 - Hosted files are associated with the owning user or workspace.
 - File size limits are plan-aware.
 - Supported file types are explicitly allowed.
@@ -2504,6 +2658,7 @@ Acceptance criteria:
 As a creator, I want to preview the scan destination experience so that I can verify what scanners will see.
 
 Acceptance criteria:
+
 - The user can preview static payload summary.
 - The user can preview URL destination.
 - The user can preview hosted mini-pages before publishing.
@@ -2516,6 +2671,7 @@ Acceptance criteria:
 As a registered user, I want to publish hosted destination pages so that scanners can access them through a QR code.
 
 Acceptance criteria:
+
 - Hosted destination pages can be saved as draft.
 - Hosted destination pages can be published.
 - Hosted destination pages can be unpublished or paused.
@@ -2529,6 +2685,7 @@ Acceptance criteria:
 As a registered user, I want to apply themes to hosted destination pages so that scan experiences look professional and brand-aligned.
 
 Acceptance criteria:
+
 - The user can select a basic theme for hosted pages.
 - The user can apply brand kit colors and logo where available.
 - The user can preview themes before publishing.
@@ -2541,6 +2698,7 @@ Acceptance criteria:
 As a user, I want to understand which QR types work with direct, self-managed, and hosted tracking so that I choose the right setup.
 
 Acceptance criteria:
+
 - Each QR type declares compatible scan modes.
 - Static payload types show direct/static as the default and may not support hosted tracking without conversion to a hosted page.
 - URL-based types support direct, self-managed, and hosted dynamic modes where applicable.
@@ -2553,6 +2711,7 @@ Acceptance criteria:
 As an open-source contributor, I want QR types defined through clear schemas and handlers so that new QR types can be added safely.
 
 Acceptance criteria:
+
 - Each QR type has a schema for fields, validation rules, payload generation, preview behavior, and scan-mode compatibility.
 - QR type definitions are versioned.
 - QR type payload generation is covered by tests.
@@ -2565,6 +2724,7 @@ Acceptance criteria:
 As a user, I want each QR type to suggest appropriate designs and CTAs so that the final QR code makes sense for its purpose.
 
 Acceptance criteria:
+
 - Each QR type can suggest templates.
 - Each QR type can suggest CTA text.
 - Each QR type can suggest frames or stickers.
@@ -2579,6 +2739,7 @@ Acceptance criteria:
 As a user, I want sensitive QR payloads handled carefully so that private data is not exposed unnecessarily.
 
 Acceptance criteria:
+
 - The product warns users before creating QR codes containing passwords, private contact details, wallet addresses, or other sensitive information.
 - Anonymous sensitive payloads are stored only locally unless the user chooses to save them.
 - Saved sensitive payloads are protected by account authorization.
@@ -2614,9 +2775,11 @@ The export experience is a major trust moment. Users should not spend time desig
 ## User Stories
 
 ### Story 7.1: Export as PNG
+
 As a user, I want to download a PNG so that I can use the QR code in digital and print materials.
 
 Acceptance criteria:
+
 - The user can export PNG without login.
 - The user can choose size/resolution.
 - PNG supports transparent background where selected.
@@ -2624,9 +2787,11 @@ Acceptance criteria:
 - The file name is safe and useful.
 
 ### Story 7.2: Export as JPG
+
 As a user, I want to download a JPG so that I can use the QR code in common image workflows.
 
 Acceptance criteria:
+
 - The user can export JPG without login.
 - The product explains that JPG does not support transparency.
 - The user can choose quality/compression where appropriate.
@@ -2634,9 +2799,11 @@ Acceptance criteria:
 - The export preserves scan reliability.
 
 ### Story 7.3: Export as SVG
+
 As a user, I want to download an SVG so that I can use the QR code as a scalable vector asset.
 
 Acceptance criteria:
+
 - The user can export SVG.
 - SVG output scales without pixelation.
 - SVG preserves supported design settings.
@@ -2644,9 +2811,11 @@ Acceptance criteria:
 - SVG output is sanitized and safe.
 
 ### Story 7.4: Export as EPS or print vector format
+
 As a print user, I want an EPS or equivalent print-friendly vector export so that I can send QR assets to production vendors.
 
 Acceptance criteria:
+
 - The user can export EPS or a suitable print-focused vector format.
 - The product explains any design features that cannot be represented in EPS.
 - The export preserves QR geometry and quiet zone.
@@ -2654,9 +2823,11 @@ Acceptance criteria:
 - If EPS is deferred, PDF/SVG print export is clearly offered as the initial alternative.
 
 ### Story 7.5: Export as PDF
+
 As a user, I want to export a print-ready PDF so that I can share or print QR assets reliably.
 
 Acceptance criteria:
+
 - The user can export PDF.
 - PDF output can include the QR code alone or QR code with frame/CTA.
 - The user can choose page size or asset-only output where supported.
@@ -2664,9 +2835,11 @@ Acceptance criteria:
 - PDF export honors margins and quiet zones.
 
 ### Story 7.6: Configure export size
+
 As a user, I want to choose export dimensions so that the QR code fits my target use case.
 
 Acceptance criteria:
+
 - The user can choose common sizes.
 - The user can enter custom pixel dimensions for raster exports.
 - The product enforces safe min/max sizes.
@@ -2674,9 +2847,11 @@ Acceptance criteria:
 - Export size is saved with QR configuration for registered users.
 
 ### Story 7.7: Configure quiet zone
+
 As a user, I want to configure QR margin/quiet zone so that the code scans reliably in real-world placements.
 
 Acceptance criteria:
+
 - The user can choose quiet-zone size.
 - The product recommends a safe default.
 - The product warns when quiet zone is too small.
@@ -2684,18 +2859,22 @@ Acceptance criteria:
 - Exported files preserve quiet-zone settings.
 
 ### Story 7.8: Print-readiness checklist
+
 As a user, I want a print-readiness checklist so that I avoid costly mistakes before ordering materials.
 
 Acceptance criteria:
+
 - The checklist includes scan test, contrast, size, quiet zone, logo size, and destination verification.
 - The checklist appears before high-resolution or print-format download.
 - The user can proceed after acknowledging warnings.
 - The checklist is concise and actionable.
 
 ### Story 7.9: Download design package
+
 As a registered user, I want to download a package of QR assets so that I have all formats needed for production.
 
 Acceptance criteria:
+
 - The user can download a ZIP package.
 - The package can include PNG, SVG, PDF, JPG, and metadata summary.
 - The package includes the encoded payload or hosted URL summary.
@@ -2703,9 +2882,11 @@ Acceptance criteria:
 - The package file name is useful and safe.
 
 ### Story 7.10: Ensure preview/export parity
+
 As a user, I want downloads to match the on-screen preview so that I trust the design studio.
 
 Acceptance criteria:
+
 - Export rendering uses the same canonical configuration as preview rendering.
 - Known format differences are disclosed before export.
 - Regression tests verify representative preview/export parity.
@@ -2734,9 +2915,11 @@ Bulk creation is a strong paid/business wedge. It turns the product from a simpl
 ## User Stories
 
 ### Story 8.1: Upload CSV for bulk creation
+
 As a user, I want to upload a CSV so that I can generate many QR codes at once.
 
 Acceptance criteria:
+
 - The user can upload a CSV file.
 - The product validates file type and size.
 - The product detects headers.
@@ -2744,9 +2927,11 @@ Acceptance criteria:
 - Invalid rows are clearly identified.
 
 ### Story 8.2: Map CSV columns to QR fields
+
 As a user, I want to map CSV columns to QR fields so that my data generates the right QR codes.
 
 Acceptance criteria:
+
 - The user can map columns to required and optional QR fields.
 - The product suggests mappings based on header names.
 - Required fields are enforced.
@@ -2754,9 +2939,11 @@ Acceptance criteria:
 - The user can preview sample generated payloads.
 
 ### Story 8.3: Generate many QR codes from one design
+
 As a user, I want to apply one design to many QR codes so that a batch looks consistent.
 
 Acceptance criteria:
+
 - The user can choose a template, saved style, or brand kit for a batch.
 - The design applies consistently to all generated QR codes.
 - Per-row overrides are supported where mapped.
@@ -2764,9 +2951,11 @@ Acceptance criteria:
 - Problem rows are flagged before export.
 
 ### Story 8.4: Bulk create hosted dynamic QR codes
+
 As a paid user, I want to bulk create hosted dynamic QR codes so that I can manage destinations and analytics at scale.
 
 Acceptance criteria:
+
 - Bulk hosted creation is plan-aware.
 - Each row creates a unique hosted redirect.
 - Each hosted QR stores its destination and metadata.
@@ -2774,9 +2963,11 @@ Acceptance criteria:
 - The product summarizes success and failure counts.
 
 ### Story 8.5: Bulk download QR codes
+
 As a user, I want to download many QR codes at once so that I can hand them off to production.
 
 Acceptance criteria:
+
 - The user can download a ZIP of generated QR codes.
 - File names can use mapped row fields.
 - The user can choose export format and size.
@@ -2784,9 +2975,11 @@ Acceptance criteria:
 - Large jobs use asynchronous job handling where needed.
 
 ### Story 8.6: Bulk edit metadata
+
 As a registered user, I want to edit metadata for multiple saved QR codes so that I can manage campaigns efficiently.
 
 Acceptance criteria:
+
 - The user can select multiple QR codes.
 - The user can apply tags, folders, campaigns, or favorites in bulk.
 - The user can archive or restore in bulk.
@@ -2794,9 +2987,11 @@ Acceptance criteria:
 - Ownership and permission checks are enforced server-side.
 
 ### Story 8.7: Bulk update hosted destinations
+
 As a hosted analytics user, I want to update destinations for multiple hosted QR codes so that I can manage campaign changes quickly.
 
 Acceptance criteria:
+
 - The user can upload destination updates by CSV.
 - The product matches rows to QR codes by ID, slug, name, or external reference.
 - The product previews changes before applying.
@@ -2804,9 +2999,11 @@ Acceptance criteria:
 - The product prevents updates to Direct QR codes that cannot be changed after export.
 
 ### Story 8.8: Batch analytics comparison
+
 As a marketer, I want to compare analytics across a batch so that I can see which codes or locations perform best.
 
 Acceptance criteria:
+
 - The user can select a batch, folder, tag, or campaign.
 - The dashboard shows top and bottom performers.
 - The dashboard supports date filtering.
@@ -2814,9 +3011,11 @@ Acceptance criteria:
 - Metrics are available only for hosted QR codes unless self-managed data import is later supported.
 
 ### Story 8.9: Bulk job status
+
 As a user, I want to see bulk job status so that large imports and exports feel reliable.
 
 Acceptance criteria:
+
 - The user can see queued, processing, completed, failed, and partially completed states.
 - The user can download error reports.
 - The user can retry failed rows where practical.
@@ -2824,9 +3023,11 @@ Acceptance criteria:
 - The system prevents duplicate accidental submissions where feasible.
 
 ### Story 8.10: Bulk limits and plan enforcement
+
 As a product owner, I want bulk usage to be plan-aware so that heavy users can be monetized fairly.
 
 Acceptance criteria:
+
 - The system can limit rows per import, jobs per day, hosted QR creation volume, and export package size by plan.
 - The UI explains limits before upload where possible.
 - Upgrade prompts appear when limits are reached.
@@ -2855,18 +3056,22 @@ Teams turn the product from an individual tool into a business platform. This sh
 ## User Stories
 
 ### Story 9.1: Create a workspace
+
 As a registered user, I want to create a workspace so that QR codes and assets can belong to an organization instead of only my personal account.
 
 Acceptance criteria:
+
 - The user can create a workspace.
 - The creator becomes owner/admin.
 - Workspace records include name, slug, plan, and settings.
 - QR codes, brand kits, templates, assets, campaigns, and domains can belong to a workspace.
 
 ### Story 9.2: Invite team members
+
 As a workspace admin, I want to invite teammates so that they can collaborate.
 
 Acceptance criteria:
+
 - Admins can invite users by email.
 - Invites have expiration and status.
 - Invited users can accept into the workspace.
@@ -2874,9 +3079,11 @@ Acceptance criteria:
 - Invite usage is plan-aware.
 
 ### Story 9.3: Assign roles
+
 As a workspace admin, I want role-based permissions so that users have appropriate access.
 
 Acceptance criteria:
+
 - Roles include owner, admin, editor, analyst, and viewer.
 - Owners can manage billing and delete workspace.
 - Admins can manage members and settings.
@@ -2885,54 +3092,66 @@ Acceptance criteria:
 - Viewers can view but not change workspace content.
 
 ### Story 9.4: Share QR codes within a workspace
+
 As a team member, I want workspace QR codes visible to the team so that work is not trapped in one person’s account.
 
 Acceptance criteria:
+
 - Workspace QR codes are accessible to authorized members.
 - Personal QR codes remain separate unless moved or copied.
 - Permissions are enforced server-side.
 - Dashboard filters distinguish personal and workspace content.
 
 ### Story 9.5: Collaborative brand kits
+
 As a workspace user, I want shared brand kits so that team QR codes stay consistent.
 
 Acceptance criteria:
+
 - Workspace brand kits can be created by authorized roles.
 - Authorized users can apply workspace brand kits.
 - Brand kit editing permissions are role-based.
 - Existing QR codes are not unexpectedly changed by brand kit edits unless linked inheritance is explicitly supported.
 
 ### Story 9.6: Campaign collaboration
+
 As a team, I want campaigns to be shared workspace objects so that multiple people can manage related QR codes and analytics.
 
 Acceptance criteria:
+
 - Authorized users can create workspace campaigns.
 - QR codes can be assigned to campaigns.
 - Analysts and viewers can see campaign analytics according to role.
 - Editors can modify campaign QR codes according to role.
 
 ### Story 9.7: Audit activity
+
 As a workspace owner, I want activity history so that I can see who changed important QR settings.
 
 Acceptance criteria:
+
 - The system records key events such as destination edits, hosted QR pause/resume, deletes, member changes, role changes, and billing changes.
 - Activity entries include actor, timestamp, action, and target.
 - Activity logs are visible to authorized roles.
 - Sensitive data is redacted where appropriate.
 
 ### Story 9.8: Transfer ownership
+
 As a workspace owner, I want to transfer ownership so that the workspace can survive role or employment changes.
 
 Acceptance criteria:
+
 - Owners can transfer ownership to another active member.
 - The transfer requires confirmation.
 - The new owner receives owner permissions.
 - The previous owner’s role is adjusted according to product policy.
 
 ### Story 9.9: Workspace plan and limits
+
 As a product owner, I want workspace features to be plan-aware so that business collaboration can be monetized.
 
 Acceptance criteria:
+
 - Plans can limit seats, workspaces, brand kits, custom domains, hosted QR codes, analytics retention, and bulk jobs.
 - Workspace billing is distinct from personal free usage.
 - Upgrade prompts are clear and contextual.
@@ -2959,18 +3178,22 @@ Billing should support the business model without poisoning the user experience.
 ## User Stories
 
 ### Story 10.1: Define plans and entitlements
+
 As a product owner, I want configurable plans so that features can be enabled by tier.
 
 Acceptance criteria:
+
 - The system supports Free, Pro, Business, and future Enterprise tiers.
 - Entitlements can gate hosted QR codes, analytics retention, custom domains, webhooks, bulk volume, team seats, brand kits, asset storage, API access, and premium templates.
 - Entitlements are enforced server-side.
 - The UI can read entitlement state.
 
 ### Story 10.2: Upgrade from free to paid
+
 As a free user, I want to upgrade when I need premium features so that I can continue my workflow.
 
 Acceptance criteria:
+
 - Upgrade prompts are contextual.
 - The user can choose a plan.
 - Checkout is secure.
@@ -2978,9 +3201,11 @@ Acceptance criteria:
 - The user returns to the original workflow after upgrade where practical.
 
 ### Story 10.3: Manage subscription
+
 As a paying user, I want to manage my subscription so that I can update billing details, change plans, or cancel.
 
 Acceptance criteria:
+
 - The user can access billing management.
 - The user can update payment method.
 - The user can view current plan.
@@ -2988,9 +3213,11 @@ Acceptance criteria:
 - The product clearly explains consequences of downgrade/cancellation.
 
 ### Story 10.4: Enforce limits gracefully
+
 As a user, I want clear explanations when I hit a plan limit so that I know what to do next.
 
 Acceptance criteria:
+
 - The product detects entitlement and usage limits.
 - The UI explains which limit was reached.
 - The UI explains what plan unlocks the desired action.
@@ -2998,9 +3225,11 @@ Acceptance criteria:
 - Limit messaging avoids deceptive urgency.
 
 ### Story 10.5: Handle payment failure
+
 As a paying user, I want reasonable grace behavior if payment fails so that my hosted QR campaigns do not break unexpectedly.
 
 Acceptance criteria:
+
 - Payment failure triggers notifications.
 - The system supports grace periods.
 - The user can update payment method.
@@ -3008,18 +3237,22 @@ Acceptance criteria:
 - Direct and self-managed QR codes remain unaffected.
 
 ### Story 10.6: Invoice and receipt access
+
 As a paying user, I want invoices and receipts so that I can manage business expenses.
 
 Acceptance criteria:
+
 - The user can view billing history.
 - The user can download invoices/receipts.
 - Workspace owners can access workspace billing documents.
 - Billing records are access-controlled.
 
 ### Story 10.7: Trials and promotional plans
+
 As a product owner, I want trials or promotions so that users can experience premium value before committing.
 
 Acceptance criteria:
+
 - The system can support trials.
 - Trial entitlements are clearly shown.
 - Trial expiration behavior is defined.
@@ -3048,18 +3281,22 @@ A hosted QR platform can be abused because QR codes hide destinations from casua
 ## User Stories
 
 ### Story 11.1: Admin user search and account review
+
 As an admin, I want to find users and review account status so that I can support customers and investigate abuse.
 
 Acceptance criteria:
+
 - Admins can search users by email, ID, workspace, or plan.
 - Admins can view account status and high-level usage.
 - Admin access is restricted and audited.
 - Sensitive data is minimized.
 
 ### Story 11.2: Hosted QR moderation controls
+
 As an admin, I want to pause or block abusive hosted QR codes so that the platform is not used for harmful redirects.
 
 Acceptance criteria:
+
 - Admins can pause hosted QR codes.
 - Admins can block destinations.
 - Blocked scans show a safe fallback page.
@@ -3067,9 +3304,11 @@ Acceptance criteria:
 - Users can be notified according to policy.
 
 ### Story 11.3: Destination safety checks
+
 As a platform operator, I want destination URLs checked for obvious abuse so that hosted redirects remain trustworthy.
 
 Acceptance criteria:
+
 - The system validates hosted destination URLs.
 - The system can block known malicious domains.
 - The system can flag suspicious patterns.
@@ -3077,9 +3316,11 @@ Acceptance criteria:
 - False-positive handling exists.
 
 ### Story 11.4: Uploaded asset scanning
+
 As a platform operator, I want uploaded files checked so that hosted PDFs, images, SVGs, and logos do not introduce security risk.
 
 Acceptance criteria:
+
 - Uploads are type-validated.
 - File size limits are enforced.
 - SVGs are sanitized or blocked according to policy.
@@ -3087,9 +3328,11 @@ Acceptance criteria:
 - Upload failures give clear user-facing errors.
 
 ### Story 11.5: Rate limiting and bot protection
+
 As a platform operator, I want rate limits so that the product is protected from abuse and denial-of-service attempts.
 
 Acceptance criteria:
+
 - Auth endpoints are rate-limited.
 - Anonymous generation endpoints are rate-limited where backend resources are used.
 - Hosted redirect endpoints are protected without harming legitimate scan traffic.
@@ -3097,27 +3340,33 @@ Acceptance criteria:
 - Admins can inspect rate-limit events where appropriate.
 
 ### Story 11.6: Admin audit log
+
 As a platform owner, I want admin actions logged so that sensitive operations are accountable.
 
 Acceptance criteria:
+
 - Admin actions are recorded.
 - Logs include actor, action, target, timestamp, and reason where applicable.
 - Audit logs are tamper-resistant within practical system constraints.
 - Audit logs are available only to authorized admins.
 
 ### Story 11.7: User appeal or review request
+
 As a user, I want to request review if my hosted QR code is blocked so that mistakes can be corrected.
 
 Acceptance criteria:
+
 - Blocked users can see a reason category where safe.
 - Users can submit a review request.
 - Admins can view and resolve review requests.
 - Resolution is communicated according to policy.
 
 ### Story 11.8: Public trust preview for hosted QR URLs
+
 As a scanner, I want hosted QR URLs to behave safely so that I am not silently sent to dangerous content.
 
 Acceptance criteria:
+
 - The platform can show interstitial warnings for blocked or suspicious destinations.
 - The platform uses HTTPS.
 - The platform avoids deceptive URL presentation.
@@ -3146,9 +3395,11 @@ Because this product is open source, developer experience is not optional. The p
 ## User Stories
 
 ### Story 12.1: Public API for QR creation
+
 As a developer, I want an API to create QR codes so that I can generate QR assets programmatically.
 
 Acceptance criteria:
+
 - The API supports creating QR configurations.
 - The API supports static/direct QR generation.
 - The API supports design configuration.
@@ -3156,9 +3407,11 @@ Acceptance criteria:
 - API errors are clear and documented.
 
 ### Story 12.2: API authentication
+
 As a developer, I want API keys so that I can securely access the API.
 
 Acceptance criteria:
+
 - Users can create API keys.
 - Users can revoke API keys.
 - API keys are scoped to user or workspace.
@@ -3166,18 +3419,22 @@ Acceptance criteria:
 - Raw API keys are stored securely.
 
 ### Story 12.3: API for saved QR management
+
 As a developer, I want to manage saved QR codes through the API so that I can integrate with internal systems.
 
 Acceptance criteria:
+
 - The API can list, retrieve, create, update, archive, and delete QR records according to permissions.
 - Hosted destination edits are supported where entitled.
 - Direct QR limitations are clearly represented.
 - Pagination is supported.
 
 ### Story 12.4: API for export generation
+
 As a developer, I want to request exports through the API so that I can automate production workflows.
 
 Acceptance criteria:
+
 - The API can generate PNG and SVG at minimum.
 - The API can support PDF/EPS where available.
 - Export size and quiet-zone options are configurable.
@@ -3185,9 +3442,11 @@ Acceptance criteria:
 - API responses include download links or file content according to design.
 
 ### Story 12.5: Webhooks for hosted events
+
 As a developer, I want webhooks so that scan events and lifecycle changes can flow into other systems.
 
 Acceptance criteria:
+
 - Users can configure webhook endpoints.
 - Webhook events include hosted scan, destination changed, QR paused, QR resumed, QR expired, and abuse blocked where appropriate.
 - Webhooks are signed.
@@ -3195,9 +3454,11 @@ Acceptance criteria:
 - Retries follow documented policy.
 
 ### Story 12.6: CLI tool
+
 As a developer or operator, I want a CLI so that I can generate and manage QR codes from scripts and terminals.
 
 Acceptance criteria:
+
 - The CLI can generate direct QR codes locally.
 - The CLI can output PNG/SVG where supported.
 - The CLI can read configuration files.
@@ -3205,9 +3466,11 @@ Acceptance criteria:
 - The CLI has clear help text.
 
 ### Story 12.7: Local development setup
+
 As an open-source contributor, I want a simple local setup so that I can run and contribute to the project.
 
 Acceptance criteria:
+
 - The repo includes clear setup instructions.
 - Local development can run the Go backend.
 - Required dependencies are documented.
@@ -3215,9 +3478,11 @@ Acceptance criteria:
 - Seed data or examples are provided.
 
 ### Story 12.8: Self-hosting configuration
+
 As a self-hosting user, I want deployment documentation so that I can run the product on my own infrastructure.
 
 Acceptance criteria:
+
 - The project documents self-hosting requirements.
 - Environment variables are documented.
 - Storage, database, redirect domain, and email configuration are documented.
@@ -3225,9 +3490,11 @@ Acceptance criteria:
 - A Docker-based setup is available where practical.
 
 ### Story 12.9: OpenAPI documentation
+
 As a developer, I want machine-readable API docs so that integrations are easier to build.
 
 Acceptance criteria:
+
 - APIs are documented using OpenAPI or equivalent.
 - Request/response schemas are included.
 - Error models are documented.
@@ -3235,9 +3502,11 @@ Acceptance criteria:
 - Docs are updated as APIs evolve.
 
 ### Story 12.10: Extension model for QR types and styles
+
 As an open-source contributor, I want clear extension points so that I can add QR types, render styles, templates, and validators.
 
 Acceptance criteria:
+
 - Extension points are documented.
 - QR type handlers follow a consistent interface.
 - Style renderers follow a consistent interface.
@@ -3268,27 +3537,33 @@ This epic is the engineering backbone. The product must support anonymous creati
 ## User Stories
 
 ### Story 13.1: Establish Go service architecture
+
 As an engineer, I want a clear Go backend architecture so that services and packages have obvious responsibilities.
 
 Acceptance criteria:
+
 - The backend is written in Go.
 - Core packages separate auth, users, QR projects, payload generation, design config, exports, assets, redirects, analytics, billing, workspaces, and admin.
 - Package boundaries are documented.
 - The architecture supports monolith-first deployment with service extraction later if needed.
 
 ### Story 13.2: Define canonical data model
+
 As an engineer, I want a canonical data model so that QR records, users, assets, tracking, and billing are consistent.
 
 Acceptance criteria:
+
 - The data model covers users, workspaces, QR codes, payload configs, design configs, tracking configs, assets, campaigns, scans, domains, plans, subscriptions, API keys, and audit logs.
 - Schemas include timestamps and ownership fields.
 - Versioned config blobs are used where appropriate.
 - Migrations are managed cleanly.
 
 ### Story 13.3: Implement payload generation service
+
 As an engineer, I want a shared payload generation service so that client and server behavior remain consistent.
 
 Acceptance criteria:
+
 - Payload generation supports all defined QR types.
 - Payload generation is deterministic.
 - Payload validation is covered by tests.
@@ -3296,9 +3571,11 @@ Acceptance criteria:
 - Backend validation is authoritative for saved and hosted QR codes.
 
 ### Story 13.4: Implement rendering/export pipeline
+
 As an engineer, I want a reliable rendering pipeline so that previews and exports are consistent.
 
 Acceptance criteria:
+
 - Rendering accepts canonical QR configuration.
 - Rendering supports configured module/marker styles.
 - Exporters are separated by file format.
@@ -3306,9 +3583,11 @@ Acceptance criteria:
 - Server-side export jobs can be added for heavy work.
 
 ### Story 13.5: Implement hosted redirect service
+
 As an engineer, I want a fast redirect path so that hosted QR scans resolve reliably.
 
 Acceptance criteria:
+
 - Redirect lookup is optimized for low latency.
 - Event capture does not significantly delay redirects.
 - Disabled, expired, blocked, or missing codes return safe fallback behavior.
@@ -3316,9 +3595,11 @@ Acceptance criteria:
 - The service supports managed and custom domains.
 
 ### Story 13.6: Implement analytics ingestion and aggregation
+
 As an engineer, I want scan analytics ingestion separated from reporting so that the system can scale.
 
 Acceptance criteria:
+
 - Raw scan events can be captured.
 - Aggregations are computed separately from redirect handling.
 - Reporting queries are efficient for common dashboards.
@@ -3326,9 +3607,11 @@ Acceptance criteria:
 - Bot/duplicate filtering can evolve independently.
 
 ### Story 13.7: Implement authorization model
+
 As an engineer, I want consistent authorization checks so that users cannot access each other’s data.
 
 Acceptance criteria:
+
 - Ownership checks are enforced server-side.
 - Workspace role checks are centralized.
 - Admin permissions are separate from user permissions.
@@ -3336,9 +3619,11 @@ Acceptance criteria:
 - API and UI paths use the same authorization model.
 
 ### Story 13.8: Observability and operational health
+
 As an operator, I want logs, metrics, traces, and health checks so that the hosted service can be run reliably.
 
 Acceptance criteria:
+
 - Services expose health checks.
 - Redirect latency is measured.
 - Error rates are measured.
@@ -3347,9 +3632,11 @@ Acceptance criteria:
 - Alerts can be configured for critical paths.
 
 ### Story 13.9: CI/CD and quality gates
+
 As an engineering team, I want automated quality gates so that open-source contributions and production deployments remain safe.
 
 Acceptance criteria:
+
 - CI runs tests, linting, formatting, and security checks.
 - Database migrations are validated.
 - Frontend and backend builds are tested.
@@ -3357,9 +3644,11 @@ Acceptance criteria:
 - Release artifacts are reproducible where practical.
 
 ### Story 13.10: Secure configuration and secrets
+
 As an operator, I want configuration and secrets handled safely so that deployments are secure.
 
 Acceptance criteria:
+
 - Secrets are not committed to source control.
 - Environment variables are documented.
 - Local development uses safe example config.
@@ -3390,53 +3679,65 @@ AI should be a helper, not a dependency. The product must work beautifully witho
 ## User Stories
 
 ### Story 14.1: AI CTA suggestions
+
 As a user, I want CTA suggestions so that my QR code tells scanners what to do.
 
 Acceptance criteria:
+
 - The user can request CTA suggestions based on QR type and destination.
 - Suggestions are concise.
 - The user can apply or edit a suggestion.
 - AI suggestions do not overwrite user content without confirmation.
 
 ### Story 14.2: AI design recommendation
+
 As a user, I want design suggestions so that my QR code fits my use case and brand.
 
 Acceptance criteria:
+
 - The product can suggest templates based on QR type, industry, brand colors, and use case.
 - Suggestions prioritize scannability.
 - The user can preview suggestions.
 - The user can apply or dismiss suggestions.
 
 ### Story 14.3: AI scannability explanation
+
 As a user, I want plain-English explanations of scan risks so that I know how to fix my design.
 
 Acceptance criteria:
+
 - The AI can explain validation warnings in plain language.
 - The AI can recommend fixes.
 - The AI does not claim guaranteed scan performance.
 - Recommendations align with deterministic validation rules.
 
 ### Story 14.4: AI campaign naming and organization
+
 As a marketer, I want help naming and organizing QR campaigns so that dashboards stay readable.
 
 Acceptance criteria:
+
 - The product can suggest QR names, tags, and campaign names based on payload and context.
 - The user can accept, edit, or ignore suggestions.
 - Suggestions do not expose private data unnecessarily.
 
 ### Story 14.5: AI analytics summary
+
 As a hosted analytics user, I want a plain-English analytics summary so that I can understand campaign performance quickly.
 
 Acceptance criteria:
+
 - The product can summarize scans over time, top performers, geography, device mix, and anomalies.
 - The summary cites the underlying metrics shown in the dashboard.
 - The AI avoids unsupported conclusions.
 - The user can copy the summary.
 
 ### Story 14.6: AI destination/page copy
+
 As a hosted destination user, I want help drafting page copy so that business pages, coupons, events, and feedback pages are easier to create.
 
 Acceptance criteria:
+
 - The AI can draft copy based on user-provided facts.
 - The user must approve before publishing.
 - The AI does not fabricate business details when missing.
@@ -3483,4 +3784,3 @@ Acceptance criteria:
 27. Should feedback forms and business pages be their own product modules later, or included as basic hosted destination types from the start?
 28. Should review QR flows include any rating-first routing, or avoid that entirely due to policy and trust concerns?
 29. Should QR type definitions be data-driven configuration files, code modules, or a hybrid?
-

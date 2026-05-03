@@ -50,7 +50,16 @@
         },
         "category": {
           "type": "string",
-          "enum": ["direct", "contact", "communication", "network", "location", "social", "commerce", "media"]
+          "enum": [
+            "direct",
+            "contact",
+            "communication",
+            "network",
+            "location",
+            "social",
+            "commerce",
+            "media"
+          ]
         },
         "status": {
           "type": "string",

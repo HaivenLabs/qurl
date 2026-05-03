@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
+import { Tabs } from "expo-router";
 
-import { palette, radii, spacing } from '@qurl/ui';
+import { palette, radii, spacing } from "@qurl/ui";
 
 export default function TabsLayout() {
   return (
@@ -22,14 +22,14 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: "600",
           letterSpacing: 0,
         },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Create' }} />
-      <Tabs.Screen name="library" options={{ title: 'Library' }} />
-      <Tabs.Screen name="account" options={{ title: 'Account' }} />
+      <Tabs.Screen name="index" options={{ title: "Create" }} />
+      <Tabs.Screen name="library" options={{ title: "Library" }} />
+      <Tabs.Screen name="account" options={{ title: "Account" }} />
     </Tabs>
   );
 }

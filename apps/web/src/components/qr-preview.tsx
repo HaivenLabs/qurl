@@ -1,0 +1,418 @@
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+
+import {
+  createDirectUrlPayload,
+  createDirectUrlProjectConfig,
+  createDirectUrlQrMatrixWithQuietZone,
+  normalizeDirectUrl,
+} from "@qurl/qr-core";
+import { palette, radii, spacing } from "@qurl/ui";
+
+import { resolveQrDownloadArtifact, triggerSvgDownload } from "../lib/qr-export";
+
+const PREVIEW_PATH = "/api/v1/direct-url/preview";
+
+function getApiBaseUrl(): string | null {
+  const configured = process.env.EXPO_PUBLIC_QURL_API_BASE_URL?.trim();
+  if (configured && configured.length > 0) {
+    return configured;
+  }
+
+  if (typeof window !== "undefined" && window.location.origin) {
+    const { hostname, protocol, port } = window.location;
+    if ((hostname === "localhost" || hostname === "127.0.0.1") && port !== "8080") {
+      return `${protocol}//${hostname}:8080`;
+    }
+
+    return window.location.origin;
+  }
+
+  return null;
+}
+
+function resolvePreviewUrl(path: string): string | null {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(path, baseUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+type QrPreviewProps = {
+  destination: string;
+};
+
+export function QrPreview({ destination }: QrPreviewProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadNote, setDownloadNote] = useState<string | null>(null);
+  const [backendPreviewDataUrl, setBackendPreviewDataUrl] = useState<string | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewNote, setPreviewNote] = useState<string | null>(null);
+
+  const normalizedDestination = useMemo(() => {
+    try {
+      return normalizeDirectUrl(destination).destinationUrl;
+    } catch {
+      return null;
+    }
+  }, [destination]);
+
+  const previewModel = useMemo(() => {
+    if (!normalizedDestination) {
+      return { matrix: null, issue: null };
+    }
+
+    try {
+      return {
+        matrix: createDirectUrlQrMatrixWithQuietZone(normalizedDestination),
+        issue: null,
+      };
+    } catch (error) {
+      return {
+        matrix: null,
+        issue:
+          error instanceof Error
+            ? error.message
+            : "The local preview renderer could not render this URL.",
+      };
+    }
+  }, [normalizedDestination]);
+
+  const previewMatrix = previewModel.matrix;
+  const canDownload = Boolean(normalizedDestination) && !isDownloading;
+  const validationNote = normalizedDestination
+    ? previewModel.issue
+    : "Enter a valid http or https URL to render the QR.";
+
+  useEffect(() => {
+    if (!normalizedDestination) {
+      setBackendPreviewDataUrl(null);
+      setIsPreviewLoading(false);
+      setPreviewNote(null);
+      return;
+    }
+
+    const previewUrl = resolvePreviewUrl(PREVIEW_PATH);
+    if (!previewUrl) {
+      setBackendPreviewDataUrl(null);
+      setIsPreviewLoading(false);
+      setPreviewNote("Using local preview because no API base URL is available.");
+      return;
+    }
+
+    const controller = new AbortController();
+    setIsPreviewLoading(true);
+
+    fetch(previewUrl, {
+      body: JSON.stringify(
+        createDirectUrlProjectConfig(createDirectUrlPayload(normalizedDestination)),
+      ),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "POST",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Preview request failed with status ${response.status}`);
+        }
+
+        return response.json() as Promise<{ dataUrl?: string }>;
+      })
+      .then((payload) => {
+        if (typeof payload.dataUrl !== "string" || payload.dataUrl.length === 0) {
+          throw new Error("Preview response did not include a data URL.");
+        }
+
+        setBackendPreviewDataUrl(payload.dataUrl);
+        setPreviewNote(null);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setBackendPreviewDataUrl(null);
+        setPreviewNote("Using local preview because the backend preview API is not reachable.");
+      })
+      .finally(() => {
+        setIsPreviewLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [normalizedDestination]);
+
+  const handleDownload = async () => {
+    if (!normalizedDestination) {
+      return;
+    }
+
+    setIsDownloading(true);
+    setDownloadNote(null);
+
+    try {
+      const artifact = await resolveQrDownloadArtifact(normalizedDestination);
+      triggerSvgDownload(artifact);
+      setDownloadNote(`Downloaded from ${artifact.source}.`);
+    } catch (error) {
+      setDownloadNote(
+        error instanceof Error ? error.message : "Unable to download the QR right now.",
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <View accessibilityLabel="Live QR preview" style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.kicker}>Live preview</Text>
+        <Text style={styles.title}>Direct destination encoded</Text>
+        <Text style={styles.subtitle}>No redirects, no hidden tracking, no surprises.</Text>
+      </View>
+
+      <View style={styles.previewFrame}>
+        {backendPreviewDataUrl ? (
+          <Image
+            accessibilityLabel="Generated QR code"
+            resizeMode="contain"
+            source={{ uri: backendPreviewDataUrl }}
+            style={styles.previewImage}
+          />
+        ) : previewMatrix ? (
+          <View
+            accessibilityLabel="Generated QR code"
+            accessibilityRole="image"
+            style={styles.matrix}
+          >
+            {previewMatrix.map((row, rowIndex) => (
+              <View key={`row-${rowIndex}`} style={styles.row}>
+                {row.map((cell, cellIndex) => (
+                  <View
+                    key={`cell-${rowIndex}-${cellIndex}`}
+                    style={[styles.cell, cell ? styles.cellOn : styles.cellOff]}
+                  />
+                ))}
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>Preview paused</Text>
+            <Text style={styles.emptyCopy}>{validationNote}</Text>
+            {normalizedDestination ? (
+              <Text style={styles.emptyHint}>
+                Backend rendering will still be attempted when the API is reachable.
+              </Text>
+            ) : null}
+          </View>
+        )}
+
+        {isPreviewLoading ? (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator color={palette.accent} />
+            <Text style={styles.loadingText}>Rendering QR</Text>
+          </View>
+        ) : null}
+      </View>
+
+      {previewNote ? <Text style={styles.previewNote}>{previewNote}</Text> : null}
+
+      <View style={styles.footer}>
+        <View style={styles.footerCopy}>
+          <Text style={styles.footerLabel}>Destination</Text>
+          <Text style={styles.footerValue}>{destination}</Text>
+        </View>
+
+        <Pressable
+          disabled={!canDownload}
+          onPress={handleDownload}
+          style={({ pressed }) => [
+            styles.downloadButton,
+            !canDownload && styles.downloadButtonDisabled,
+            pressed && canDownload && styles.buttonPressed,
+          ]}
+        >
+          <Text style={styles.downloadButtonText}>
+            {isDownloading ? "Downloading..." : "Download SVG"}
+          </Text>
+        </Pressable>
+
+        {downloadNote ? <Text style={styles.downloadNote}>{downloadNote}</Text> : null}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: palette.ink,
+    borderRadius: radii.lg,
+    gap: spacing.lg,
+    padding: spacing.xl,
+  },
+  header: {
+    gap: spacing.xs,
+  },
+  kicker: {
+    color: palette.highlight,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0,
+    textTransform: "uppercase",
+  },
+  title: {
+    color: palette.surface,
+    fontSize: 18,
+    fontWeight: "700",
+    letterSpacing: 0,
+  },
+  subtitle: {
+    color: "#d8dee2",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  previewFrame: {
+    backgroundColor: palette.surface,
+    borderRadius: radii.md,
+    position: "relative",
+    padding: spacing.md,
+  },
+  matrix: {
+    aspectRatio: 1,
+    backgroundColor: palette.surface,
+    overflow: "hidden",
+    width: "100%",
+  },
+  previewImage: {
+    aspectRatio: 1,
+    width: "100%",
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  cell: {
+    flex: 1,
+  },
+  cellOn: {
+    backgroundColor: palette.ink,
+  },
+  cellOff: {
+    backgroundColor: "#f7f4ef",
+  },
+  emptyState: {
+    alignItems: "center",
+    aspectRatio: 1,
+    backgroundColor: palette.panel,
+    borderColor: palette.border,
+    borderRadius: radii.md,
+    borderStyle: "dashed",
+    borderWidth: 1,
+    justifyContent: "center",
+    padding: spacing.xl,
+  },
+  emptyTitle: {
+    color: palette.ink,
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0,
+    marginBottom: spacing.xs,
+  },
+  emptyCopy: {
+    color: palette.muted,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+  },
+  emptyHint: {
+    color: palette.muted,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: spacing.sm,
+    textAlign: "center",
+  },
+  loadingOverlay: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 253, 249, 0.8)",
+    borderRadius: radii.md,
+    bottom: spacing.md,
+    gap: spacing.sm,
+    justifyContent: "center",
+    left: spacing.md,
+    position: "absolute",
+    right: spacing.md,
+    top: spacing.md,
+  },
+  loadingText: {
+    color: palette.muted,
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 0,
+  },
+  previewNote: {
+    color: "#d8dee2",
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  footer: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: radii.md,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  footerCopy: {
+    gap: spacing.xs,
+  },
+  footerLabel: {
+    color: palette.highlight,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0,
+    textTransform: "uppercase",
+  },
+  footerValue: {
+    color: palette.surface,
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 0,
+  },
+  downloadButton: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    backgroundColor: palette.accent,
+    borderRadius: radii.md,
+    justifyContent: "center",
+    minHeight: 44,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  downloadButtonDisabled: {
+    opacity: 0.55,
+  },
+  downloadButtonText: {
+    color: palette.surface,
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0,
+  },
+  downloadNote: {
+    color: "#d8dee2",
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  buttonPressed: {
+    opacity: 0.9,
+    transform: [{ translateY: 1 }],
+  },
+});

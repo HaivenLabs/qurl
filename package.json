@@ -9,13 +9,19 @@
   },
   "scripts": {
     "bootstrap": "corepack enable && pnpm install",
-    "check": "pnpm run lint && pnpm run test && pnpm run typecheck && pnpm run format:check",
-    "dev": "pnpm -r --if-present --parallel --stream dev",
+    "build:web": "pnpm --filter @qurl/web run build",
+    "build:backend": "node ./scripts/build-backend.mjs",
+    "check": "pnpm run lint && pnpm run test && pnpm run typecheck && pnpm run format:check && pnpm run check:contracts && pnpm run check:backend",
+    "check:backend": "node ./scripts/check-backend.mjs",
+    "check:contracts": "node ./scripts/check-contracts.mjs",
+    "dev": "pnpm run dev:web",
+    "dev:backend": "powershell -ExecutionPolicy Bypass -File scripts/dev-backend.ps1",
+    "dev:web": "pnpm --filter @qurl/web dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "typecheck": "pnpm -r --if-present typecheck"
   },
   "devDependencies": {

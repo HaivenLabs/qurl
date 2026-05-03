@@ -1,28 +1,21 @@
-import { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { layout, palette, radii, spacing } from '@qurl/ui';
+import { layout, palette, radii, spacing } from "@qurl/ui";
 
-import { MockQrPreview } from '../../src/components/mock-qr-preview';
-import { SectionCard, StatTile } from '../../src/components/section-card';
+import { QrPreview } from "../../src/components/qr-preview";
+import { SectionCard, StatTile } from "../../src/components/section-card";
 
-const modes = ['URL', 'Text', 'Wi-Fi', 'vCard'] as const;
+const modes = ["URL"] as const;
 
 export default function CreateScreen() {
-  const [destination, setDestination] = useState('https://example.com');
-  const [activeMode, setActiveMode] = useState<(typeof modes)[number]>('URL');
+  const [destination, setDestination] = useState("https://example.com");
+  const [activeMode, setActiveMode] = useState<(typeof modes)[number]>("URL");
 
   const headline =
-    activeMode === 'URL'
-      ? 'Create a direct QR that points exactly where you expect.'
-      : 'Create a clean QR draft and switch the payload type when you are ready.';
+    activeMode === "URL"
+      ? "Create a direct QR that points exactly where you expect."
+      : "Create a clean QR draft.";
 
   return (
     <ScrollView
@@ -53,7 +46,7 @@ export default function CreateScreen() {
             <SectionCard
               eyebrow="Step 1"
               title="Destination"
-              subtitle="Start with a direct URL, then swap in other payload types later."
+              subtitle="Slice 1 supports direct URL payloads only."
             >
               <View style={styles.modeRow}>
                 {modes.map((mode) => {
@@ -93,8 +86,8 @@ export default function CreateScreen() {
               <View style={styles.notePanel}>
                 <Text style={styles.noteTitle}>What happens next</Text>
                 <Text style={styles.noteCopy}>
-                  The first real implementation will validate the URL, generate the QR payload,
-                  and keep the encoded destination direct.
+                  The preview now updates from the current URL, and downloads use the shared QR
+                  config with a backend fallback when one is available.
                 </Text>
               </View>
             </SectionCard>
@@ -118,7 +111,7 @@ export default function CreateScreen() {
                 </View>
                 <View style={styles.helperTile}>
                   <Text style={styles.helperLabel}>Export</Text>
-                  <Text style={styles.helperValue}>PNG / SVG later</Text>
+                  <Text style={styles.helperValue}>SVG live, PNG later</Text>
                 </View>
                 <View style={styles.helperTile}>
                   <Text style={styles.helperLabel}>Tracking</Text>
@@ -129,21 +122,16 @@ export default function CreateScreen() {
           </View>
 
           <View style={styles.column}>
-            <MockQrPreview destination={destination.trim() || 'https://example.com'} />
-
-            <View style={styles.actionRow}>
-              <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}>
-                <Text style={styles.primaryButtonText}>Prepare QR</Text>
-              </Pressable>
-              <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}>
-                <Text style={styles.secondaryButtonText}>Save draft</Text>
-              </Pressable>
-            </View>
+            <QrPreview destination={destination} />
 
             <View style={styles.statsRow}>
-              <StatTile label="Promise" value="Direct" detail="No hidden redirects or surprise domains." />
+              <StatTile
+                label="Promise"
+                value="Direct"
+                detail="No hidden redirects or surprise domains."
+              />
               <StatTile label="State" value="Draft" detail="Anonymous until a save flow exists." />
-              <StatTile label="Next" value="Export" detail="PNG, SVG, and print-ready paths later." />
+              <StatTile label="Next" value="Export" detail="PNG and print-ready paths later." />
             </View>
           </View>
         </View>
@@ -158,24 +146,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
   },
   shell: {
     maxWidth: layout.maxWidth,
-    width: '100%',
+    width: "100%",
   },
   topBar: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: spacing.xl,
   },
   brand: {
     color: palette.ink,
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0,
   },
   tagline: {
@@ -196,9 +184,9 @@ const styles = StyleSheet.create({
   badgeText: {
     color: palette.accent,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   hero: {
     gap: spacing.sm,
@@ -208,7 +196,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: palette.ink,
     fontSize: 34,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0,
     lineHeight: 40,
   },
@@ -220,8 +208,8 @@ const styles = StyleSheet.create({
   },
   workspace: {
     gap: spacing.xl,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   column: {
     gap: spacing.xl,
@@ -230,8 +218,8 @@ const styles = StyleSheet.create({
     minWidth: 320,
   },
   modeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   modeChip: {
@@ -252,7 +240,7 @@ const styles = StyleSheet.create({
   modeText: {
     color: palette.ink,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
   },
   modeTextActive: {
@@ -264,9 +252,9 @@ const styles = StyleSheet.create({
   inputLabel: {
     color: palette.muted,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   input: {
     backgroundColor: palette.surface,
@@ -289,7 +277,7 @@ const styles = StyleSheet.create({
   noteTitle: {
     color: palette.ink,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
   },
   noteCopy: {
@@ -298,7 +286,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   swatchRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.sm,
   },
   swatch: {
@@ -309,8 +297,8 @@ const styles = StyleSheet.create({
     width: 32,
   },
   helperGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   helperTile: {
@@ -326,62 +314,19 @@ const styles = StyleSheet.create({
   helperLabel: {
     color: palette.muted,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   helperValue: {
     color: palette.ink,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  primaryButton: {
-    alignItems: 'center',
-    backgroundColor: palette.accent,
-    borderRadius: radii.md,
-    flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: 180,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  primaryButtonText: {
-    color: palette.surface,
-    fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
-  secondaryButton: {
-    alignItems: 'center',
-    backgroundColor: palette.surface,
-    borderColor: palette.borderStrong,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: 180,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  secondaryButtonText: {
-    color: palette.ink,
-    fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
-  buttonPressed: {
-    opacity: 0.9,
-    transform: [{ translateY: 1 }],
   },
   statsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
 });

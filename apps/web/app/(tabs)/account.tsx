@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-import { palette, radii, spacing } from '@qurl/ui';
+import { palette, radii, spacing } from "@qurl/ui";
 
-import { SectionCard } from '../../src/components/section-card';
+import { SectionCard } from "../../src/components/section-card";
 
 export default function AccountScreen() {
   return (
@@ -20,7 +20,9 @@ export default function AccountScreen() {
         >
           <View style={styles.cardBlock}>
             <Text style={styles.blockTitle}>Planned actions</Text>
-            <Text style={styles.blockCopy}>Sign in, create account, recover access, and manage profile.</Text>
+            <Text style={styles.blockCopy}>
+              Sign in, create account, recover access, and manage profile.
+            </Text>
           </View>
 
           <View style={styles.cardBlock}>
@@ -43,15 +45,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   },
   shell: {
-    alignSelf: 'center',
+    alignSelf: "center",
     gap: spacing.lg,
     maxWidth: 980,
-    width: '100%',
+    width: "100%",
   },
   title: {
     color: palette.ink,
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0,
   },
   subtitle: {
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
   blockTitle: {
     color: palette.ink,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
   },
   blockCopy: {

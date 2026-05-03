@@ -3,6 +3,7 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "build": "expo export --platform web",
     "dev": "expo start --web",
     "start": "expo start",
     "web": "expo start --web",
@@ -11,6 +12,7 @@
   },
   "dependencies": {
     "@qurl/ui": "workspace:*",
+    "@qurl/qr-core": "workspace:*",
     "expo": "^52.0.0",
     "expo-router": "^4.0.0",
     "expo-status-bar": "^2.0.1",

@@ -5,16 +5,13 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "lib": [
-      "ES2022"
-    ],
+    "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
     "paths": {
-      "@qurl/ui": [
-        "packages/ui/src/index.ts"
-      ]
+      "@qurl/qr-core": ["packages/qr-core/src/index.ts"],
+      "@qurl/ui": ["packages/ui/src/index.ts"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

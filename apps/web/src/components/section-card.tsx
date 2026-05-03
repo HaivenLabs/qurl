@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
-import type { ViewStyle } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import type { ReactNode } from "react";
+import type { ViewStyle } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { palette, radii, spacing } from '@qurl/ui';
+import { palette, radii, spacing } from "@qurl/ui";
 
 type SectionCardProps = {
   eyebrow: string;
@@ -12,13 +12,7 @@ type SectionCardProps = {
   style?: ViewStyle;
 };
 
-export function SectionCard({
-  eyebrow,
-  title,
-  subtitle,
-  children,
-  style,
-}: SectionCardProps) {
+export function SectionCard({ eyebrow, title, subtitle, children, style }: SectionCardProps) {
   return (
     <View style={[styles.card, style]}>
       <View style={styles.header}>
@@ -62,14 +56,14 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: palette.accent,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   title: {
     color: palette.ink,
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
   },
   subtitle: {
@@ -91,14 +85,14 @@ const styles = StyleSheet.create({
   statLabel: {
     color: palette.muted,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   statValue: {
     color: palette.ink,
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
   },
   statDetail: {

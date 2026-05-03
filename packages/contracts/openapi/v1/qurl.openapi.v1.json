@@ -3,34 +3,17 @@
   "info": {
     "title": "qurl API",
     "version": "1.0.0",
-    "description": "Versioned contract surface for qurl MVP QR creation, validation, preview, and saved project operations."
+    "description": "Versioned contract surface for qurl QR creation, validation, preview, and saved project operations."
   },
   "servers": [
     {
-      "url": "/v1"
+      "url": "/api/v1"
     }
   ],
   "paths": {
-    "/meta/qr-types": {
-      "get": {
-        "operationId": "getQrTypeRegistry",
-        "responses": {
-          "200": {
-            "description": "Versioned QR type registry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QrTypeRegistryV1"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qr-projects/validate": {
+    "/direct-url/preview": {
       "post": {
-        "operationId": "validateQrProject",
+        "operationId": "previewDirectUrl",
         "requestBody": {
           "required": true,
           "content": {
@@ -43,11 +26,43 @@
         },
         "responses": {
           "200": {
-            "description": "Validation result.",
+            "description": "SVG preview payload for the direct destination QR.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/QrProjectValidationResponseV1"
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "schemaVersion",
+                    "destination",
+                    "format",
+                    "mimeType",
+                    "svg",
+                    "dataUrl"
+                  ],
+                  "properties": {
+                    "schemaVersion": {
+                      "type": "integer",
+                      "const": 1
+                    },
+                    "destination": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string",
+                      "const": "svg"
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "const": "image/svg+xml"
+                    },
+                    "svg": {
+                      "type": "string"
+                    },
+                    "dataUrl": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -55,9 +70,9 @@
         }
       }
     },
-    "/qr-projects/preview": {
+    "/direct-url/export": {
       "post": {
-        "operationId": "previewQrProject",
+        "operationId": "exportDirectUrl",
         "requestBody": {
           "required": true,
           "content": {
@@ -70,102 +85,17 @@
         },
         "responses": {
           "200": {
-            "description": "Preview payload for the canonical QR configuration.",
+            "description": "Rendered QR export bytes.",
             "content": {
-              "application/json": {
+              "image/svg+xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/QrPreviewResponseV1"
+                  "type": "string"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qr-projects": {
-      "post": {
-        "operationId": "createQrProject",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QrProjectConfigV1"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created saved QR project record.",
-            "content": {
-              "application/json": {
+              },
+              "image/png": {
                 "schema": {
-                  "$ref": "#/components/schemas/QrProjectRecordV1"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qr-projects/{projectId}": {
-      "get": {
-        "operationId": "getQrProject",
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Saved QR project record.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QrProjectRecordV1"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qr-projects/{projectId}/exports": {
-      "post": {
-        "operationId": "exportQrProject",
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QrExportConfigV1"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Export artifact descriptor.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QrExportArtifactV1"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -177,87 +107,19 @@
   "components": {
     "schemas": {
       "QrPayloadConfigV1": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["schemaVersion", "kind", "payload"],
-        "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "const": "qurl.qr-payload-config.v1"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
+        "$ref": "../../schemas/v1/qr-payload-config.v1.schema.json"
       },
       "QrDesignConfigV1": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["schemaVersion"],
-        "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "const": "qurl.qr-design-config.v1"
-          }
-        }
+        "$ref": "../../schemas/v1/qr-design-config.v1.schema.json"
       },
       "QrExportConfigV1": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["schemaVersion", "format"],
-        "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "const": "qurl.qr-export-config.v1"
-          },
-          "format": {
-            "type": "string",
-            "enum": ["png", "jpg", "svg", "pdf"]
-          }
-        }
+        "$ref": "../../schemas/v1/qr-export-config.v1.schema.json"
       },
       "QrProjectConfigV1": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["schemaVersion", "name", "payload", "design", "export"],
-        "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "const": "qurl.qr-project-config.v1"
-          },
-          "name": {
-            "type": "string"
-          },
-          "payload": {
-            "$ref": "#/components/schemas/QrPayloadConfigV1"
-          },
-          "design": {
-            "$ref": "#/components/schemas/QrDesignConfigV1"
-          },
-          "export": {
-            "$ref": "#/components/schemas/QrExportConfigV1"
-          }
-        }
+        "$ref": "../../schemas/v1/qr-project-config.v1.schema.json"
       },
       "QrTypeRegistryV1": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["schemaVersion", "types"],
-        "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "const": "qurl.qr-type-registry.v1"
-          },
-          "types": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        }
+        "$ref": "../../schemas/v1/qr-type-registry.v1.schema.json"
       },
       "ValidationIssueV1": {
         "type": "object",
@@ -318,7 +180,16 @@
       "QrProjectRecordV1": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["projectId", "schemaVersion", "name", "payload", "design", "export", "createdAt", "updatedAt"],
+        "required": [
+          "projectId",
+          "schemaVersion",
+          "name",
+          "payload",
+          "design",
+          "export",
+          "createdAt",
+          "updatedAt"
+        ],
         "properties": {
           "projectId": {
             "type": "string"
@@ -359,7 +230,7 @@
           },
           "format": {
             "type": "string",
-            "enum": ["png", "jpg", "svg", "pdf"]
+            "enum": ["png", "svg"]
           },
           "downloadUrl": {
             "type": "string",

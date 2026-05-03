@@ -13,8 +13,8 @@ export default tseslint.config(
       "**/.expo/**",
       "**/.expo-shared/**",
       "**/node_modules/**",
-      "**/web-build/**"
-    ]
+      "**/web-build/**",
+    ],
   },
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,tsx}"],
@@ -24,9 +24,9 @@ export default tseslint.config(
       globals: {
         ...globals.es2024,
         ...globals.node,
-        ...globals.browser
-      }
-    }
+        ...globals.browser,
+      },
+    },
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -36,21 +36,21 @@ export default tseslint.config(
         "error",
         {
           argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_"
-        }
+          varsIgnorePattern: "^_",
+        },
       ],
       "@typescript-eslint/consistent-type-imports": [
         "error",
         {
-          prefer: "type-imports"
-        }
-      ]
-    }
+          prefer: "type-imports",
+        },
+      ],
+    },
   },
   {
     files: ["**/*.config.js", "**/*.config.cjs", "**/metro.config.js"],
     rules: {
-      "@typescript-eslint/no-require-imports": "off"
-    }
-  }
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 );

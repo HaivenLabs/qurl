@@ -453,7 +453,16 @@
       "properties": {
         "platform": {
           "type": "string",
-          "enum": ["instagram", "tiktok", "x", "facebook", "linkedin", "youtube", "website", "other"]
+          "enum": [
+            "instagram",
+            "tiktok",
+            "x",
+            "facebook",
+            "linkedin",
+            "youtube",
+            "website",
+            "other"
+          ]
         },
         "url": {
           "type": "string",

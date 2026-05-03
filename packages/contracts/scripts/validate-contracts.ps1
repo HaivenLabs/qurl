@@ -94,8 +94,8 @@ function Get-Refs {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$schemaDir = Join-Path $root 'schemas\v1'
-$openApiFile = Join-Path $root 'openapi\v1\qurl.openapi.v1.json'
+$schemaDir = Join-Path (Join-Path $root 'schemas') 'v1'
+$openApiFile = Join-Path (Join-Path (Join-Path $root 'openapi') 'v1') 'qurl.openapi.v1.json'
 
 $schemaFiles = Get-ChildItem -LiteralPath $schemaDir -Filter '*.schema.json' | Sort-Object Name
 if (-not $schemaFiles) {
@@ -128,6 +128,10 @@ if ($openApi.info.version -ne '1.0.0') {
   throw "OpenAPI info.version must be 1.0.0"
 }
 
+if ($openApi.servers[0].url -ne '/api/v1') {
+  throw "OpenAPI server URL must be /api/v1"
+}
+
 $expectedComponents = @(
   'QrPayloadConfigV1',
   'QrDesignConfigV1',
@@ -147,12 +151,38 @@ foreach ($name in $expectedComponents) {
   }
 }
 
+$canonicalComponentRefs = @{
+  QrPayloadConfigV1  = '../../schemas/v1/qr-payload-config.v1.schema.json'
+  QrDesignConfigV1   = '../../schemas/v1/qr-design-config.v1.schema.json'
+  QrExportConfigV1   = '../../schemas/v1/qr-export-config.v1.schema.json'
+  QrProjectConfigV1  = '../../schemas/v1/qr-project-config.v1.schema.json'
+  QrTypeRegistryV1   = '../../schemas/v1/qr-type-registry.v1.schema.json'
+}
+
+foreach ($componentName in $canonicalComponentRefs.Keys) {
+  $schema = $openApi.components.schemas.$componentName
+  $expectedRef = $canonicalComponentRefs[$componentName]
+
+  if ($schema.'$ref' -ne $expectedRef) {
+    throw "OpenAPI component $componentName must reference canonical schema $expectedRef"
+  }
+}
+
 $refs = Get-Refs -Node $openApi
 foreach ($ref in $refs) {
   if ($ref.ref -like '#/components/schemas/*') {
     $target = $ref.ref.Substring('#/components/schemas/'.Length)
     if (-not $openApi.components.schemas.PSObject.Properties.Name.Contains($target)) {
       throw "Broken OpenAPI ref at $($ref.path): $($ref.ref)"
+    }
+  }
+  elseif ($ref.ref -notlike '#*') {
+    $baseDir = Split-Path -Parent $openApiFile
+    $relativePath = ($ref.ref -split '#')[0]
+    $targetPath = Join-Path $baseDir $relativePath
+
+    if (-not (Test-Path -LiteralPath $targetPath)) {
+      throw "Broken external OpenAPI ref at $($ref.path): $($ref.ref)"
     }
   }
 }

@@ -12,11 +12,12 @@
     },
     "format": {
       "type": "string",
-      "enum": ["png", "jpg", "svg", "pdf"]
+      "enum": ["png", "svg"]
     },
     "pixelSize": {
       "type": "integer",
-      "minimum": 64
+      "minimum": 64,
+      "maximum": 2048
     },
     "marginModules": {
       "type": "integer",

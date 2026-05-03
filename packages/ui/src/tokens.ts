@@ -1,16 +1,16 @@
 export const palette = {
-  canvas: '#f3efe7',
-  surface: '#fffdf9',
-  panel: '#f7f3ec',
-  ink: '#142127',
-  muted: '#5c676d',
-  border: '#d9d1c7',
-  borderStrong: '#b7aca0',
-  accent: '#0f766e',
-  accentSoft: '#d8eeeb',
-  highlight: '#e0a83f',
-  success: '#2f855a',
-  danger: '#b45309',
+  canvas: "#f3efe7",
+  surface: "#fffdf9",
+  panel: "#f7f3ec",
+  ink: "#142127",
+  muted: "#5c676d",
+  border: "#d9d1c7",
+  borderStrong: "#b7aca0",
+  accent: "#0f766e",
+  accentSoft: "#d8eeeb",
+  highlight: "#e0a83f",
+  success: "#2f855a",
+  danger: "#b45309",
 };
 
 export const spacing = {

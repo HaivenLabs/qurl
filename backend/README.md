@@ -16,10 +16,11 @@ This directory contains the Go backend skeleton for qurl.
 - Versioned payloads, config blobs, and contracts must carry an explicit schema version field.
 - Breaking API changes require a new major HTTP version path such as `/api/v2`.
 - Operational endpoints like `/healthz` may exist alongside versioned API routes for infrastructure checks.
+- The first slice exposes direct URL preview and export routes at `/api/v1/direct-url/preview` and `/api/v1/direct-url/export`.
 
 ## Startup contract
 
 - The server must start with safe defaults when no environment variables are set.
 - Health endpoints must return a simple success response suitable for bootstrap checks.
 - The bootstrap path should stay thin and delegate behavior into package-level components.
-
+- CORS is enabled for preview and export responses so the web app can call the backend from a separate origin.

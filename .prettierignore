@@ -2,8 +2,8 @@ coverage/
 dist/
 build/
 node_modules/
+pnpm-lock.yaml
 .turbo/
 .expo/
 .expo-shared/
 web-build/
-
