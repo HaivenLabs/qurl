@@ -1,0 +1,379 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "qurl API",
+    "version": "1.0.0",
+    "description": "Versioned contract surface for qurl MVP QR creation, validation, preview, and saved project operations."
+  },
+  "servers": [
+    {
+      "url": "/v1"
+    }
+  ],
+  "paths": {
+    "/meta/qr-types": {
+      "get": {
+        "operationId": "getQrTypeRegistry",
+        "responses": {
+          "200": {
+            "description": "Versioned QR type registry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrTypeRegistryV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr-projects/validate": {
+      "post": {
+        "operationId": "validateQrProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrProjectConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrProjectValidationResponseV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr-projects/preview": {
+      "post": {
+        "operationId": "previewQrProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrProjectConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preview payload for the canonical QR configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrPreviewResponseV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr-projects": {
+      "post": {
+        "operationId": "createQrProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrProjectConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created saved QR project record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrProjectRecordV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr-projects/{projectId}": {
+      "get": {
+        "operationId": "getQrProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved QR project record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrProjectRecordV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr-projects/{projectId}/exports": {
+      "post": {
+        "operationId": "exportQrProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrExportConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Export artifact descriptor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrExportArtifactV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "QrPayloadConfigV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "kind", "payload"],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-payload-config.v1"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      },
+      "QrDesignConfigV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion"],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-design-config.v1"
+          }
+        }
+      },
+      "QrExportConfigV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "format"],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-export-config.v1"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["png", "jpg", "svg", "pdf"]
+          }
+        }
+      },
+      "QrProjectConfigV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "name", "payload", "design", "export"],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-project-config.v1"
+          },
+          "name": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/QrPayloadConfigV1"
+          },
+          "design": {
+            "$ref": "#/components/schemas/QrDesignConfigV1"
+          },
+          "export": {
+            "$ref": "#/components/schemas/QrExportConfigV1"
+          }
+        }
+      },
+      "QrTypeRegistryV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "types"],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-type-registry.v1"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ValidationIssueV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "code", "severity", "message"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning"]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "QrProjectValidationResponseV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["valid", "issues"],
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssueV1"
+            }
+          }
+        }
+      },
+      "QrPreviewResponseV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mimeType", "preview", "warnings"],
+        "properties": {
+          "mimeType": {
+            "type": "string",
+            "const": "image/svg+xml"
+          },
+          "preview": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssueV1"
+            }
+          }
+        }
+      },
+      "QrProjectRecordV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["projectId", "schemaVersion", "name", "payload", "design", "export", "createdAt", "updatedAt"],
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string",
+            "const": "qurl.qr-project-config.v1"
+          },
+          "name": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/QrPayloadConfigV1"
+          },
+          "design": {
+            "$ref": "#/components/schemas/QrDesignConfigV1"
+          },
+          "export": {
+            "$ref": "#/components/schemas/QrExportConfigV1"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "QrExportArtifactV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifactId", "format", "downloadUrl", "fileName"],
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["png", "jpg", "svg", "pdf"]
+          },
+          "downloadUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

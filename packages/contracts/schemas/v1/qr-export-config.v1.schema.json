@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qurl.dev/schemas/qr-export-config.v1.schema.json",
+  "title": "QR Export Config v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "format"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "qurl.qr-export-config.v1"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["png", "jpg", "svg", "pdf"]
+    },
+    "pixelSize": {
+      "type": "integer",
+      "minimum": 64
+    },
+    "marginModules": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 32
+    },
+    "transparentBackground": {
+      "type": "boolean"
+    },
+    "dpi": {
+      "type": "integer",
+      "minimum": 72,
+      "maximum": 1200
+    },
+    "pageSize": {
+      "type": "string",
+      "enum": ["auto", "letter", "a4"]
+    },
+    "bleedMm": {
+      "type": "number",
+      "minimum": 0
+    },
+    "fileName": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

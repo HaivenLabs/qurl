@@ -1,0 +1,30 @@
+{
+  "name": "qurl",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "bootstrap": "corepack enable && pnpm install",
+    "check": "pnpm run lint && pnpm run test && pnpm run typecheck && pnpm run format:check",
+    "dev": "pnpm -r --if-present --parallel --stream dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.0.0"
+  }
+}

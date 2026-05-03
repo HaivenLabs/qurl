@@ -1,0 +1,556 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qurl.dev/schemas/qr-payload-config.v1.schema.json",
+  "title": "QR Payload Config v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "payload"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "qurl.qr-payload-config.v1"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "url",
+        "text",
+        "email",
+        "phone",
+        "sms",
+        "wifi",
+        "vcard",
+        "location",
+        "social-profile",
+        "app-download-link",
+        "pdf-url",
+        "image-url",
+        "menu-url",
+        "review-url",
+        "crypto-address",
+        "payment-link"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "url"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/urlPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "text"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/textPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "email"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/emailPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "phone"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/phonePayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "sms"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/smsPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "wifi"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/wifiPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "vcard"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/vcardPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "location"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/locationPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "social-profile"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/socialProfilePayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "app-download-link"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/appDownloadLinkPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "pdf-url"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/simpleUrlPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "image-url"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/simpleUrlPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "menu-url"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/simpleUrlPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "review-url"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/reviewUrlPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "crypto-address"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/cryptoAddressPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "payment-link"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/paymentLinkPayload"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "urlPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["destinationUrl"],
+      "properties": {
+        "destinationUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "normalize": {
+          "type": "boolean"
+        }
+      }
+    },
+    "textPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "emailPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["to"],
+      "properties": {
+        "to": {
+          "type": "string",
+          "format": "email"
+        },
+        "cc": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
+      }
+    },
+    "phonePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number"],
+      "properties": {
+        "number": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "smsPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number"],
+      "properties": {
+        "number": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "wifiPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ssid"],
+      "properties": {
+        "ssid": {
+          "type": "string",
+          "minLength": 1
+        },
+        "security": {
+          "type": "string",
+          "enum": ["none", "wpa", "wpa2", "wpa3"]
+        },
+        "password": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        }
+      }
+    },
+    "vcardPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fullName"],
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "locationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latitude", "longitude"],
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "socialProfilePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "url"],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["instagram", "tiktok", "x", "facebook", "linkedin", "youtube", "website", "other"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "handle": {
+          "type": "string"
+        }
+      }
+    },
+    "appDownloadLinkPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["appName"],
+      "properties": {
+        "appName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "androidUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "iosUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "webUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "simpleUrlPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "reviewUrlPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "url"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["google", "yelp", "tripadvisor", "amazon", "other"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "cryptoAddressPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "address"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "enum": ["btc", "eth", "usdc", "sol", "ltc", "other"]
+        },
+        "address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "paymentLinkPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "url"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["stripe", "paypal", "square", "venmo", "cashapp", "other"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "reference": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

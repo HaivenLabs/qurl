@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qurl.dev/schemas/qr-design-config.v1.schema.json",
+  "title": "QR Design Config v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "qurl.qr-design-config.v1"
+    },
+    "errorCorrectionLevel": {
+      "type": "string",
+      "enum": ["L", "M", "Q", "H"]
+    },
+    "quietZoneModules": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16
+    },
+    "foregroundColor": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "backgroundTransparent": {
+      "type": "boolean"
+    },
+    "moduleStyle": {
+      "type": "string",
+      "enum": ["square", "rounded", "dot"]
+    },
+    "eyeStyle": {
+      "type": "string",
+      "enum": ["square", "rounded"]
+    },
+    "logo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["none", "image", "text"]
+        },
+        "assetRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "fit": {
+          "type": "string",
+          "enum": ["contain", "cover"]
+        },
+        "sizeRatio": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 0.4
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "style": {
+          "type": "string",
+          "enum": ["none", "square", "rounded", "pill"]
+        },
+        "label": {
+          "type": "string"
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": ["top", "bottom"]
+        }
+      }
+    },
+    "templateId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

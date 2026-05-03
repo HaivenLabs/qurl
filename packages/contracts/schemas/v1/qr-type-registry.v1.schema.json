@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qurl.dev/schemas/qr-type-registry.v1.schema.json",
+  "title": "QR Type Registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "types"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "qurl.qr-type-registry.v1"
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/typeDefinition"
+      }
+    }
+  },
+  "$defs": {
+    "typeDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label", "category", "status", "directEncoding", "payloadSchemaId"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "url",
+            "text",
+            "email",
+            "phone",
+            "sms",
+            "wifi",
+            "vcard",
+            "location",
+            "social-profile",
+            "app-download-link",
+            "pdf-url",
+            "image-url",
+            "menu-url",
+            "review-url",
+            "crypto-address",
+            "payment-link"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "enum": ["direct", "contact", "communication", "network", "location", "social", "commerce", "media"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["mvp", "planned"]
+        },
+        "directEncoding": {
+          "type": "boolean"
+        },
+        "payloadSchemaId": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}
