@@ -4,7 +4,6 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$backendRoot = Join-Path $repoRoot "backend"
-Set-Location $backendRoot
+Set-Location $repoRoot
 
-go run ./cmd/qurl-backend
+node ./scripts/dev-backend.mjs

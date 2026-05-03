@@ -113,17 +113,33 @@ corepack enable
 pnpm install
 ```
 
-Run the web app:
+Run the Docker local runtime:
+
+```powershell
+pnpm run dev
+```
+
+This is the default development path. It runs the web and backend services through Docker Compose so the Go backend binary stays inside the container instead of appearing as a Windows `.exe`.
+
+Stop the Docker runtime:
+
+```powershell
+pnpm run docker:down
+```
+
+Run the web app without Docker:
 
 ```powershell
 pnpm run dev:web
 ```
 
-Run the backend:
+Run the backend without Docker:
 
 ```powershell
 pnpm run dev:backend
 ```
+
+On Windows, the non-Docker backend path builds an ignored local binary at `.cache/bin/qurl-backend.exe` and runs it from there. Prefer Docker unless you are intentionally debugging the backend outside a container.
 
 Run checks:
 

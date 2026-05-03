@@ -1,0 +1,11 @@
+.cache/
+.expo/
+.expo-shared/
+.git/
+.turbo/
+apps/web/dist/
+apps/web/web-build/
+coverage/
+dist/
+node_modules/
+web-build/

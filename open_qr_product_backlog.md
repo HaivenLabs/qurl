@@ -1,5 +1,20 @@
 # Open QR Product Backlog
 
+## Delivery Status Convention
+
+Use a compact lifecycle line under every story heading so humans and bots can understand implementation progress without guessing.
+
+Lifecycle format:
+`Lifecycle: Code=<status> | Review=<status> | Human=<status> | Evidence=<note>`
+
+Allowed values:
+
+- Code: NOT_STARTED, IN_PROGRESS, CODED, BLOCKED
+- Review: NOT_REVIEWED, IN_REVIEW, CHANGES_REQUESTED, PEER_REVIEWED
+- Human: NOT_TESTED, TESTING, FAILED, HUMAN_TESTED
+
+Evidence should reference a PR, commit, test run, screenshot, local verification note, or peer-review note. Use `none` when there is no evidence yet.
+
 ## MVP Build Instruction
 
 Build the MVP first. The MVP is focused on delivering the free QR creation experience end-to-end before adding hosted analytics, paid subscriptions, teams, bulk operations, APIs, or AI features.
@@ -694,6 +709,29 @@ As a first-time visitor, I want to create a QR code quickly without creating an 
 
 This is the product’s core free experience. It must be fast, trustworthy, and polished enough that users believe the paid version will be excellent.
 
+## Epic Delivery Status
+
+| Story                                             | Code        | Review       | Human      | Evidence                                                                 |
+| ------------------------------------------------- | ----------- | ------------ | ---------- | ------------------------------------------------------------------------ |
+| 1.1: Start a QR code without login                | CODED       | NOT_REVIEWED | TESTING    | anonymous creator and login-free download path shipped                   |
+| 1.2: Create a direct URL QR code                  | CODED       | NOT_REVIEWED | TESTING    | direct URL validation, live preview, and export path wired               |
+| 1.3: Support common static QR payload types       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.4: Live QR preview                              | CODED       | NOT_REVIEWED | TESTING    | live preview updates from the typed URL with backend fallback            |
+| 1.5: Choose QR error correction level             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.6: Customize foreground and background colors   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.7: Support transparent background               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.8: Customize QR module/dot style                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.9: Customize finder/marker shapes               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.10: Add a logo to the QR code                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.11: Add stickers, frames, and CTA text          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.12: Choose overall QR shape treatment           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.13: Download QR code files                      | IN_PROGRESS | NOT_REVIEWED | TESTING    | SVG download/export wired through the Go API; PNG/JPG/EPS remain pending |
+| 1.14: Print-readiness controls                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.15: Scannability validation                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.16: Reset, duplicate, and clear design controls | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.17: Anonymous session persistence               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+| 1.18: Free-to-account handoff                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none                                                                     |
+
 ## Product Intent
 
 The user should land on the site, enter a destination or supported QR payload, customize the QR code visually, preview it live, and download it without friction. No login, no hidden redirect, no bait-and-switch.
@@ -703,6 +741,8 @@ For URL QR codes, the generated QR code must encode the exact destination URL en
 ## User Stories
 
 ### Story 1.1: Start a QR code without login
+
+Lifecycle: Code=CODED | Review=NOT_REVIEWED | Human=TESTING | Evidence=anonymous creator and login-free download path shipped
 
 As a visitor, I want to start creating a QR code immediately without creating an account so that I can get value before deciding whether to register.
 
@@ -715,6 +755,8 @@ Acceptance criteria:
 - The user is offered account creation only after meaningful value is delivered, such as after preview or download.
 
 ### Story 1.2: Create a direct URL QR code
+
+Lifecycle: Code=CODED | Review=NOT_REVIEWED | Human=TESTING | Evidence=direct URL validation, live preview, and export path wired
 
 As a visitor, I want to enter a URL and generate a QR code that points directly to that URL so that scanners go exactly where I intended without being routed through a third-party redirect domain.
 
@@ -730,6 +772,8 @@ Acceptance criteria:
 
 ### Story 1.3: Support common static QR payload types
 
+Lifecycle: Code=CODED | Review=NOT_REVIEWED | Human=TESTING | Evidence=live preview updates from the typed URL with backend fallback
+
 As a visitor, I want to create QR codes for common static data types so that I can use the tool for more than website links.
 
 Acceptance criteria:
@@ -743,6 +787,8 @@ Acceptance criteria:
 
 ### Story 1.4: Live QR preview
 
+Lifecycle: Code=IN_PROGRESS | Review=NOT_REVIEWED | Human=TESTING | Evidence=SVG download/export wired through the Go API; PNG/JPG/EPS remain pending
+
 As a visitor, I want the QR code preview to update as I edit content and design options so that I can see what I am creating before downloading it.
 
 Acceptance criteria:
@@ -755,6 +801,8 @@ Acceptance criteria:
 
 ### Story 1.5: Choose QR error correction level
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want to choose the QR error correction level so that I can balance scan reliability, data density, and visual customization.
 
 Acceptance criteria:
@@ -766,6 +814,8 @@ Acceptance criteria:
 - If the payload is too large, the user receives a clear recommendation.
 
 ### Story 1.6: Customize foreground and background colors
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want to customize QR foreground and background colors so that the QR code matches my brand or design.
 
@@ -781,6 +831,8 @@ Acceptance criteria:
 
 ### Story 1.7: Support transparent background
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want to download a QR code with a transparent background so that I can place it cleanly on designed materials.
 
 Acceptance criteria:
@@ -792,6 +844,8 @@ Acceptance criteria:
 - The product warns if the resulting QR code may not scan well on unknown backgrounds.
 
 ### Story 1.8: Customize QR module/dot style
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want to customize the shape of the QR code modules/dots so that the code looks more distinctive.
 
@@ -806,6 +860,8 @@ Acceptance criteria:
 
 ### Story 1.9: Customize finder/marker shapes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want to customize the large QR corner markers so that the QR code has a more branded look.
 
 Acceptance criteria:
@@ -819,6 +875,8 @@ Acceptance criteria:
 - The product warns users when marker customization may reduce scannability.
 
 ### Story 1.10: Add a logo to the QR code
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want to add a logo to the center of the QR code so that the code is branded and recognizable.
 
@@ -835,6 +893,8 @@ Acceptance criteria:
 
 ### Story 1.11: Add stickers, frames, and CTA text
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want to add a frame or sticker with optional CTA text so that the QR code is more noticeable and action-oriented.
 
 Acceptance criteria:
@@ -849,6 +909,8 @@ Acceptance criteria:
 
 ### Story 1.12: Choose overall QR shape treatment
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want to apply overall shape treatments so that the QR code can better fit campaign artwork or brand assets.
 
 Acceptance criteria:
@@ -861,6 +923,8 @@ Acceptance criteria:
 - The shape treatment system is extensible.
 
 ### Story 1.13: Download QR code files
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want to download my QR code in common formats so that I can use it across print and digital materials.
 
@@ -878,6 +942,8 @@ Acceptance criteria:
 
 ### Story 1.14: Print-readiness controls
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want print-focused settings so that my QR code works reliably on physical materials.
 
 Acceptance criteria:
@@ -891,6 +957,8 @@ Acceptance criteria:
 
 ### Story 1.15: Scannability validation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want the product to help me avoid creating a QR code that looks good but does not scan reliably.
 
 Acceptance criteria:
@@ -902,6 +970,8 @@ Acceptance criteria:
 - The user can still download with warnings after acknowledging risk.
 
 ### Story 1.16: Reset, duplicate, and clear design controls
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want simple editing controls so that I can experiment without getting stuck.
 
@@ -915,6 +985,8 @@ Acceptance criteria:
 
 ### Story 1.17: Anonymous session persistence
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a visitor, I want my in-progress QR code to remain available during the current browser session so that I do not lose work accidentally.
 
 Acceptance criteria:
@@ -926,6 +998,8 @@ Acceptance criteria:
 - Sensitive payload types are handled carefully and not unnecessarily retained.
 
 ### Story 1.18: Free-to-account handoff
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a visitor, I want the option to create an account after designing a QR code so that I can save it without starting over.
 
@@ -957,6 +1031,34 @@ As a user who has created one or more QR codes, I want the option to create an a
 
 This epic creates the bridge between the anonymous free experience and the deeper freemium product. Account creation should feel like a helpful upgrade, not a hostage situation. Users can still create and download QR codes for free without logging in, but accounts unlock persistence, organization, reuse, and future premium feature eligibility.
 
+## Epic Delivery Status
+
+| Story                                                     | Code        | Review       | Human      | Evidence |
+| --------------------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 2.1: Create an account from the QR creation flow          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.2: Sign up with email and password                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.3: Sign in and sign out                                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.4: Reset password                                       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.5: View saved QR codes in a dashboard                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.6: Save a QR code                                       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.7: Edit a saved QR code                                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.8: Duplicate a saved QR code                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.9: Favorite saved QR codes                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.10: Search saved QR codes                               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.11: Filter and sort saved QR codes                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.12: Organize QR codes with folders or collections       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.13: Add tags to saved QR codes                          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.14: Archive and restore saved QR codes                  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.15: Delete a saved QR code                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.16: Re-download a saved QR code                         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.17: View QR code detail page                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.18: Preserve anonymous work after login or signup       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.19: Account profile basics                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.20: Free plan limits and upgrade readiness              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.21: Privacy and ownership boundaries                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.22: Safe handling of saved logos and assets             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 2.23: Saved design metadata for open-source extensibility | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 The product should earn account creation by giving users a reason to come back. A user who creates a QR code anonymously should be able to save that exact work into a new account without losing anything. A returning user should have a lightweight dashboard where saved QR codes are easy to find, edit, duplicate, favorite, archive, and download again.
@@ -966,6 +1068,8 @@ The account layer should also prepare the product for future paid plans, hosted 
 ## User Stories
 
 ### Story 2.1: Create an account from the QR creation flow
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an anonymous user, I want to create an account after designing a QR code so that I can save my work without starting over.
 
@@ -979,6 +1083,8 @@ Acceptance criteria:
 - Failed account creation does not destroy the in-progress QR code.
 
 ### Story 2.2: Sign up with email and password
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a new user, I want to create an account with email and password so that I can access saved QR codes across devices.
 
@@ -994,6 +1100,8 @@ Acceptance criteria:
 
 ### Story 2.3: Sign in and sign out
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to sign in and sign out securely so that I can control access to my saved QR codes.
 
 Acceptance criteria:
@@ -1007,6 +1115,8 @@ Acceptance criteria:
 
 ### Story 2.4: Reset password
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to reset my password if I forget it so that I can regain access to my saved QR codes.
 
 Acceptance criteria:
@@ -1018,6 +1128,8 @@ Acceptance criteria:
 - Expired or invalid reset links produce clear recovery guidance.
 
 ### Story 2.5: View saved QR codes in a dashboard
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want a dashboard of my saved QR codes so that I can find and manage previous work.
 
@@ -1032,6 +1144,8 @@ Acceptance criteria:
 
 ### Story 2.6: Save a QR code
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to save a QR code configuration so that I can edit, download, or reuse it later.
 
 Acceptance criteria:
@@ -1044,6 +1158,8 @@ Acceptance criteria:
 - Saved static QR codes remain direct unless the user explicitly enables tracking later.
 
 ### Story 2.7: Edit a saved QR code
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to reopen and edit a saved QR code so that I can update its design or payload when needed.
 
@@ -1059,6 +1175,8 @@ Acceptance criteria:
 
 ### Story 2.8: Duplicate a saved QR code
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to duplicate an existing QR code so that I can reuse a design without rebuilding it from scratch.
 
 Acceptance criteria:
@@ -1070,6 +1188,8 @@ Acceptance criteria:
 - Duplicating a QR code does not enable tracking or paid features automatically.
 
 ### Story 2.9: Favorite saved QR codes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to favorite important QR codes so that I can quickly find the ones I use most.
 
@@ -1083,6 +1203,8 @@ Acceptance criteria:
 
 ### Story 2.10: Search saved QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to search my saved QR codes so that I can quickly locate a specific code.
 
 Acceptance criteria:
@@ -1094,6 +1216,8 @@ Acceptance criteria:
 - Search respects the authenticated user’s ownership boundaries.
 
 ### Story 2.11: Filter and sort saved QR codes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to filter and sort saved QR codes so that I can manage larger collections efficiently.
 
@@ -1108,6 +1232,8 @@ Acceptance criteria:
 
 ### Story 2.12: Organize QR codes with folders or collections
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to group saved QR codes into folders or collections so that I can organize work by campaign, customer, location, brand, or use case.
 
 Acceptance criteria:
@@ -1120,6 +1246,8 @@ Acceptance criteria:
 - Deleting a folder does not accidentally delete QR codes unless explicitly chosen and confirmed.
 
 ### Story 2.13: Add tags to saved QR codes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to tag saved QR codes so that I can organize and find them across folders or campaigns.
 
@@ -1134,6 +1262,8 @@ Acceptance criteria:
 
 ### Story 2.14: Archive and restore saved QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to archive old QR codes instead of deleting them so that I can clean up my dashboard without losing history.
 
 Acceptance criteria:
@@ -1146,6 +1276,8 @@ Acceptance criteria:
 - Archiving a future hosted-tracked QR code should not break its redirect behavior unless the user explicitly disables it.
 
 ### Story 2.15: Delete a saved QR code
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to delete saved QR codes I no longer need so that I can manage my account cleanly.
 
@@ -1160,6 +1292,8 @@ Acceptance criteria:
 
 ### Story 2.16: Re-download a saved QR code
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to download a saved QR code again so that I can reuse it without rebuilding it.
 
 Acceptance criteria:
@@ -1171,6 +1305,8 @@ Acceptance criteria:
 - Direct QR codes remain direct during re-download.
 
 ### Story 2.17: View QR code detail page
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want a detail page for each saved QR code so that I can understand its configuration and available actions.
 
@@ -1184,6 +1320,8 @@ Acceptance criteria:
 
 ### Story 2.18: Preserve anonymous work after login or signup
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user moving from anonymous to authenticated, I want my current QR work to survive login or signup so that creating an account does not interrupt my workflow.
 
 Acceptance criteria:
@@ -1195,6 +1333,8 @@ Acceptance criteria:
 - The user does not lose uploaded logo or design choices during the handoff, subject to safe upload handling.
 
 ### Story 2.19: Account profile basics
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to manage basic account information so that I can maintain access and identity.
 
@@ -1209,6 +1349,8 @@ Acceptance criteria:
 
 ### Story 2.20: Free plan limits and upgrade readiness
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a product owner, I want the Free account plan to have clear, generous limits and upgrade-ready boundaries so that we can monetize later without making the free product feel crippled.
 
 Acceptance criteria:
@@ -1222,6 +1364,8 @@ Acceptance criteria:
 
 ### Story 2.21: Privacy and ownership boundaries
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want my saved QR codes to be private to my account so that other users cannot access or modify my work.
 
 Acceptance criteria:
@@ -1233,6 +1377,8 @@ Acceptance criteria:
 - Logs avoid exposing sensitive payloads unnecessarily.
 
 ### Story 2.22: Safe handling of saved logos and assets
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want logos and uploaded assets used in saved QR codes to be stored safely so that my saved designs render correctly later.
 
@@ -1246,6 +1392,8 @@ Acceptance criteria:
 - Deleting a QR code handles associated assets according to storage policy.
 
 ### Story 2.23: Saved design metadata for open-source extensibility
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an open-source contributor, I want saved QR configurations to use a clear, versioned schema so that future renderers, import/export tools, and migrations are manageable.
 
@@ -1281,6 +1429,31 @@ As a user creating a QR code, I want to choose whether scans go directly to my d
 
 This epic introduces the product’s most important strategic differentiation: tracking is optional, transparent, and user-controlled. The default QR code remains direct. If the user wants scan data, they can opt into self-managed tracking for free by providing their own tracking destination, analytics endpoint, webhook, or third-party analytics integration. Future hosted analytics can become a paid upgrade, but the free product should still empower technical and semi-technical users to track scans themselves.
 
+## Epic Delivery Status
+
+| Story                                                            | Code        | Review       | Human      | Evidence |
+| ---------------------------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 3.1: Choose scan behavior explicitly                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.2: Direct QR mode remains the default                          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.3: Explain the tradeoffs between direct and tracked QR codes   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.4: Enable self-managed tracking with a user-owned tracking URL | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.5: Support destination URL parameter injection                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.6: Support UTM parameter builder                               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.7: Save reusable tracking presets                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.8: Provide common third-party analytics patterns               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.9: Generate a sample self-hosted tracking endpoint             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.10: Optional QR identifier parameter                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.11: Validate tracking URL behavior                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.12: Preview final scan path                                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.13: Make self-managed tracking available without subscription  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.14: Prepare for future hosted tracking upgrade                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.15: Prevent misleading analytics claims                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.16: Privacy-aware tracking guidance                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.17: Store tracking configuration with saved QR codes           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.18: Warn when editing tracked or direct saved codes            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.19: Export tracking setup summary                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 3.20: Tracking mode visual indicator                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 Most QR platforms use dynamic QR codes as a subscription wedge. They route scans through their own redirect domain, collect scan data, and require paid plans to access meaningful analytics or keep editability alive. This product should invert that relationship.
@@ -1297,6 +1470,8 @@ In v1, this epic focuses on direct QR and self-managed tracking. Hosted premium 
 
 ### Story 3.1: Choose scan behavior explicitly
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a QR creator, I want to choose whether my QR code is direct or tracked so that I understand exactly what scanners will hit.
 
 Acceptance criteria:
@@ -1311,6 +1486,8 @@ Acceptance criteria:
 
 ### Story 3.2: Direct QR mode remains the default
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user who does not need analytics, I want QR codes to point directly to my destination by default so that I avoid unnecessary redirects, subscriptions, platform lock-in, and privacy concerns.
 
 Acceptance criteria:
@@ -1324,6 +1501,8 @@ Acceptance criteria:
 
 ### Story 3.3: Explain the tradeoffs between direct and tracked QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want a simple explanation of direct versus tracked QR codes so that I can choose the right mode for my use case.
 
 Acceptance criteria:
@@ -1336,6 +1515,8 @@ Acceptance criteria:
 - The explanation is concise and appears contextually, not as a blocking wall of text.
 
 ### Story 3.4: Enable self-managed tracking with a user-owned tracking URL
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to provide my own tracking URL so that my QR code can route through infrastructure I control before reaching the final destination.
 
@@ -1352,6 +1533,8 @@ Acceptance criteria:
 
 ### Story 3.5: Support destination URL parameter injection
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user with my own tracking endpoint, I want the product to append the final destination as a parameter so that my tracking service knows where to redirect after logging the scan.
 
 Acceptance criteria:
@@ -1364,6 +1547,8 @@ Acceptance criteria:
 - The product provides safe implementation guidance for self-hosted tracking endpoints.
 
 ### Story 3.6: Support UTM parameter builder
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a marketer, I want to add UTM parameters to my destination URL so that I can track QR traffic in my existing analytics tools without needing a redirect.
 
@@ -1379,6 +1564,8 @@ Acceptance criteria:
 
 ### Story 3.7: Save reusable tracking presets
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to save tracking presets so that I can reuse the same self-managed tracking configuration across multiple QR codes.
 
 Acceptance criteria:
@@ -1393,6 +1580,8 @@ Acceptance criteria:
 
 ### Story 3.8: Provide common third-party analytics patterns
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want guided setup for common analytics tools so that I can track QR traffic using tools I already have.
 
 Acceptance criteria:
@@ -1404,6 +1593,8 @@ Acceptance criteria:
 - The UI helps users understand whether they need access to the destination website, a redirect endpoint, or both.
 
 ### Story 3.9: Generate a sample self-hosted tracking endpoint
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a technical user, I want example code for a self-hosted tracking endpoint so that I can run tracking myself.
 
@@ -1419,6 +1610,8 @@ Acceptance criteria:
 
 ### Story 3.10: Optional QR identifier parameter
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user tracking multiple QR codes through my own endpoint, I want each QR code to include an identifier so that I can distinguish scans by code or campaign.
 
 Acceptance criteria:
@@ -1431,6 +1624,8 @@ Acceptance criteria:
 - The product explains that identifier reporting depends on the user’s tracking endpoint or analytics tool.
 
 ### Story 3.11: Validate tracking URL behavior
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want the product to validate my self-managed tracking URL so that I can avoid broken QR codes.
 
@@ -1446,6 +1641,8 @@ Acceptance criteria:
 
 ### Story 3.12: Preview final scan path
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to preview the scan path so that I understand where a scanner will go.
 
 Acceptance criteria:
@@ -1458,6 +1655,8 @@ Acceptance criteria:
 - The preview is visible before download.
 
 ### Story 3.13: Make self-managed tracking available without subscription
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to use self-managed tracking without paying a subscription so that I can own my analytics workflow.
 
@@ -1472,6 +1671,8 @@ Acceptance criteria:
 
 ### Story 3.14: Prepare for future hosted tracking upgrade
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a product owner, I want the tracking model to support future hosted analytics so that paid tracking can be added later without redesigning the product.
 
 Acceptance criteria:
@@ -1484,6 +1685,8 @@ Acceptance criteria:
 - The product does not advertise paid hosted tracking as available until it exists.
 
 ### Story 3.15: Prevent misleading analytics claims
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want the product to be honest about what it can and cannot track so that I can make informed decisions.
 
@@ -1498,6 +1701,8 @@ Acceptance criteria:
 
 ### Story 3.16: Privacy-aware tracking guidance
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want guidance on responsible tracking so that I do not accidentally collect sensitive or unnecessary scan data.
 
 Acceptance criteria:
@@ -1510,6 +1715,8 @@ Acceptance criteria:
 - The product avoids adding hidden tracking parameters without user consent.
 
 ### Story 3.17: Store tracking configuration with saved QR codes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want my tracking configuration saved with each QR code so that I can understand and reproduce the scan behavior later.
 
@@ -1525,6 +1732,8 @@ Acceptance criteria:
 
 ### Story 3.18: Warn when editing tracked or direct saved codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want clear warnings when changing saved QR codes so that I understand whether printed codes will still work as expected.
 
 Acceptance criteria:
@@ -1536,6 +1745,8 @@ Acceptance criteria:
 - Future hosted tracking can support editable destinations through our redirect service, but that behavior is not implied for direct or self-managed modes.
 
 ### Story 3.19: Export tracking setup summary
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to export or copy a summary of my tracking setup so that I can configure my analytics system or share instructions with a developer.
 
@@ -1549,6 +1760,8 @@ Acceptance criteria:
 - The exported summary avoids including secrets.
 
 ### Story 3.20: Tracking mode visual indicator
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want a clear visual indicator of the QR code’s scan mode so that I do not confuse direct, self-managed, and hosted-tracked codes.
 
@@ -1585,6 +1798,36 @@ As a registered user with business, campaign, or operational needs, I want to cr
 
 This epic defines the paid upgrade foundation. Hosted dynamic QR codes are different from free Direct QR codes and free Self-managed tracking. In hosted mode, scans route through our redirect infrastructure, which enables editable destinations, analytics, attribution, dashboards, exports, alerts, and future enterprise features.
 
+## Epic Delivery Status
+
+| Story                                                  | Code        | Review       | Human      | Evidence |
+| ------------------------------------------------------ | ----------- | ------------ | ---------- | -------- |
+| 4.1: Upgrade to hosted dynamic QR mode                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.2: Create a hosted redirect link                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.3: Edit destination after QR distribution            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.4: Maintain destination history                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.5: Pause and resume a hosted QR code                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.6: Configure fallback destination or inactive page   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.7: Set QR expiration rules                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.8: Capture scan events                               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.9: Respect privacy and compliance in scan collection | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.10: View scan analytics summary                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.11: Analytics dashboard across QR codes              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.12: Date range filtering                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.13: Scan event table                                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.14: Bot and duplicate filtering                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.15: Export hosted analytics                          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.16: Webhook notifications for hosted scans           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.17: Custom short slug                                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.18: Custom domain support                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.19: Managed hosted domain                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.20: Campaign grouping for hosted analytics           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.21: Plan-aware hosted QR limits                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.22: Downgrade behavior for hosted QR codes           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.23: Hosted QR health monitoring                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.24: Abuse prevention for hosted redirects            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 4.25: Open-source redirect and analytics architecture  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 The product should monetize hosted capabilities without breaking trust. Direct QR codes remain free and direct. Self-managed tracking remains free and user-owned. Hosted tracking is a premium convenience and power layer for users who want us to operate the redirect infrastructure, collect analytics, display dashboards, manage destinations, and support more advanced campaign workflows.
@@ -1594,6 +1837,8 @@ The user must always understand that hosted dynamic QR codes encode one of our m
 ## User Stories
 
 ### Story 4.1: Upgrade to hosted dynamic QR mode
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to upgrade a QR code to hosted dynamic mode so that I can change its destination later and use managed analytics.
 
@@ -1610,6 +1855,8 @@ Acceptance criteria:
 
 ### Story 4.2: Create a hosted redirect link
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted tracking user, I want the system to create a managed redirect link so that scans can be routed, measured, and forwarded to the final destination.
 
 Acceptance criteria:
@@ -1623,6 +1870,8 @@ Acceptance criteria:
 - The redirect service supports a future custom-domain mapping model.
 
 ### Story 4.3: Edit destination after QR distribution
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a hosted dynamic QR user, I want to change the destination URL after the QR code has already been downloaded or printed so that I can update campaigns without redistributing the QR code.
 
@@ -1638,6 +1887,8 @@ Acceptance criteria:
 
 ### Story 4.4: Maintain destination history
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted dynamic QR user, I want to see destination history so that I can audit where a QR code has pointed over time.
 
 Acceptance criteria:
@@ -1650,6 +1901,8 @@ Acceptance criteria:
 - Sensitive query parameters are handled according to privacy policy and redaction settings.
 
 ### Story 4.5: Pause and resume a hosted QR code
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a hosted dynamic QR user, I want to pause a QR code so that scans stop redirecting during expired, incorrect, or risky campaigns.
 
@@ -1664,6 +1917,8 @@ Acceptance criteria:
 
 ### Story 4.6: Configure fallback destination or inactive page
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted dynamic QR user, I want to configure what scanners see when a QR code is paused, expired, or unavailable so that the experience remains professional.
 
 Acceptance criteria:
@@ -1677,6 +1932,8 @@ Acceptance criteria:
 
 ### Story 4.7: Set QR expiration rules
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted dynamic QR user, I want to set expiration rules so that campaign QR codes stop working or redirect elsewhere after a campaign ends.
 
 Acceptance criteria:
@@ -1689,6 +1946,8 @@ Acceptance criteria:
 - The product supports timezone-aware expiration settings.
 
 ### Story 4.8: Capture scan events
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a hosted analytics user, I want scan events recorded when people scan my hosted QR code so that I can measure engagement.
 
@@ -1706,6 +1965,8 @@ Acceptance criteria:
 
 ### Story 4.9: Respect privacy and compliance in scan collection
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a platform owner, I want hosted tracking to collect analytics responsibly so that users get useful insights without creating unnecessary privacy risk.
 
 Acceptance criteria:
@@ -1719,6 +1980,8 @@ Acceptance criteria:
 - The system is designed with privacy laws and regional requirements in mind, including opt-out and consent patterns where applicable.
 
 ### Story 4.10: View scan analytics summary
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a hosted analytics user, I want a simple analytics summary so that I can quickly understand QR performance.
 
@@ -1735,6 +1998,8 @@ Acceptance criteria:
 
 ### Story 4.11: Analytics dashboard across QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted analytics user, I want an account-level analytics dashboard so that I can compare QR performance across campaigns.
 
 Acceptance criteria:
@@ -1749,6 +2014,8 @@ Acceptance criteria:
 
 ### Story 4.12: Date range filtering
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted analytics user, I want to filter analytics by date range so that I can measure specific campaign windows.
 
 Acceptance criteria:
@@ -1760,6 +2027,8 @@ Acceptance criteria:
 - The user can reset date filters.
 
 ### Story 4.13: Scan event table
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a hosted analytics user, I want to view a scan event table so that I can inspect individual scan records when needed.
 
@@ -1774,6 +2043,8 @@ Acceptance criteria:
 
 ### Story 4.14: Bot and duplicate filtering
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted analytics user, I want scans filtered for bots and obvious duplicates so that analytics are more useful.
 
 Acceptance criteria:
@@ -1787,6 +2058,8 @@ Acceptance criteria:
 
 ### Story 4.15: Export hosted analytics
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted analytics user, I want to export scan analytics so that I can analyze campaign performance outside the product.
 
 Acceptance criteria:
@@ -1799,6 +2072,8 @@ Acceptance criteria:
 - The export avoids including raw sensitive data unless explicitly supported and allowed.
 
 ### Story 4.16: Webhook notifications for hosted scans
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an advanced hosted analytics user, I want webhook notifications for scans so that I can send scan events into my own systems.
 
@@ -1814,6 +2089,8 @@ Acceptance criteria:
 
 ### Story 4.17: Custom short slug
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted dynamic QR user, I want to customize the short slug for my hosted QR code so that the encoded URL is readable and campaign-friendly.
 
 Acceptance criteria:
@@ -1826,6 +2103,8 @@ Acceptance criteria:
 - Changing a slug after distribution requires clear warnings because old printed codes may continue to encode the old URL.
 
 ### Story 4.18: Custom domain support
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a business user, I want hosted QR redirects to use my own domain so that scanners trust the link and the experience is brand-aligned.
 
@@ -1841,6 +2120,8 @@ Acceptance criteria:
 
 ### Story 4.19: Managed hosted domain
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a hosted QR user without a custom domain, I want a trustworthy managed short domain so that I can use hosted tracking without configuring DNS.
 
 Acceptance criteria:
@@ -1853,6 +2134,8 @@ Acceptance criteria:
 - The final hosted URL is visible before download.
 
 ### Story 4.20: Campaign grouping for hosted analytics
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a marketer, I want to group hosted QR codes into campaigns so that I can measure related codes together.
 
@@ -1867,6 +2150,8 @@ Acceptance criteria:
 
 ### Story 4.21: Plan-aware hosted QR limits
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a product owner, I want hosted dynamic QR usage to be plan-aware so that we can monetize fairly while preserving a generous free product.
 
 Acceptance criteria:
@@ -1879,6 +2164,8 @@ Acceptance criteria:
 - The limit system is configurable without code changes where practical.
 
 ### Story 4.22: Downgrade behavior for hosted QR codes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a subscribed user, I want to understand what happens to hosted QR codes if I cancel or downgrade so that I can avoid breaking printed campaigns unexpectedly.
 
@@ -1893,6 +2180,8 @@ Acceptance criteria:
 
 ### Story 4.23: Hosted QR health monitoring
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a platform operator, I want hosted redirect health monitored so that paid QR scans remain fast and reliable.
 
 Acceptance criteria:
@@ -1905,6 +2194,8 @@ Acceptance criteria:
 - The product can show user-facing status when there is a known incident.
 
 ### Story 4.24: Abuse prevention for hosted redirects
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a platform owner, I want to prevent hosted redirects from being used for phishing, malware, spam, or abuse so that the service remains trustworthy.
 
@@ -1919,6 +2210,8 @@ Acceptance criteria:
 - Abuse prevention is designed carefully to avoid overreaching into Direct QR codes we do not host.
 
 ### Story 4.25: Open-source redirect and analytics architecture
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an open-source contributor, I want the hosted redirect and analytics system to be clearly designed so that it can be reviewed, extended, and self-hosted where appropriate.
 
@@ -1957,6 +2250,36 @@ As a user creating branded QR codes, I want a powerful but easy design studio wi
 
 This epic expands the visual customization foundation from Epic 1 into a true design system. It should compete with existing QR design tools on customization depth while being more trustworthy, more reusable, more open, and more scannability-aware.
 
+## Epic Delivery Status
+
+| Story                                              | Code        | Review       | Human      | Evidence |
+| -------------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 5.1: Choose from design templates                  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.2: Support template categories                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.3: Save a custom design as a reusable style      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.4: Manage reusable styles                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.5: Create a brand kit                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.6: Manage brand colors                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.7: Manage logo library                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.8: Configure logo placement and plate            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.9: Advanced module style controls                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.10: Advanced finder marker controls              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.11: Advanced color modes                         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.12: Background image or texture support          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.13: Frame and sticker library                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.14: CTA text customization                       | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.15: Design-safe presets by QR type               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.16: Scannability score                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.17: One-click fix recommendations                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.18: Before-and-after preview                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.19: Versioned design configuration schema        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.20: Community template support                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.21: Import and export design styles              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.22: Plan-aware premium design features           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.23: Accessibility of the design studio           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.24: Mobile-friendly design editing               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 5.25: Design performance and rendering reliability | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 QR customization can quickly become a mess: too many controls, bad defaults, low contrast, oversized logos, broken finder patterns, and beautiful codes that do not scan. The design studio should solve that by organizing customization into sensible layers:
@@ -1973,6 +2296,8 @@ The design studio should work for anonymous users at a basic level, while saved 
 
 ### Story 5.1: Choose from design templates
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a QR creator, I want to start from a design template so that I can create a polished QR code quickly.
 
 Acceptance criteria:
@@ -1987,6 +2312,8 @@ Acceptance criteria:
 
 ### Story 5.2: Support template categories
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want templates organized by category so that I can quickly find a design appropriate to my use case.
 
 Acceptance criteria:
@@ -1998,6 +2325,8 @@ Acceptance criteria:
 - Template category metadata is extensible for future community templates.
 
 ### Story 5.3: Save a custom design as a reusable style
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to save my current QR design as a reusable style so that I can apply the same look to future QR codes.
 
@@ -2011,6 +2340,8 @@ Acceptance criteria:
 - Saved styles are scoped to the user or workspace.
 
 ### Story 5.4: Manage reusable styles
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to manage saved styles so that I can keep my design library clean and useful.
 
@@ -2026,6 +2357,8 @@ Acceptance criteria:
 
 ### Story 5.5: Create a brand kit
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to create a brand kit so that I can reuse my brand colors, logos, and design defaults across QR codes.
 
 Acceptance criteria:
@@ -2038,6 +2371,8 @@ Acceptance criteria:
 - Free and paid plan limits for brand kits are supported by the data model.
 
 ### Story 5.6: Manage brand colors
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to manage brand colors so that QR codes stay visually consistent with my brand.
 
@@ -2054,6 +2389,8 @@ Acceptance criteria:
 
 ### Story 5.7: Manage logo library
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want a logo library so that I can reuse logos without uploading them every time.
 
 Acceptance criteria:
@@ -2069,6 +2406,8 @@ Acceptance criteria:
 
 ### Story 5.8: Configure logo placement and plate
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a QR designer, I want precise logo placement and background plate controls so that my logo looks clean without breaking scan reliability.
 
 Acceptance criteria:
@@ -2083,6 +2422,8 @@ Acceptance criteria:
 
 ### Story 5.9: Advanced module style controls
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As an advanced designer, I want detailed control over QR module shape so that I can create distinctive QR codes.
 
 Acceptance criteria:
@@ -2096,6 +2437,8 @@ Acceptance criteria:
 - Module style definitions are extensible for open-source contributors.
 
 ### Story 5.10: Advanced finder marker controls
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an advanced designer, I want detailed control over finder markers so that the QR code corners fit my brand style.
 
@@ -2112,6 +2455,8 @@ Acceptance criteria:
 
 ### Story 5.11: Advanced color modes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a designer, I want advanced color options so that QR codes can match more sophisticated visual systems.
 
 Acceptance criteria:
@@ -2126,6 +2471,8 @@ Acceptance criteria:
 
 ### Story 5.12: Background image or texture support
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a designer, I want to place a QR code on a subtle background image or texture so that it fits branded creative.
 
 Acceptance criteria:
@@ -2138,6 +2485,8 @@ Acceptance criteria:
 - Uploaded backgrounds are handled safely.
 
 ### Story 5.13: Frame and sticker library
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want a library of frames and stickers so that my QR code has clear visual context and a call to action.
 
@@ -2153,6 +2502,8 @@ Acceptance criteria:
 
 ### Story 5.14: CTA text customization
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to edit the text around my QR code so that scanners know what action to take.
 
 Acceptance criteria:
@@ -2165,6 +2516,8 @@ Acceptance criteria:
 - The preview updates live.
 
 ### Story 5.15: Design-safe presets by QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want design defaults tailored to the QR type so that the QR code looks appropriate for its use case.
 
@@ -2181,6 +2534,8 @@ Acceptance criteria:
 
 ### Story 5.16: Scannability score
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want a scannability score so that I know whether my design is likely to scan reliably.
 
 Acceptance criteria:
@@ -2194,6 +2549,8 @@ Acceptance criteria:
 
 ### Story 5.17: One-click fix recommendations
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want one-click fixes for scan risks so that I can improve reliability without understanding QR technical details.
 
 Acceptance criteria:
@@ -2206,6 +2563,8 @@ Acceptance criteria:
 
 ### Story 5.18: Before-and-after preview
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a designer, I want to compare design variations so that I can choose the best-looking scannable option.
 
 Acceptance criteria:
@@ -2217,6 +2576,8 @@ Acceptance criteria:
 - The comparison is visual and easy to understand.
 
 ### Story 5.19: Versioned design configuration schema
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As an open-source contributor, I want QR design configurations represented in a documented versioned schema so that renderers, saved styles, templates, and migrations remain maintainable.
 
@@ -2231,6 +2592,8 @@ Acceptance criteria:
 
 ### Story 5.20: Community template support
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As an open-source contributor, I want to add community templates so that the template library can grow beyond core maintainers.
 
 Acceptance criteria:
@@ -2243,6 +2606,8 @@ Acceptance criteria:
 - The product can distinguish official templates from community templates where needed.
 
 ### Story 5.21: Import and export design styles
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a power user, I want to import and export design styles so that I can share branded QR styles across environments or self-hosted instances.
 
@@ -2257,6 +2622,8 @@ Acceptance criteria:
 
 ### Story 5.22: Plan-aware premium design features
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a product owner, I want advanced design features to be plan-aware so that we can monetize power features without crippling the free creator.
 
 Acceptance criteria:
@@ -2269,6 +2636,8 @@ Acceptance criteria:
 - The system avoids destructive downgrades that break already-exported QR codes.
 
 ### Story 5.23: Accessibility of the design studio
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user with accessibility needs, I want the design studio to be usable with keyboard and assistive technologies so that I can create QR codes effectively.
 
@@ -2283,6 +2652,8 @@ Acceptance criteria:
 
 ### Story 5.24: Mobile-friendly design editing
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a mobile user, I want to customize QR codes on a phone or tablet so that I can create and edit QR codes without needing a desktop.
 
 Acceptance criteria:
@@ -2295,6 +2666,8 @@ Acceptance criteria:
 - Mobile users can still create and download without login.
 
 ### Story 5.25: Design performance and rendering reliability
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want design changes to preview quickly and export accurately so that the studio feels professional and dependable.
 
@@ -2330,6 +2703,41 @@ As a QR creator, I want to choose the type of QR code I am creating and configur
 
 This epic defines the QR solution catalog. It covers static payload types, URL-based destinations, and hosted mini-page experiences. The product should support the broad set of QR types users expect from commercial QR platforms while preserving clear behavior around direct, self-managed, and hosted tracking modes.
 
+## Epic Delivery Status
+
+| Story                                                           | Code        | Review       | Human      | Evidence |
+| --------------------------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 6.1: Choose QR type from a catalog                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.2: Website URL QR type                                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.3: Plain text QR type                                         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.4: Email QR type                                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.5: Phone QR type                                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.6: SMS QR type                                                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.7: Wi-Fi QR type                                              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.8: vCard/contact QR type                                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.9: Location QR type                                           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.10: Social profile QR type                                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.11: Multi-link social page QR type                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.12: App download QR type                                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.13: PDF QR type                                               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.14: Image QR type                                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.15: Restaurant menu QR type                                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.16: Coupon QR type                                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.17: Event QR type                                             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.18: Feedback QR type                                          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.19: Review/rating QR type                                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.20: Business page QR type                                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.21: Crypto wallet QR type                                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.22: Payment link QR type                                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.23: File and asset storage model for hosted destination types | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.24: Destination experience preview                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.25: Publish hosted destination pages                          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.26: Hosted destination page themes                            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.27: QR type compatibility with scan modes                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.28: QR type schema and contribution model                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.29: QR type-specific design recommendations                   | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 6.30: Safe handling of sensitive QR payloads                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 Users do not think in terms of QR payload syntax. They think in terms of outcomes: “scan to open my menu,” “scan to join Wi-Fi,” “scan to save my contact,” “scan to leave a review,” “scan to get a coupon,” or “scan to view this PDF.”
@@ -2348,6 +2756,8 @@ Hosted destination experiences can be free, account-required, or premium dependi
 
 ### Story 6.1: Choose QR type from a catalog
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a creator, I want to choose a QR type from a catalog so that I start with the right fields and defaults for my use case.
 
 Acceptance criteria:
@@ -2361,6 +2771,8 @@ Acceptance criteria:
 - Switching QR type warns before discarding incompatible fields.
 
 ### Story 6.2: Website URL QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create a website QR code so that scanners open a web page.
 
@@ -2376,6 +2788,8 @@ Acceptance criteria:
 
 ### Story 6.3: Plain text QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a plain text QR code so that scanners see or copy a text payload.
 
 Acceptance criteria:
@@ -2388,6 +2802,8 @@ Acceptance criteria:
 - Plain text QR codes are static and do not require tracking unless the product later supports hosted text pages.
 
 ### Story 6.4: Email QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create an email QR code so that scanners can start an email draft.
 
@@ -2403,6 +2819,8 @@ Acceptance criteria:
 
 ### Story 6.5: Phone QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a phone QR code so that scanners can initiate a call.
 
 Acceptance criteria:
@@ -2414,6 +2832,8 @@ Acceptance criteria:
 - The product warns that scan behavior depends on device and scanner app.
 
 ### Story 6.6: SMS QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create an SMS QR code so that scanners can start a text message.
 
@@ -2427,6 +2847,8 @@ Acceptance criteria:
 - The product warns that prefilled message behavior may vary by device.
 
 ### Story 6.7: Wi-Fi QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create a Wi-Fi QR code so that scanners can join a network easily.
 
@@ -2442,6 +2864,8 @@ Acceptance criteria:
 
 ### Story 6.8: vCard/contact QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a contact QR code so that scanners can save my contact details.
 
 Acceptance criteria:
@@ -2454,6 +2878,8 @@ Acceptance criteria:
 - The product supports saving contact QR configurations for registered users.
 
 ### Story 6.9: Location QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create a location QR code so that scanners can open a map or navigation destination.
 
@@ -2468,6 +2894,8 @@ Acceptance criteria:
 
 ### Story 6.10: Social profile QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a social profile QR code so that scanners can open my social account.
 
 Acceptance criteria:
@@ -2480,6 +2908,8 @@ Acceptance criteria:
 - Design templates can adapt to the selected social platform.
 
 ### Story 6.11: Multi-link social page QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a creator, I want a hosted multi-link page so that one QR code can point to multiple social profiles, websites, or calls to action.
 
@@ -2495,6 +2925,8 @@ Acceptance criteria:
 
 ### Story 6.12: App download QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create an app download QR code so that scanners can install or open an app.
 
 Acceptance criteria:
@@ -2509,6 +2941,8 @@ Acceptance criteria:
 
 ### Story 6.13: PDF QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a PDF QR code so that scanners can view or download a PDF.
 
 Acceptance criteria:
@@ -2521,6 +2955,8 @@ Acceptance criteria:
 - The product warns that updating a direct PDF URL QR requires redistributing the QR code unless the original PDF URL itself is controlled by the user.
 
 ### Story 6.14: Image QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create an image QR code so that scanners can view an image.
 
@@ -2535,6 +2971,8 @@ Acceptance criteria:
 
 ### Story 6.15: Restaurant menu QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a restaurant operator, I want to create a menu QR code so that guests can quickly view my menu.
 
 Acceptance criteria:
@@ -2547,6 +2985,8 @@ Acceptance criteria:
 - The product makes clear whether the QR points to an external menu URL or a hosted menu page.
 
 ### Story 6.16: Coupon QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a marketer, I want to create a coupon QR code so that scanners can view or redeem an offer.
 
@@ -2562,6 +3002,8 @@ Acceptance criteria:
 
 ### Story 6.17: Event QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As an event organizer, I want to create an event QR code so that scanners can view event details, RSVP, or add the event to a calendar.
 
 Acceptance criteria:
@@ -2574,6 +3016,8 @@ Acceptance criteria:
 - The product handles timezone-aware event data.
 
 ### Story 6.18: Feedback QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a business owner, I want to create a feedback QR code so that customers can send feedback after an experience.
 
@@ -2588,6 +3032,8 @@ Acceptance criteria:
 
 ### Story 6.19: Review/rating QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a business owner, I want to create a review QR code so that happy customers can leave a public review or rating.
 
 Acceptance criteria:
@@ -2601,6 +3047,8 @@ Acceptance criteria:
 
 ### Story 6.20: Business page QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a business owner, I want to create a hosted business profile page so that scanners can view my business information from one QR code.
 
 Acceptance criteria:
@@ -2613,6 +3061,8 @@ Acceptance criteria:
 - Business pages can be used as destinations for hosted dynamic QR codes.
 
 ### Story 6.21: Crypto wallet QR type
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to create a crypto wallet QR code so that scanners can copy or open a wallet/payment address.
 
@@ -2628,6 +3078,8 @@ Acceptance criteria:
 
 ### Story 6.22: Payment link QR type
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a user, I want to create a payment link QR code so that scanners can pay through an existing payment provider.
 
 Acceptance criteria:
@@ -2640,6 +3092,8 @@ Acceptance criteria:
 - Hosted analytics can be used if the user explicitly chooses hosted dynamic QR mode.
 
 ### Story 6.23: File and asset storage model for hosted destination types
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a platform owner, I want a clear storage model for hosted PDFs, images, and mini-pages so that user content is secure, scalable, and plan-aware.
 
@@ -2655,6 +3109,8 @@ Acceptance criteria:
 
 ### Story 6.24: Destination experience preview
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a creator, I want to preview the scan destination experience so that I can verify what scanners will see.
 
 Acceptance criteria:
@@ -2667,6 +3123,8 @@ Acceptance criteria:
 - The preview includes warnings for unpublished, invalid, expired, or incomplete hosted destinations.
 
 ### Story 6.25: Publish hosted destination pages
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a registered user, I want to publish hosted destination pages so that scanners can access them through a QR code.
 
@@ -2682,6 +3140,8 @@ Acceptance criteria:
 
 ### Story 6.26: Hosted destination page themes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As a registered user, I want to apply themes to hosted destination pages so that scan experiences look professional and brand-aligned.
 
 Acceptance criteria:
@@ -2694,6 +3154,8 @@ Acceptance criteria:
 - Premium themes can be plan-aware.
 
 ### Story 6.27: QR type compatibility with scan modes
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want to understand which QR types work with direct, self-managed, and hosted tracking so that I choose the right setup.
 
@@ -2708,6 +3170,8 @@ Acceptance criteria:
 
 ### Story 6.28: QR type schema and contribution model
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
+
 As an open-source contributor, I want QR types defined through clear schemas and handlers so that new QR types can be added safely.
 
 Acceptance criteria:
@@ -2720,6 +3184,8 @@ Acceptance criteria:
 - The Go backend can validate and generate payloads consistently with client-side behavior.
 
 ### Story 6.29: QR type-specific design recommendations
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want each QR type to suggest appropriate designs and CTAs so that the final QR code makes sense for its purpose.
 
@@ -2735,6 +3201,8 @@ Acceptance criteria:
 - Suggestions do not block users from choosing other designs.
 
 ### Story 6.30: Safe handling of sensitive QR payloads
+
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 
 As a user, I want sensitive QR payloads handled carefully so that private data is not exposed unnecessarily.
 
@@ -2768,6 +3236,21 @@ Acceptance criteria:
 
 As a QR creator, I want to export QR codes in high-quality digital and print-ready formats so that the final asset works reliably across websites, signage, packaging, menus, business cards, stickers, posters, presentations, and production workflows.
 
+## Epic Delivery Status
+
+| Story                                     | Code        | Review       | Human      | Evidence |
+| ----------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 7.1: Export as PNG                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.2: Export as JPG                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.3: Export as SVG                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.4: Export as EPS or print vector format | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.5: Export as PDF                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.6: Configure export size                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.7: Configure quiet zone                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.8: Print-readiness checklist            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.9: Download design package              | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 7.10: Ensure preview/export parity        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 The export experience is a major trust moment. Users should not spend time designing a QR code only to discover the downloaded file is blurry, missing transparency, incompatible with print software, or visually different from the preview. Exports should be predictable, high quality, and honest about format limitations.
@@ -2776,6 +3259,7 @@ The export experience is a major trust moment. Users should not spend time desig
 
 ### Story 7.1: Export as PNG
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to download a PNG so that I can use the QR code in digital and print materials.
 
 Acceptance criteria:
@@ -2788,6 +3272,7 @@ Acceptance criteria:
 
 ### Story 7.2: Export as JPG
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to download a JPG so that I can use the QR code in common image workflows.
 
 Acceptance criteria:
@@ -2800,6 +3285,7 @@ Acceptance criteria:
 
 ### Story 7.3: Export as SVG
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to download an SVG so that I can use the QR code as a scalable vector asset.
 
 Acceptance criteria:
@@ -2812,6 +3298,7 @@ Acceptance criteria:
 
 ### Story 7.4: Export as EPS or print vector format
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a print user, I want an EPS or equivalent print-friendly vector export so that I can send QR assets to production vendors.
 
 Acceptance criteria:
@@ -2824,6 +3311,7 @@ Acceptance criteria:
 
 ### Story 7.5: Export as PDF
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to export a print-ready PDF so that I can share or print QR assets reliably.
 
 Acceptance criteria:
@@ -2836,6 +3324,7 @@ Acceptance criteria:
 
 ### Story 7.6: Configure export size
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to choose export dimensions so that the QR code fits my target use case.
 
 Acceptance criteria:
@@ -2848,6 +3337,7 @@ Acceptance criteria:
 
 ### Story 7.7: Configure quiet zone
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to configure QR margin/quiet zone so that the code scans reliably in real-world placements.
 
 Acceptance criteria:
@@ -2860,6 +3350,7 @@ Acceptance criteria:
 
 ### Story 7.8: Print-readiness checklist
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want a print-readiness checklist so that I avoid costly mistakes before ordering materials.
 
 Acceptance criteria:
@@ -2871,6 +3362,7 @@ Acceptance criteria:
 
 ### Story 7.9: Download design package
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a registered user, I want to download a package of QR assets so that I have all formats needed for production.
 
 Acceptance criteria:
@@ -2883,6 +3375,7 @@ Acceptance criteria:
 
 ### Story 7.10: Ensure preview/export parity
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want downloads to match the on-screen preview so that I trust the design studio.
 
 Acceptance criteria:
@@ -2908,6 +3401,21 @@ Acceptance criteria:
 
 As a power user, marketer, operator, agency, or enterprise customer, I want to create, edit, organize, and export many QR codes at once so that I can support campaigns, locations, products, tables, events, assets, employees, or inventory without manually creating each code one by one.
 
+## Epic Delivery Status
+
+| Story                                       | Code        | Review       | Human      | Evidence |
+| ------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 8.1: Upload CSV for bulk creation           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.2: Map CSV columns to QR fields           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.3: Generate many QR codes from one design | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.4: Bulk create hosted dynamic QR codes    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.5: Bulk download QR codes                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.6: Bulk edit metadata                     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.7: Bulk update hosted destinations        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.8: Batch analytics comparison             | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.9: Bulk job status                        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 8.10: Bulk limits and plan enforcement      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 Bulk creation is a strong paid/business wedge. It turns the product from a simple generator into an operational tool. The product should support CSV-driven generation, batch design application, bulk exports, and eventually API-driven creation.
@@ -2916,6 +3424,7 @@ Bulk creation is a strong paid/business wedge. It turns the product from a simpl
 
 ### Story 8.1: Upload CSV for bulk creation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to upload a CSV so that I can generate many QR codes at once.
 
 Acceptance criteria:
@@ -2928,6 +3437,7 @@ Acceptance criteria:
 
 ### Story 8.2: Map CSV columns to QR fields
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to map CSV columns to QR fields so that my data generates the right QR codes.
 
 Acceptance criteria:
@@ -2940,6 +3450,7 @@ Acceptance criteria:
 
 ### Story 8.3: Generate many QR codes from one design
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to apply one design to many QR codes so that a batch looks consistent.
 
 Acceptance criteria:
@@ -2952,6 +3463,7 @@ Acceptance criteria:
 
 ### Story 8.4: Bulk create hosted dynamic QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a paid user, I want to bulk create hosted dynamic QR codes so that I can manage destinations and analytics at scale.
 
 Acceptance criteria:
@@ -2964,6 +3476,7 @@ Acceptance criteria:
 
 ### Story 8.5: Bulk download QR codes
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to download many QR codes at once so that I can hand them off to production.
 
 Acceptance criteria:
@@ -2976,6 +3489,7 @@ Acceptance criteria:
 
 ### Story 8.6: Bulk edit metadata
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a registered user, I want to edit metadata for multiple saved QR codes so that I can manage campaigns efficiently.
 
 Acceptance criteria:
@@ -2988,6 +3502,7 @@ Acceptance criteria:
 
 ### Story 8.7: Bulk update hosted destinations
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a hosted analytics user, I want to update destinations for multiple hosted QR codes so that I can manage campaign changes quickly.
 
 Acceptance criteria:
@@ -3000,6 +3515,7 @@ Acceptance criteria:
 
 ### Story 8.8: Batch analytics comparison
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a marketer, I want to compare analytics across a batch so that I can see which codes or locations perform best.
 
 Acceptance criteria:
@@ -3012,6 +3528,7 @@ Acceptance criteria:
 
 ### Story 8.9: Bulk job status
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to see bulk job status so that large imports and exports feel reliable.
 
 Acceptance criteria:
@@ -3024,6 +3541,7 @@ Acceptance criteria:
 
 ### Story 8.10: Bulk limits and plan enforcement
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a product owner, I want bulk usage to be plan-aware so that heavy users can be monetized fairly.
 
 Acceptance criteria:
@@ -3049,6 +3567,20 @@ Acceptance criteria:
 
 As a business, agency, or organization, I want to collaborate with teammates in shared workspaces so that QR codes, brand kits, campaigns, assets, and analytics can be managed by the right people with the right permissions.
 
+## Epic Delivery Status
+
+| Story                                  | Code        | Review       | Human      | Evidence |
+| -------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 9.1: Create a workspace                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.2: Invite team members               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.3: Assign roles                      | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.4: Share QR codes within a workspace | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.5: Collaborative brand kits          | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.6: Campaign collaboration            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.7: Audit activity                    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.8: Transfer ownership                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 9.9: Workspace plan and limits         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 Teams turn the product from an individual tool into a business platform. This should support agencies, restaurants, franchises, retailers, event teams, schools, nonprofits, and internal marketing teams.
@@ -3057,6 +3589,7 @@ Teams turn the product from an individual tool into a business platform. This sh
 
 ### Story 9.1: Create a workspace
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a registered user, I want to create a workspace so that QR codes and assets can belong to an organization instead of only my personal account.
 
 Acceptance criteria:
@@ -3068,6 +3601,7 @@ Acceptance criteria:
 
 ### Story 9.2: Invite team members
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a workspace admin, I want to invite teammates so that they can collaborate.
 
 Acceptance criteria:
@@ -3080,6 +3614,7 @@ Acceptance criteria:
 
 ### Story 9.3: Assign roles
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a workspace admin, I want role-based permissions so that users have appropriate access.
 
 Acceptance criteria:
@@ -3093,6 +3628,7 @@ Acceptance criteria:
 
 ### Story 9.4: Share QR codes within a workspace
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a team member, I want workspace QR codes visible to the team so that work is not trapped in one person’s account.
 
 Acceptance criteria:
@@ -3104,6 +3640,7 @@ Acceptance criteria:
 
 ### Story 9.5: Collaborative brand kits
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a workspace user, I want shared brand kits so that team QR codes stay consistent.
 
 Acceptance criteria:
@@ -3115,6 +3652,7 @@ Acceptance criteria:
 
 ### Story 9.6: Campaign collaboration
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a team, I want campaigns to be shared workspace objects so that multiple people can manage related QR codes and analytics.
 
 Acceptance criteria:
@@ -3126,6 +3664,7 @@ Acceptance criteria:
 
 ### Story 9.7: Audit activity
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a workspace owner, I want activity history so that I can see who changed important QR settings.
 
 Acceptance criteria:
@@ -3137,6 +3676,7 @@ Acceptance criteria:
 
 ### Story 9.8: Transfer ownership
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a workspace owner, I want to transfer ownership so that the workspace can survive role or employment changes.
 
 Acceptance criteria:
@@ -3148,6 +3688,7 @@ Acceptance criteria:
 
 ### Story 9.9: Workspace plan and limits
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a product owner, I want workspace features to be plan-aware so that business collaboration can be monetized.
 
 Acceptance criteria:
@@ -3171,6 +3712,18 @@ Acceptance criteria:
 
 As a product owner, I want a clear freemium billing and entitlement system so that free users get real value, paid users unlock premium capabilities, and the platform can grow sustainably.
 
+## Epic Delivery Status
+
+| Story                               | Code        | Review       | Human      | Evidence |
+| ----------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 10.1: Define plans and entitlements | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.2: Upgrade from free to paid     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.3: Manage subscription           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.4: Enforce limits gracefully     | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.5: Handle payment failure        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.6: Invoice and receipt access    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 10.7: Trials and promotional plans  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 Billing should support the business model without poisoning the user experience. The free product must remain genuinely useful. Paid plans should unlock hosted infrastructure, scale, collaboration, and advanced analytics, not basic QR creation.
@@ -3179,6 +3732,7 @@ Billing should support the business model without poisoning the user experience.
 
 ### Story 10.1: Define plans and entitlements
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a product owner, I want configurable plans so that features can be enabled by tier.
 
 Acceptance criteria:
@@ -3190,6 +3744,7 @@ Acceptance criteria:
 
 ### Story 10.2: Upgrade from free to paid
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a free user, I want to upgrade when I need premium features so that I can continue my workflow.
 
 Acceptance criteria:
@@ -3202,6 +3757,7 @@ Acceptance criteria:
 
 ### Story 10.3: Manage subscription
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a paying user, I want to manage my subscription so that I can update billing details, change plans, or cancel.
 
 Acceptance criteria:
@@ -3214,6 +3770,7 @@ Acceptance criteria:
 
 ### Story 10.4: Enforce limits gracefully
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want clear explanations when I hit a plan limit so that I know what to do next.
 
 Acceptance criteria:
@@ -3226,6 +3783,7 @@ Acceptance criteria:
 
 ### Story 10.5: Handle payment failure
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a paying user, I want reasonable grace behavior if payment fails so that my hosted QR campaigns do not break unexpectedly.
 
 Acceptance criteria:
@@ -3238,6 +3796,7 @@ Acceptance criteria:
 
 ### Story 10.6: Invoice and receipt access
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a paying user, I want invoices and receipts so that I can manage business expenses.
 
 Acceptance criteria:
@@ -3249,6 +3808,7 @@ Acceptance criteria:
 
 ### Story 10.7: Trials and promotional plans
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a product owner, I want trials or promotions so that users can experience premium value before committing.
 
 Acceptance criteria:
@@ -3274,6 +3834,19 @@ Acceptance criteria:
 
 As a platform operator, I want administrative tools and abuse prevention controls so that hosted redirects, uploaded content, public pages, and accounts are protected from spam, phishing, malware, fraud, and misuse.
 
+## Epic Delivery Status
+
+| Story                                         | Code        | Review       | Human      | Evidence |
+| --------------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 11.1: Admin user search and account review    | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.2: Hosted QR moderation controls           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.3: Destination safety checks               | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.4: Uploaded asset scanning                 | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.5: Rate limiting and bot protection        | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.6: Admin audit log                         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.7: User appeal or review request           | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 11.8: Public trust preview for hosted QR URLs | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 A hosted QR platform can be abused because QR codes hide destinations from casual inspection. Trust and safety must be built into hosted features from the start, while avoiding overreach into direct QR codes that do not use our infrastructure.
@@ -3282,6 +3855,7 @@ A hosted QR platform can be abused because QR codes hide destinations from casua
 
 ### Story 11.1: Admin user search and account review
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an admin, I want to find users and review account status so that I can support customers and investigate abuse.
 
 Acceptance criteria:
@@ -3293,6 +3867,7 @@ Acceptance criteria:
 
 ### Story 11.2: Hosted QR moderation controls
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an admin, I want to pause or block abusive hosted QR codes so that the platform is not used for harmful redirects.
 
 Acceptance criteria:
@@ -3305,6 +3880,7 @@ Acceptance criteria:
 
 ### Story 11.3: Destination safety checks
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a platform operator, I want destination URLs checked for obvious abuse so that hosted redirects remain trustworthy.
 
 Acceptance criteria:
@@ -3317,6 +3893,7 @@ Acceptance criteria:
 
 ### Story 11.4: Uploaded asset scanning
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a platform operator, I want uploaded files checked so that hosted PDFs, images, SVGs, and logos do not introduce security risk.
 
 Acceptance criteria:
@@ -3329,6 +3906,7 @@ Acceptance criteria:
 
 ### Story 11.5: Rate limiting and bot protection
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a platform operator, I want rate limits so that the product is protected from abuse and denial-of-service attempts.
 
 Acceptance criteria:
@@ -3341,6 +3919,7 @@ Acceptance criteria:
 
 ### Story 11.6: Admin audit log
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a platform owner, I want admin actions logged so that sensitive operations are accountable.
 
 Acceptance criteria:
@@ -3352,6 +3931,7 @@ Acceptance criteria:
 
 ### Story 11.7: User appeal or review request
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want to request review if my hosted QR code is blocked so that mistakes can be corrected.
 
 Acceptance criteria:
@@ -3363,6 +3943,7 @@ Acceptance criteria:
 
 ### Story 11.8: Public trust preview for hosted QR URLs
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a scanner, I want hosted QR URLs to behave safely so that I am not silently sent to dangerous content.
 
 Acceptance criteria:
@@ -3388,6 +3969,21 @@ Acceptance criteria:
 
 As a developer, agency, enterprise, or open-source adopter, I want APIs, webhooks, CLI tools, documentation, and self-hosting support so that I can integrate QR generation, tracking, exports, and hosted capabilities into my own workflows or infrastructure.
 
+## Epic Delivery Status
+
+| Story                                          | Code        | Review            | Human      | Evidence                                                                                |
+| ---------------------------------------------- | ----------- | ----------------- | ---------- | --------------------------------------------------------------------------------------- |
+| 12.1: Public API for QR creation               | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.2: API authentication                       | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.3: API for saved QR management              | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.4: API for export generation                | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.5: Webhooks for hosted events               | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.6: CLI tool                                 | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.7: Local development setup                  | IN_PROGRESS | CHANGES_REQUESTED | TESTING    | local scaffold, Docker support, and dev scripts are in place; devcontainer still needed |
+| 12.8: Self-hosting configuration               | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+| 12.9: OpenAPI documentation                    | IN_PROGRESS | CHANGES_REQUESTED | NOT_TESTED | direct-url preview/export contract added and validation script passes                   |
+| 12.10: Extension model for QR types and styles | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                    |
+
 ## Product Intent
 
 Because this product is open source, developer experience is not optional. The project should be easy to run locally, easy to extend, easy to integrate, and cleanly separated between open-source core capabilities and hosted commercial services.
@@ -3396,6 +3992,7 @@ Because this product is open source, developer experience is not optional. The p
 
 ### Story 12.1: Public API for QR creation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer, I want an API to create QR codes so that I can generate QR assets programmatically.
 
 Acceptance criteria:
@@ -3408,6 +4005,7 @@ Acceptance criteria:
 
 ### Story 12.2: API authentication
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer, I want API keys so that I can securely access the API.
 
 Acceptance criteria:
@@ -3420,6 +4018,7 @@ Acceptance criteria:
 
 ### Story 12.3: API for saved QR management
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer, I want to manage saved QR codes through the API so that I can integrate with internal systems.
 
 Acceptance criteria:
@@ -3431,6 +4030,7 @@ Acceptance criteria:
 
 ### Story 12.4: API for export generation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer, I want to request exports through the API so that I can automate production workflows.
 
 Acceptance criteria:
@@ -3443,6 +4043,7 @@ Acceptance criteria:
 
 ### Story 12.5: Webhooks for hosted events
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer, I want webhooks so that scan events and lifecycle changes can flow into other systems.
 
 Acceptance criteria:
@@ -3455,6 +4056,7 @@ Acceptance criteria:
 
 ### Story 12.6: CLI tool
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a developer or operator, I want a CLI so that I can generate and manage QR codes from scripts and terminals.
 
 Acceptance criteria:
@@ -3467,6 +4069,7 @@ Acceptance criteria:
 
 ### Story 12.7: Local development setup
 
+Lifecycle: Code=IN_PROGRESS | Review=CHANGES_REQUESTED | Human=TESTING | Evidence=local scaffold, Docker support, and dev scripts are in place; devcontainer still needed
 As an open-source contributor, I want a simple local setup so that I can run and contribute to the project.
 
 Acceptance criteria:
@@ -3479,6 +4082,7 @@ Acceptance criteria:
 
 ### Story 12.8: Self-hosting configuration
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a self-hosting user, I want deployment documentation so that I can run the product on my own infrastructure.
 
 Acceptance criteria:
@@ -3491,6 +4095,7 @@ Acceptance criteria:
 
 ### Story 12.9: OpenAPI documentation
 
+Lifecycle: Code=IN_PROGRESS | Review=CHANGES_REQUESTED | Human=NOT_TESTED | Evidence=direct-url preview/export contract added and validation script passes
 As a developer, I want machine-readable API docs so that integrations are easier to build.
 
 Acceptance criteria:
@@ -3503,6 +4108,7 @@ Acceptance criteria:
 
 ### Story 12.10: Extension model for QR types and styles
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an open-source contributor, I want clear extension points so that I can add QR types, render styles, templates, and validators.
 
 Acceptance criteria:
@@ -3530,6 +4136,21 @@ Acceptance criteria:
 
 As an engineering team, I want a clean, secure, observable, and maintainable technical foundation so that the product can scale from a free QR generator to a hosted analytics platform without becoming a fragile mess.
 
+## Epic Delivery Status
+
+| Story                                               | Code        | Review            | Human      | Evidence                                                                                                                          |
+| --------------------------------------------------- | ----------- | ----------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 13.1: Establish Go service architecture             | IN_PROGRESS | CHANGES_REQUESTED | TESTING    | Go backend scaffold, direct-url handlers, health checks, and Docker support are in place; package boundaries are still incomplete |
+| 13.2: Define canonical data model                   | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                                                              |
+| 13.3: Implement payload generation service          | IN_PROGRESS | NOT_REVIEWED      | TESTING    | direct URL payload generation and normalization landed in qr-core                                                                 |
+| 13.4: Implement rendering/export pipeline           | IN_PROGRESS | NOT_REVIEWED      | TESTING    | direct URL preview/export rendering now shares the canonical QR config                                                            |
+| 13.5: Implement hosted redirect service             | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                                                              |
+| 13.6: Implement analytics ingestion and aggregation | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                                                              |
+| 13.7: Implement authorization model                 | NOT_STARTED | NOT_REVIEWED      | NOT_TESTED | none                                                                                                                              |
+| 13.8: Observability and operational health          | IN_PROGRESS | NOT_REVIEWED      | TESTING    | health endpoints and browser CORS support are in place                                                                            |
+| 13.9: CI/CD and quality gates                       | IN_PROGRESS | CHANGES_REQUESTED | NOT_TESTED | lint, format, test, and contract checks are wired; local Windows test execution still hits worker-spawn issues                    |
+| 13.10: Secure configuration and secrets             | IN_PROGRESS | CHANGES_REQUESTED | NOT_TESTED | env-driven config, backend/frontend Dockerfiles, and compose wiring are in place; secrets handling is still incomplete            |
+
 ## Product Intent
 
 This epic is the engineering backbone. The product must support anonymous creation, accounts, saved projects, hosted redirects, analytics, assets, billing, teams, APIs, and self-hosting. The backend should be written in Go and structured for clarity, testability, and open-source contribution.
@@ -3538,6 +4159,7 @@ This epic is the engineering backbone. The product must support anonymous creati
 
 ### Story 13.1: Establish Go service architecture
 
+Lifecycle: Code=IN_PROGRESS | Review=CHANGES_REQUESTED | Human=TESTING | Evidence=Go backend scaffold, direct-url handlers, health checks, and Docker support are in place; package boundaries are still incomplete
 As an engineer, I want a clear Go backend architecture so that services and packages have obvious responsibilities.
 
 Acceptance criteria:
@@ -3549,6 +4171,7 @@ Acceptance criteria:
 
 ### Story 13.2: Define canonical data model
 
+Lifecycle: Code=IN_PROGRESS | Review=NOT_REVIEWED | Human=TESTING | Evidence=direct URL payload generation and normalization landed in qr-core
 As an engineer, I want a canonical data model so that QR records, users, assets, tracking, and billing are consistent.
 
 Acceptance criteria:
@@ -3560,6 +4183,7 @@ Acceptance criteria:
 
 ### Story 13.3: Implement payload generation service
 
+Lifecycle: Code=IN_PROGRESS | Review=NOT_REVIEWED | Human=TESTING | Evidence=direct URL preview/export rendering now shares the canonical QR config
 As an engineer, I want a shared payload generation service so that client and server behavior remain consistent.
 
 Acceptance criteria:
@@ -3572,6 +4196,7 @@ Acceptance criteria:
 
 ### Story 13.4: Implement rendering/export pipeline
 
+Lifecycle: Code=IN_PROGRESS | Review=NOT_REVIEWED | Human=TESTING | Evidence=health endpoints and browser CORS support are in place
 As an engineer, I want a reliable rendering pipeline so that previews and exports are consistent.
 
 Acceptance criteria:
@@ -3584,6 +4209,7 @@ Acceptance criteria:
 
 ### Story 13.5: Implement hosted redirect service
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an engineer, I want a fast redirect path so that hosted QR scans resolve reliably.
 
 Acceptance criteria:
@@ -3596,6 +4222,7 @@ Acceptance criteria:
 
 ### Story 13.6: Implement analytics ingestion and aggregation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an engineer, I want scan analytics ingestion separated from reporting so that the system can scale.
 
 Acceptance criteria:
@@ -3608,6 +4235,7 @@ Acceptance criteria:
 
 ### Story 13.7: Implement authorization model
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an engineer, I want consistent authorization checks so that users cannot access each other’s data.
 
 Acceptance criteria:
@@ -3620,6 +4248,7 @@ Acceptance criteria:
 
 ### Story 13.8: Observability and operational health
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As an operator, I want logs, metrics, traces, and health checks so that the hosted service can be run reliably.
 
 Acceptance criteria:
@@ -3633,6 +4262,7 @@ Acceptance criteria:
 
 ### Story 13.9: CI/CD and quality gates
 
+Lifecycle: Code=IN_PROGRESS | Review=CHANGES_REQUESTED | Human=NOT_TESTED | Evidence=lint, format, test, and contract checks are wired; local Windows test execution still hits worker-spawn issues
 As an engineering team, I want automated quality gates so that open-source contributions and production deployments remain safe.
 
 Acceptance criteria:
@@ -3645,6 +4275,7 @@ Acceptance criteria:
 
 ### Story 13.10: Secure configuration and secrets
 
+Lifecycle: Code=IN_PROGRESS | Review=CHANGES_REQUESTED | Human=NOT_TESTED | Evidence=env-driven config, backend/frontend Dockerfiles, and compose wiring are in place; secrets handling is still incomplete
 As an operator, I want configuration and secrets handled safely so that deployments are secure.
 
 Acceptance criteria:
@@ -3672,6 +4303,17 @@ Acceptance criteria:
 
 As a user, I want optional AI assistance to help create QR content, choose designs, improve scannability, write CTA text, and optimize campaigns so that I can produce better QR codes faster.
 
+## Epic Delivery Status
+
+| Story                                     | Code        | Review       | Human      | Evidence |
+| ----------------------------------------- | ----------- | ------------ | ---------- | -------- |
+| 14.1: AI CTA suggestions                  | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 14.2: AI design recommendation            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 14.3: AI scannability explanation         | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 14.4: AI campaign naming and organization | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 14.5: AI analytics summary                | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+| 14.6: AI destination/page copy            | NOT_STARTED | NOT_REVIEWED | NOT_TESTED | none     |
+
 ## Product Intent
 
 AI should be a helper, not a dependency. The product must work beautifully without AI. AI features should assist with copy, templates, design choices, accessibility, scannability recommendations, and analytics interpretation.
@@ -3680,6 +4322,7 @@ AI should be a helper, not a dependency. The product must work beautifully witho
 
 ### Story 14.1: AI CTA suggestions
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want CTA suggestions so that my QR code tells scanners what to do.
 
 Acceptance criteria:
@@ -3691,6 +4334,7 @@ Acceptance criteria:
 
 ### Story 14.2: AI design recommendation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want design suggestions so that my QR code fits my use case and brand.
 
 Acceptance criteria:
@@ -3702,6 +4346,7 @@ Acceptance criteria:
 
 ### Story 14.3: AI scannability explanation
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a user, I want plain-English explanations of scan risks so that I know how to fix my design.
 
 Acceptance criteria:
@@ -3713,6 +4358,7 @@ Acceptance criteria:
 
 ### Story 14.4: AI campaign naming and organization
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a marketer, I want help naming and organizing QR campaigns so that dashboards stay readable.
 
 Acceptance criteria:
@@ -3723,6 +4369,7 @@ Acceptance criteria:
 
 ### Story 14.5: AI analytics summary
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a hosted analytics user, I want a plain-English analytics summary so that I can understand campaign performance quickly.
 
 Acceptance criteria:
@@ -3734,6 +4381,7 @@ Acceptance criteria:
 
 ### Story 14.6: AI destination/page copy
 
+Lifecycle: Code=NOT_STARTED | Review=NOT_REVIEWED | Human=NOT_TESTED | Evidence=none
 As a hosted destination user, I want help drafting page copy so that business pages, coupons, events, and feedback pages are easier to create.
 
 Acceptance criteria:
