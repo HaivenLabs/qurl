@@ -2,16 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
-  createDirectUrlPayload,
-  createDirectUrlProjectConfig,
-  createDirectUrlQrMatrixWithQuietZone,
-  normalizeDirectUrl,
+  createQrMatrixFromPayload,
+  createQrProjectConfig,
+  encodeQrPayload,
+  type QrPayloadConfigV1,
 } from "@qurl/qr-core";
 import { palette, radii, spacing } from "@qurl/ui";
 
-import { resolveQrDownloadArtifact, triggerSvgDownload } from "../lib/qr-export";
+import { resolveQrDownloadArtifact, triggerDownload } from "../lib/qr-export";
 
-const PREVIEW_PATH = "/api/v1/direct-url/preview";
+const PREVIEW_PATH = "/api/v1/qr/preview";
 
 function getApiBaseUrl(): string | null {
   const configured = process.env.EXPO_PUBLIC_QURL_API_BASE_URL?.trim();
@@ -45,32 +45,34 @@ function resolvePreviewUrl(path: string): string | null {
 }
 
 type QrPreviewProps = {
-  destination: string;
+  payload: QrPayloadConfigV1 | null;
+  payloadPreview: string;
 };
 
-export function QrPreview({ destination }: QrPreviewProps) {
+export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingFormat, setDownloadingFormat] = useState<"svg" | "png" | null>(null);
   const [downloadNote, setDownloadNote] = useState<string | null>(null);
   const [backendPreviewDataUrl, setBackendPreviewDataUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [previewNote, setPreviewNote] = useState<string | null>(null);
 
-  const normalizedDestination = useMemo(() => {
+  const encodedPayload = useMemo(() => {
     try {
-      return normalizeDirectUrl(destination).destinationUrl;
+      return payload ? encodeQrPayload(payload) : null;
     } catch {
       return null;
     }
-  }, [destination]);
+  }, [payload]);
 
   const previewModel = useMemo(() => {
-    if (!normalizedDestination) {
+    if (!payload) {
       return { matrix: null, issue: null };
     }
 
     try {
       return {
-        matrix: createDirectUrlQrMatrixWithQuietZone(normalizedDestination),
+        matrix: createQrMatrixFromPayload(payload),
         issue: null,
       };
     } catch (error) {
@@ -82,16 +84,16 @@ export function QrPreview({ destination }: QrPreviewProps) {
             : "The local preview renderer could not render this URL.",
       };
     }
-  }, [normalizedDestination]);
+  }, [payload]);
 
   const previewMatrix = previewModel.matrix;
-  const canDownload = Boolean(normalizedDestination) && !isDownloading;
-  const validationNote = normalizedDestination
+  const canDownload = Boolean(payload) && !isDownloading;
+  const validationNote = encodedPayload
     ? previewModel.issue
-    : "Enter a valid http or https URL to render the QR.";
+    : "Enter valid details to render the QR.";
 
   useEffect(() => {
-    if (!normalizedDestination) {
+    if (!payload) {
       setBackendPreviewDataUrl(null);
       setIsPreviewLoading(false);
       setPreviewNote(null);
@@ -110,9 +112,7 @@ export function QrPreview({ destination }: QrPreviewProps) {
     setIsPreviewLoading(true);
 
     fetch(previewUrl, {
-      body: JSON.stringify(
-        createDirectUrlProjectConfig(createDirectUrlPayload(normalizedDestination)),
-      ),
+      body: JSON.stringify(createQrProjectConfig(payload)),
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -150,26 +150,28 @@ export function QrPreview({ destination }: QrPreviewProps) {
     return () => {
       controller.abort();
     };
-  }, [normalizedDestination]);
+  }, [payload]);
 
-  const handleDownload = async () => {
-    if (!normalizedDestination) {
+  const handleDownload = async (format: "svg" | "png") => {
+    if (!payload) {
       return;
     }
 
     setIsDownloading(true);
+    setDownloadingFormat(format);
     setDownloadNote(null);
 
     try {
-      const artifact = await resolveQrDownloadArtifact(normalizedDestination);
-      triggerSvgDownload(artifact);
-      setDownloadNote(`Downloaded from ${artifact.source}.`);
+      const artifact = await resolveQrDownloadArtifact(payload, format);
+      triggerDownload(artifact);
+      setDownloadNote(`Downloaded ${format.toUpperCase()} from ${artifact.source}.`);
     } catch (error) {
       setDownloadNote(
         error instanceof Error ? error.message : "Unable to download the QR right now.",
       );
     } finally {
       setIsDownloading(false);
+      setDownloadingFormat(null);
     }
   };
 
@@ -210,7 +212,7 @@ export function QrPreview({ destination }: QrPreviewProps) {
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>Preview paused</Text>
             <Text style={styles.emptyCopy}>{validationNote}</Text>
-            {normalizedDestination ? (
+            {encodedPayload ? (
               <Text style={styles.emptyHint}>
                 Backend rendering will still be attempted when the API is reachable.
               </Text>
@@ -231,22 +233,30 @@ export function QrPreview({ destination }: QrPreviewProps) {
       <View style={styles.footer}>
         <View style={styles.footerCopy}>
           <Text style={styles.footerLabel}>Destination</Text>
-          <Text style={styles.footerValue}>{destination}</Text>
+          <Text style={styles.footerValue}>{payload ? payload.kind : "No valid payload"}</Text>
+          <Text style={styles.footerPreview}>{payloadPreview}</Text>
         </View>
 
-        <Pressable
-          disabled={!canDownload}
-          onPress={handleDownload}
-          style={({ pressed }) => [
-            styles.downloadButton,
-            !canDownload && styles.downloadButtonDisabled,
-            pressed && canDownload && styles.buttonPressed,
-          ]}
-        >
-          <Text style={styles.downloadButtonText}>
-            {isDownloading ? "Downloading..." : "Download SVG"}
-          </Text>
-        </Pressable>
+        <View style={styles.downloadRow}>
+          {(["svg", "png"] as const).map((format) => (
+            <Pressable
+              key={format}
+              disabled={!canDownload}
+              onPress={() => handleDownload(format)}
+              style={({ pressed }) => [
+                styles.downloadButton,
+                !canDownload && styles.downloadButtonDisabled,
+                pressed && canDownload && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.downloadButtonText}>
+                {downloadingFormat === format
+                  ? "Downloading..."
+                  : `Download ${format.toUpperCase()}`}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
         {downloadNote ? <Text style={styles.downloadNote}>{downloadNote}</Text> : null}
       </View>
@@ -386,6 +396,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     letterSpacing: 0,
+  },
+  footerPreview: {
+    color: "#d8dee2",
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  downloadRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
   },
   downloadButton: {
     alignItems: "center",

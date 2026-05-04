@@ -32,6 +32,8 @@ func New(cfg config.Config) *Server {
 	mux.HandleFunc(version.APIPrefix+"/health", s.healthHandler)
 	mux.HandleFunc(version.DirectURLPreviewPath, s.previewHandler)
 	mux.HandleFunc(version.DirectURLExportPath, s.exportHandler)
+	mux.HandleFunc(version.QRPreviewPath, s.previewHandler)
+	mux.HandleFunc(version.QRExportPath, s.exportHandler)
 
 	s.srv = &http.Server{
 		Addr:              cfg.ListenAddr,

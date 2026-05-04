@@ -122,9 +122,7 @@ func testProjectConfig(destination string, format Format, pixelSize int) Project
 		Payload: PayloadConfig{
 			SchemaVersion: PayloadSchemaVersion,
 			Kind:          "url",
-			Payload: DirectURLPayload{
-				DestinationURL: destination,
-			},
+			Payload:       []byte(`{"destinationUrl":"` + destination + `"}`),
 		},
 		Export: ExportConfig{
 			SchemaVersion: ExportSchemaVersion,

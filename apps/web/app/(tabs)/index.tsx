@@ -1,21 +1,72 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
+import {
+  createQrPayload,
+  encodeQrPayload,
+  QR_TYPE_REGISTRY_V1,
+  type QrPayloadConfigV1,
+  type QrPayloadKind,
+} from "@qurl/qr-core";
 import { layout, palette, radii, spacing } from "@qurl/ui";
 
 import { QrPreview } from "../../src/components/qr-preview";
 import { SectionCard, StatTile } from "../../src/components/section-card";
 
-const modes = ["URL"] as const;
+type FormState = {
+  url: string;
+  text: string;
+  emailTo: string;
+  emailSubject: string;
+  emailBody: string;
+  phone: string;
+  smsNumber: string;
+  smsMessage: string;
+  wifiSsid: string;
+  wifiPassword: string;
+  vcardName: string;
+  vcardEmail: string;
+  vcardPhone: string;
+  latitude: string;
+  longitude: string;
+  locationLabel: string;
+  cryptoCurrency: "btc" | "eth" | "usdc" | "sol" | "ltc" | "other";
+  cryptoAddress: string;
+};
+
+const initialForm: FormState = {
+  url: "https://example.com",
+  text: "Hello from qurl",
+  emailTo: "hello@example.com",
+  emailSubject: "Hello",
+  emailBody: "",
+  phone: "+15551234567",
+  smsNumber: "+15551234567",
+  smsMessage: "Hi",
+  wifiSsid: "Guest Wi-Fi",
+  wifiPassword: "guest-password",
+  vcardName: "Ada Lovelace",
+  vcardEmail: "ada@example.com",
+  vcardPhone: "+15551234567",
+  latitude: "47.6062",
+  longitude: "-122.3321",
+  locationLabel: "Seattle",
+  cryptoCurrency: "btc",
+  cryptoAddress: "bc1qexampleaddress",
+};
 
 export default function CreateScreen() {
-  const [destination, setDestination] = useState("https://example.com");
-  const [activeMode, setActiveMode] = useState<(typeof modes)[number]>("URL");
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [activeKind, setActiveKind] = useState<QrPayloadKind>("url");
 
-  const headline =
-    activeMode === "URL"
-      ? "Create a direct QR that points exactly where you expect."
-      : "Create a clean QR draft.";
+  const payloadResult = buildPayload(activeKind, form);
+  const activeType = QR_TYPE_REGISTRY_V1.types.find((type) => type.kind === activeKind);
+  const payloadPreview =
+    payloadResult.payload === null ? payloadResult.error : encodeQrPayload(payloadResult.payload);
+
+  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
 
   return (
     <ScrollView
@@ -35,9 +86,12 @@ export default function CreateScreen() {
         </View>
 
         <View style={styles.hero}>
-          <Text style={styles.heroTitle}>{headline}</Text>
+          <Text style={styles.heroTitle}>
+            Create direct static QR codes that point exactly where you expect.
+          </Text>
           <Text style={styles.heroCopy}>
-            Build a scannable QR, preview it live, and keep the destination honest by default.
+            Build scannable QR payloads, preview them live, and keep every encoded value honest by
+            default.
           </Text>
         </View>
 
@@ -45,16 +99,16 @@ export default function CreateScreen() {
           <View style={styles.column}>
             <SectionCard
               eyebrow="Step 1"
-              title="Destination"
-              subtitle="Slice 1 supports direct URL payloads only."
+              title="Payload"
+              subtitle="Choose a static QR type. Every MVP type encodes directly into the QR."
             >
               <View style={styles.modeRow}>
-                {modes.map((mode) => {
-                  const selected = mode === activeMode;
+                {QR_TYPE_REGISTRY_V1.types.map((type) => {
+                  const selected = type.kind === activeKind;
                   return (
                     <Pressable
-                      key={mode}
-                      onPress={() => setActiveMode(mode)}
+                      key={type.kind}
+                      onPress={() => setActiveKind(type.kind)}
                       style={({ pressed }) => [
                         styles.modeChip,
                         selected && styles.modeChipActive,
@@ -62,32 +116,19 @@ export default function CreateScreen() {
                       ]}
                     >
                       <Text style={[styles.modeText, selected && styles.modeTextActive]}>
-                        {mode}
+                        {type.label}
                       </Text>
                     </Pressable>
                   );
                 })}
               </View>
 
-              <View style={styles.inputBlock}>
-                <Text style={styles.inputLabel}>Destination URL</Text>
-                <TextInput
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="url"
-                  onChangeText={setDestination}
-                  placeholder="https://example.com"
-                  placeholderTextColor={palette.muted}
-                  style={styles.input}
-                  value={destination}
-                />
-              </View>
+              {renderPayloadFields(activeKind, form, updateField)}
 
               <View style={styles.notePanel}>
-                <Text style={styles.noteTitle}>What happens next</Text>
-                <Text style={styles.noteCopy}>
-                  The preview now updates from the current URL, and downloads use the shared QR
-                  config with a backend fallback when one is available.
+                <Text style={styles.noteTitle}>{activeType?.label ?? "Static QR"}</Text>
+                <Text style={payloadResult.payload ? styles.noteCopy : styles.errorCopy}>
+                  {payloadPreview}
                 </Text>
               </View>
             </SectionCard>
@@ -111,7 +152,7 @@ export default function CreateScreen() {
                 </View>
                 <View style={styles.helperTile}>
                   <Text style={styles.helperLabel}>Export</Text>
-                  <Text style={styles.helperValue}>SVG live, PNG later</Text>
+                  <Text style={styles.helperValue}>SVG and PNG</Text>
                 </View>
                 <View style={styles.helperTile}>
                   <Text style={styles.helperLabel}>Tracking</Text>
@@ -122,7 +163,7 @@ export default function CreateScreen() {
           </View>
 
           <View style={styles.column}>
-            <QrPreview destination={destination} />
+            <QrPreview payload={payloadResult.payload} payloadPreview={payloadPreview} />
 
             <View style={styles.statsRow}>
               <StatTile
@@ -131,12 +172,270 @@ export default function CreateScreen() {
                 detail="No hidden redirects or surprise domains."
               />
               <StatTile label="State" value="Draft" detail="Anonymous until a save flow exists." />
-              <StatTile label="Next" value="Export" detail="PNG and print-ready paths later." />
+              <StatTile label="Types" value="9" detail="URL, text, contact, network, and more." />
             </View>
           </View>
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+function buildPayload(
+  kind: QrPayloadKind,
+  form: FormState,
+): { payload: QrPayloadConfigV1 | null; error: string } {
+  try {
+    switch (kind) {
+      case "url":
+        return { payload: createQrPayload("url", { destinationUrl: form.url }), error: "" };
+      case "text":
+        return { payload: createQrPayload("text", { text: form.text }), error: "" };
+      case "email":
+        return {
+          payload: createQrPayload("email", {
+            to: form.emailTo,
+            subject: form.emailSubject,
+            body: form.emailBody,
+          }),
+          error: "",
+        };
+      case "phone":
+        return { payload: createQrPayload("phone", { number: form.phone }), error: "" };
+      case "sms":
+        return {
+          payload: createQrPayload("sms", { number: form.smsNumber, message: form.smsMessage }),
+          error: "",
+        };
+      case "wifi":
+        return {
+          payload: createQrPayload("wifi", {
+            ssid: form.wifiSsid,
+            security: "wpa2",
+            password: form.wifiPassword,
+          }),
+          error: "",
+        };
+      case "vcard":
+        return {
+          payload: createQrPayload("vcard", {
+            fullName: form.vcardName,
+            email: form.vcardEmail,
+            phone: form.vcardPhone,
+          }),
+          error: "",
+        };
+      case "location":
+        return {
+          payload: createQrPayload("location", {
+            latitude: Number(form.latitude),
+            longitude: Number(form.longitude),
+            label: form.locationLabel,
+          }),
+          error: "",
+        };
+      case "crypto-address":
+        return {
+          payload: createQrPayload("crypto-address", {
+            currency: form.cryptoCurrency,
+            address: form.cryptoAddress,
+          }),
+          error: "",
+        };
+    }
+  } catch (error) {
+    return {
+      payload: null,
+      error: error instanceof Error ? error.message : "This QR payload is not valid yet.",
+    };
+  }
+}
+
+function renderPayloadFields(
+  kind: QrPayloadKind,
+  form: FormState,
+  updateField: <K extends keyof FormState>(field: K, value: FormState[K]) => void,
+) {
+  switch (kind) {
+    case "url":
+      return (
+        <InputBlock
+          label="Destination URL"
+          keyboardType="url"
+          onChangeText={(value) => updateField("url", value)}
+          placeholder="https://example.com"
+          value={form.url}
+        />
+      );
+    case "text":
+      return (
+        <InputBlock
+          label="Text"
+          multiline
+          onChangeText={(value) => updateField("text", value)}
+          placeholder="Plain text to encode"
+          value={form.text}
+        />
+      );
+    case "email":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="To"
+            keyboardType="email-address"
+            onChangeText={(value) => updateField("emailTo", value)}
+            value={form.emailTo}
+          />
+          <InputBlock
+            label="Subject"
+            onChangeText={(value) => updateField("emailSubject", value)}
+            value={form.emailSubject}
+          />
+          <InputBlock
+            label="Body"
+            multiline
+            onChangeText={(value) => updateField("emailBody", value)}
+            value={form.emailBody}
+          />
+        </View>
+      );
+    case "phone":
+      return (
+        <InputBlock
+          label="Phone number"
+          keyboardType="phone-pad"
+          onChangeText={(value) => updateField("phone", value)}
+          value={form.phone}
+        />
+      );
+    case "sms":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="SMS number"
+            keyboardType="phone-pad"
+            onChangeText={(value) => updateField("smsNumber", value)}
+            value={form.smsNumber}
+          />
+          <InputBlock
+            label="Message"
+            multiline
+            onChangeText={(value) => updateField("smsMessage", value)}
+            value={form.smsMessage}
+          />
+        </View>
+      );
+    case "wifi":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="Network name"
+            onChangeText={(value) => updateField("wifiSsid", value)}
+            value={form.wifiSsid}
+          />
+          <InputBlock
+            label="Password"
+            onChangeText={(value) => updateField("wifiPassword", value)}
+            value={form.wifiPassword}
+          />
+        </View>
+      );
+    case "vcard":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="Full name"
+            onChangeText={(value) => updateField("vcardName", value)}
+            value={form.vcardName}
+          />
+          <InputBlock
+            label="Email"
+            keyboardType="email-address"
+            onChangeText={(value) => updateField("vcardEmail", value)}
+            value={form.vcardEmail}
+          />
+          <InputBlock
+            label="Phone"
+            keyboardType="phone-pad"
+            onChangeText={(value) => updateField("vcardPhone", value)}
+            value={form.vcardPhone}
+          />
+        </View>
+      );
+    case "location":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="Latitude"
+            keyboardType="decimal-pad"
+            onChangeText={(value) => updateField("latitude", value)}
+            value={form.latitude}
+          />
+          <InputBlock
+            label="Longitude"
+            keyboardType="decimal-pad"
+            onChangeText={(value) => updateField("longitude", value)}
+            value={form.longitude}
+          />
+          <InputBlock
+            label="Label"
+            onChangeText={(value) => updateField("locationLabel", value)}
+            value={form.locationLabel}
+          />
+        </View>
+      );
+    case "crypto-address":
+      return (
+        <View style={styles.fieldStack}>
+          <InputBlock
+            label="Currency"
+            onChangeText={(value) =>
+              updateField("cryptoCurrency", value as FormState["cryptoCurrency"])
+            }
+            value={form.cryptoCurrency}
+          />
+          <InputBlock
+            label="Address"
+            onChangeText={(value) => updateField("cryptoAddress", value)}
+            value={form.cryptoAddress}
+          />
+        </View>
+      );
+  }
+}
+
+type InputBlockProps = {
+  label: string;
+  value: string;
+  onChangeText: (value: string) => void;
+  keyboardType?: "default" | "url" | "email-address" | "phone-pad" | "decimal-pad";
+  multiline?: boolean;
+  placeholder?: string;
+};
+
+function InputBlock({
+  label,
+  value,
+  onChangeText,
+  keyboardType = "default",
+  multiline = false,
+  placeholder,
+}: InputBlockProps) {
+  return (
+    <View style={styles.inputBlock}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <TextInput
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType={keyboardType}
+        multiline={multiline}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={palette.muted}
+        style={[styles.input, multiline && styles.multilineInput]}
+        value={value}
+      />
+    </View>
   );
 }
 
@@ -249,6 +548,9 @@ const styles = StyleSheet.create({
   inputBlock: {
     gap: spacing.sm,
   },
+  fieldStack: {
+    gap: spacing.md,
+  },
   inputLabel: {
     color: palette.muted,
     fontSize: 12,
@@ -266,6 +568,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
   },
+  multilineInput: {
+    minHeight: 92,
+    textAlignVertical: "top",
+  },
   notePanel: {
     backgroundColor: palette.panel,
     borderColor: palette.border,
@@ -282,6 +588,11 @@ const styles = StyleSheet.create({
   },
   noteCopy: {
     color: palette.muted,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  errorCopy: {
+    color: "#b42318",
     fontSize: 14,
     lineHeight: 20,
   },

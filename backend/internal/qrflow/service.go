@@ -3,6 +3,7 @@ package qrflow
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -47,13 +48,9 @@ type ProjectConfig struct {
 }
 
 type PayloadConfig struct {
-	SchemaVersion string           `json:"schemaVersion"`
-	Kind          string           `json:"kind"`
-	Payload       DirectURLPayload `json:"payload"`
-}
-
-type DirectURLPayload struct {
-	DestinationURL string `json:"destinationUrl"`
+	SchemaVersion string          `json:"schemaVersion"`
+	Kind          string          `json:"kind"`
+	Payload       json.RawMessage `json:"payload"`
 }
 
 type ExportConfig struct {
@@ -201,19 +198,16 @@ func (s *Service) generate(req ProjectConfig, size int) (string, image.Image, er
 	if req.Payload.SchemaVersion != PayloadSchemaVersion {
 		return "", nil, fmt.Errorf("%w: unsupported payload schemaVersion %q", ErrInvalidRequest, req.Payload.SchemaVersion)
 	}
-	if req.Payload.Kind != "url" {
-		return "", nil, fmt.Errorf("%w: unsupported payload kind %q", ErrInvalidRequest, req.Payload.Kind)
-	}
 	if req.Export.SchemaVersion != ExportSchemaVersion {
 		return "", nil, fmt.Errorf("%w: unsupported export schemaVersion %q", ErrInvalidRequest, req.Export.SchemaVersion)
 	}
 
-	parsed, err := ValidateDestination(req.Payload.Payload.DestinationURL)
+	payloadStr, err := EncodePayload(req.Payload.Kind, req.Payload.Payload)
 	if err != nil {
-		return "", nil, err
+		return "", nil, fmt.Errorf("%w: %v", ErrInvalidRequest, err)
 	}
 
-	encoded, err := qr.Encode(parsed.String(), qr.M, qr.Auto)
+	encoded, err := qr.Encode(payloadStr, qr.M, qr.Auto)
 	if err != nil {
 		return "", nil, fmt.Errorf("generate qr: %w", err)
 	}
@@ -223,7 +217,7 @@ func (s *Service) generate(req ProjectConfig, size int) (string, image.Image, er
 		return "", nil, fmt.Errorf("scale qr: %w", err)
 	}
 
-	return parsed.String(), scaled, nil
+	return payloadStr, scaled, nil
 }
 
 func renderSVG(img image.Image) ([]byte, error) {

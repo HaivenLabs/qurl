@@ -87,7 +87,7 @@ func TestPreviewEndpointReturnsSVGPayload(t *testing.T) {
 			"fileName":"qurl-qr"
 		}
 	}`)
-	req := httptest.NewRequest(http.MethodPost, version.DirectURLPreviewPath, body)
+	req := httptest.NewRequest(http.MethodPost, version.QRPreviewPath, body)
 	rec := httptest.NewRecorder()
 
 	srv.Handler().ServeHTTP(rec, req)
@@ -149,7 +149,7 @@ func TestExportEndpointReturnsDownload(t *testing.T) {
 			"fileName":"qurl-qr"
 		}
 	}`)
-	req := httptest.NewRequest(http.MethodPost, version.DirectURLExportPath, body)
+	req := httptest.NewRequest(http.MethodPost, version.QRExportPath, body)
 	rec := httptest.NewRecorder()
 
 	srv.Handler().ServeHTTP(rec, req)
@@ -178,7 +178,7 @@ func TestQRMethodsRejectUnsupportedMethods(t *testing.T) {
 		APIVersion:  version.APIVersion,
 	})
 
-	req := httptest.NewRequest(http.MethodGet, version.DirectURLPreviewPath, nil)
+	req := httptest.NewRequest(http.MethodGet, version.QRPreviewPath, nil)
 	rec := httptest.NewRecorder()
 
 	srv.Handler().ServeHTTP(rec, req)
