@@ -30,8 +30,8 @@ func New(cfg config.Config) *Server {
 
 	mux.HandleFunc(version.HealthPath, s.healthHandler)
 	mux.HandleFunc(version.APIPrefix+"/health", s.healthHandler)
-	mux.HandleFunc(version.DirectURLPreviewPath, s.previewHandler)
-	mux.HandleFunc(version.DirectURLExportPath, s.exportHandler)
+	mux.HandleFunc(version.DirectURLPreviewPath, s.directURLPreviewHandler)
+	mux.HandleFunc(version.DirectURLExportPath, s.directURLExportHandler)
 	mux.HandleFunc(version.QRPreviewPath, s.previewHandler)
 	mux.HandleFunc(version.QRExportPath, s.exportHandler)
 
@@ -95,6 +95,31 @@ func (s *Server) previewHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp)
 }
 
+func (s *Server) directURLPreviewHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+		return
+	}
+
+	req, err := decodeQRRequest(r)
+	if err != nil {
+		writeProblem(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := requireDirectURLPayload(req); err != nil {
+		writeProblem(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, err := s.qr.Preview(req)
+	if err != nil {
+		writeProblem(w, statusForQRError(err), err.Error())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, resp)
+}
+
 func (s *Server) exportHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		methodNotAllowed(w, http.MethodPost)
@@ -117,6 +142,41 @@ func (s *Server) exportHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, resp.Filename))
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp.Bytes)
+}
+
+func (s *Server) directURLExportHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+		return
+	}
+
+	req, err := decodeQRRequest(r)
+	if err != nil {
+		writeProblem(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := requireDirectURLPayload(req); err != nil {
+		writeProblem(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, err := s.qr.Export(req)
+	if err != nil {
+		writeProblem(w, statusForQRError(err), err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", resp.MimeType)
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, resp.Filename))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp.Bytes)
+}
+
+func requireDirectURLPayload(req qrflow.ProjectConfig) error {
+	if req.Payload.Kind != "url" {
+		return fmt.Errorf("direct-url endpoints require payload kind %q", "url")
+	}
+	return nil
 }
 
 func decodeQRRequest(r *http.Request) (qrflow.ProjectConfig, error) {

@@ -20,6 +20,20 @@ describe("QR type registry", () => {
   it("marks every MVP type as direct encoding", () => {
     expect(QR_TYPE_REGISTRY_V1.types.every((type) => type.directEncoding)).toBe(true);
   });
+
+  it("links every MVP type to an existing payload schema definition name", () => {
+    expect(QR_TYPE_REGISTRY_V1.types.map((type) => type.payloadSchemaId)).toEqual([
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/urlPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/textPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/emailPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/phonePayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/smsPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/wifiPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/vcardPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/locationPayload",
+      "https://qurl.dev/schemas/qr-payload-config.v1.schema.json#/$defs/cryptoAddressPayload",
+    ]);
+  });
 });
 
 describe("static QR payload encoding", () => {
@@ -64,6 +78,9 @@ describe("static QR payload encoding", () => {
     expect(() => createQrPayload("phone", { number: "" })).toThrow("Phone number");
     expect(() => createQrPayload("sms", { number: "" })).toThrow("SMS number");
     expect(() => createQrPayload("wifi", { ssid: "Guest", security: "wpa2" })).toThrow("password");
+    expect(() =>
+      createQrPayload("wifi", { ssid: "Guest", security: "banana" as "wpa2", password: "secret" }),
+    ).toThrow("security");
     expect(() => createQrPayload("vcard", { fullName: "" })).toThrow("Contact name");
     expect(() => createQrPayload("location", { latitude: 100, longitude: 0 })).toThrow("Latitude");
     expect(() => createQrPayload("crypto-address", { currency: "btc", address: "" })).toThrow(

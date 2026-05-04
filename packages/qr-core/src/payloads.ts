@@ -96,6 +96,17 @@ export type QrTypeRegistryV1 = {
 const PAYLOAD_SCHEMA_ID = "https://qurl.dev/schemas/qr-payload-config.v1.schema.json";
 const WEB_PROTOCOLS = new Set(["http:", "https:"]);
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PAYLOAD_SCHEMA_DEFS: Record<QrPayloadKind, string> = {
+  url: "urlPayload",
+  text: "textPayload",
+  email: "emailPayload",
+  phone: "phonePayload",
+  sms: "smsPayload",
+  wifi: "wifiPayload",
+  vcard: "vcardPayload",
+  location: "locationPayload",
+  "crypto-address": "cryptoAddressPayload",
+};
 
 export const QR_TYPE_REGISTRY_V1: QrTypeRegistryV1 = {
   schemaVersion: "qurl.qr-type-registry.v1",
@@ -123,7 +134,7 @@ function registryEntry(
     category,
     status: "mvp",
     directEncoding: true,
-    payloadSchemaId: `${PAYLOAD_SCHEMA_ID}#/$defs/${kind}`,
+    payloadSchemaId: `${PAYLOAD_SCHEMA_ID}#/$defs/${PAYLOAD_SCHEMA_DEFS[kind]}`,
   };
 }
 
@@ -232,6 +243,9 @@ export function normalizePayload<K extends QrPayloadKind>(
     case "wifi": {
       const wifi = payload as WifiPayload;
       const security = wifi.security ?? "wpa2";
+      if (!["none", "wpa", "wpa2", "wpa3"].includes(security)) {
+        throw new Error("Wi-Fi security is not supported.");
+      }
       if (security !== "none" && optionalString(wifi.password) === undefined) {
         throw new Error("Wi-Fi password is required unless security is none.");
       }

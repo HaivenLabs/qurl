@@ -164,7 +164,6 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
     try {
       const artifact = await resolveQrDownloadArtifact(payload, format);
       triggerDownload(artifact);
-      setDownloadNote(`Downloaded ${format.toUpperCase()} from ${artifact.source}.`);
     } catch (error) {
       setDownloadNote(
         error instanceof Error ? error.message : "Unable to download the QR right now.",
@@ -179,7 +178,7 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
     <View accessibilityLabel="Live QR preview" style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.kicker}>Live preview</Text>
-        <Text style={styles.title}>Direct destination encoded</Text>
+        <Text style={styles.title}>Direct QR payload encoded</Text>
         <Text style={styles.subtitle}>No redirects, no hidden tracking, no surprises.</Text>
       </View>
 
@@ -232,7 +231,7 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
 
       <View style={styles.footer}>
         <View style={styles.footerCopy}>
-          <Text style={styles.footerLabel}>Destination</Text>
+          <Text style={styles.footerLabel}>Payload</Text>
           <Text style={styles.footerValue}>{payload ? payload.kind : "No valid payload"}</Text>
           <Text style={styles.footerPreview}>{payloadPreview}</Text>
         </View>

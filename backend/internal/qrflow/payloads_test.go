@@ -46,6 +46,12 @@ func TestEncodePayload(t *testing.T) {
 			want:    "mailto:test@example.com",
 		},
 		{
+			name:      "email invalid",
+			kind:      "email",
+			payload:   EmailPayload{To: "not-email"},
+			wantError: true,
+		},
+		{
 			name:    "phone valid",
 			kind:    "phone",
 			payload: PhonePayload{Number: "+1234567890"},
@@ -70,6 +76,18 @@ func TestEncodePayload(t *testing.T) {
 			want:    "WIFI:T:nopass;S:MyNet;P:;H:true;;",
 		},
 		{
+			name:      "wifi protected requires password",
+			kind:      "wifi",
+			payload:   WifiPayload{SSID: "MyNet", Security: "wpa2"},
+			wantError: true,
+		},
+		{
+			name:      "wifi invalid security",
+			kind:      "wifi",
+			payload:   WifiPayload{SSID: "MyNet", Security: "banana", Password: "pass"},
+			wantError: true,
+		},
+		{
 			name:    "wifi escaping",
 			kind:    "wifi",
 			payload: WifiPayload{SSID: "My;Net", Security: "wpa", Password: `p\as:s`},
@@ -88,6 +106,12 @@ func TestEncodePayload(t *testing.T) {
 			want:    "BEGIN:VCARD\nVERSION:3.0\nFN:Ada Lovelace\nTITLE:Engineer\nEND:VCARD",
 		},
 		{
+			name:      "vcard invalid email",
+			kind:      "vcard",
+			payload:   VCardPayload{FullName: "Ada Lovelace", Email: "not-email"},
+			wantError: true,
+		},
+		{
 			name:    "location with label",
 			kind:    "location",
 			payload: LocationPayload{Latitude: 47.6, Longitude: -122.3, Label: "Seattle"},
@@ -104,6 +128,12 @@ func TestEncodePayload(t *testing.T) {
 			kind:    "crypto-address",
 			payload: CryptoAddressPayload{Currency: "eth", Address: "0x123"},
 			want:    "0x123",
+		},
+		{
+			name:      "crypto invalid currency",
+			kind:      "crypto-address",
+			payload:   CryptoAddressPayload{Currency: "doge", Address: "abc"},
+			wantError: true,
 		},
 	}
 

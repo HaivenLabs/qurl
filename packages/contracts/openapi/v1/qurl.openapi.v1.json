@@ -11,9 +11,9 @@
     }
   ],
   "paths": {
-    "/direct-url/preview": {
+    "/qr/preview": {
       "post": {
-        "operationId": "previewDirectUrl",
+        "operationId": "previewQr",
         "requestBody": {
           "required": true,
           "content": {
@@ -26,43 +26,71 @@
         },
         "responses": {
           "200": {
+            "description": "SVG preview payload for a direct-encoded QR.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrPreviewResponseV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qr/export": {
+      "post": {
+        "operationId": "exportQr",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QrProjectConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered QR export bytes.",
+            "content": {
+              "image/svg+xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/direct-url/preview": {
+      "post": {
+        "operationId": "previewDirectUrl",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectUrlProjectConfigV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
             "description": "SVG preview payload for the direct destination QR.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "schemaVersion",
-                    "destination",
-                    "format",
-                    "mimeType",
-                    "svg",
-                    "dataUrl"
-                  ],
-                  "properties": {
-                    "schemaVersion": {
-                      "type": "integer",
-                      "const": 1
-                    },
-                    "destination": {
-                      "type": "string"
-                    },
-                    "format": {
-                      "type": "string",
-                      "const": "svg"
-                    },
-                    "mimeType": {
-                      "type": "string",
-                      "const": "image/svg+xml"
-                    },
-                    "svg": {
-                      "type": "string"
-                    },
-                    "dataUrl": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/QrPreviewResponseV1"
                 }
               }
             }
@@ -78,14 +106,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/QrProjectConfigV1"
+                "$ref": "#/components/schemas/DirectUrlProjectConfigV1"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rendered QR export bytes.",
+            "description": "Rendered direct URL QR export bytes.",
             "content": {
               "image/svg+xml": {
                 "schema": {
@@ -117,6 +145,36 @@
       },
       "QrProjectConfigV1": {
         "$ref": "../../schemas/v1/qr-project-config.v1.schema.json"
+      },
+      "DirectUrlProjectConfigV1": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/QrProjectConfigV1"
+          },
+          {
+            "type": "object",
+            "required": ["payload"],
+            "properties": {
+              "payload": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/QrPayloadConfigV1"
+                  },
+                  {
+                    "type": "object",
+                    "required": ["kind"],
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "url"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
       },
       "QrTypeRegistryV1": {
         "$ref": "../../schemas/v1/qr-type-registry.v1.schema.json"
@@ -160,20 +218,28 @@
       "QrPreviewResponseV1": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["mimeType", "preview", "warnings"],
+        "required": ["schemaVersion", "destination", "format", "mimeType", "svg", "dataUrl"],
         "properties": {
+          "schemaVersion": {
+            "type": "integer",
+            "const": 1
+          },
+          "destination": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "const": "svg"
+          },
           "mimeType": {
             "type": "string",
             "const": "image/svg+xml"
           },
-          "preview": {
+          "svg": {
             "type": "string"
           },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationIssueV1"
-            }
+          "dataUrl": {
+            "type": "string"
           }
         }
       },

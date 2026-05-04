@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -13,6 +14,8 @@ var (
 	ErrUnknownPayloadKind = errors.New("unknown payload kind")
 	ErrInvalidPayload     = errors.New("invalid payload data")
 )
+
+var emailPattern = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 
 func EncodePayload(kind string, raw []byte) (string, error) {
 	switch kind {
@@ -47,6 +50,25 @@ func parsePayload[T any](raw []byte) (T, error) {
 	return payload, nil
 }
 
+func requiredString(value string, label string) (string, error) {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return "", fmt.Errorf("%w: %s is required", ErrInvalidPayload, label)
+	}
+	return trimmed, nil
+}
+
+func validateEmail(value string, label string) (string, error) {
+	email, err := requiredString(value, label)
+	if err != nil {
+		return "", err
+	}
+	if !emailPattern.MatchString(email) {
+		return "", fmt.Errorf("%w: %s must be a valid email address", ErrInvalidPayload, label)
+	}
+	return email, nil
+}
+
 type UrlPayload struct {
 	DestinationUrl string `json:"destinationUrl"`
 }
@@ -72,10 +94,11 @@ func encodeText(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.Text) == "" {
-		return "", fmt.Errorf("%w: text is required", ErrInvalidPayload)
+	text, err := requiredString(p.Text, "text")
+	if err != nil {
+		return "", err
 	}
-	return p.Text, nil
+	return text, nil
 }
 
 type EmailPayload struct {
@@ -89,10 +112,11 @@ func encodeEmail(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.To) == "" {
-		return "", fmt.Errorf("%w: to is required", ErrInvalidPayload)
+	to, err := validateEmail(p.To, "to")
+	if err != nil {
+		return "", err
 	}
-	
+
 	params := url.Values{}
 	if p.Subject != "" {
 		params.Set("subject", p.Subject)
@@ -100,12 +124,12 @@ func encodeEmail(raw []byte) (string, error) {
 	if p.Body != "" {
 		params.Set("body", p.Body)
 	}
-	
+
 	query := params.Encode()
 	if query != "" {
-		return fmt.Sprintf("mailto:%s?%s", p.To, query), nil
+		return fmt.Sprintf("mailto:%s?%s", to, query), nil
 	}
-	return fmt.Sprintf("mailto:%s", p.To), nil
+	return fmt.Sprintf("mailto:%s", to), nil
 }
 
 type PhonePayload struct {
@@ -117,10 +141,11 @@ func encodePhone(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.Number) == "" {
-		return "", fmt.Errorf("%w: number is required", ErrInvalidPayload)
+	number, err := requiredString(p.Number, "number")
+	if err != nil {
+		return "", err
 	}
-	return fmt.Sprintf("tel:%s", p.Number), nil
+	return fmt.Sprintf("tel:%s", number), nil
 }
 
 type SmsPayload struct {
@@ -133,20 +158,21 @@ func encodeSms(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.Number) == "" {
-		return "", fmt.Errorf("%w: number is required", ErrInvalidPayload)
+	number, err := requiredString(p.Number, "number")
+	if err != nil {
+		return "", err
 	}
-	
+
 	params := url.Values{}
 	if p.Message != "" {
 		params.Set("body", p.Message)
 	}
-	
+
 	query := params.Encode()
 	if query != "" {
-		return fmt.Sprintf("sms:%s?%s", p.Number, query), nil
+		return fmt.Sprintf("sms:%s?%s", number, query), nil
 	}
-	return fmt.Sprintf("sms:%s", p.Number), nil
+	return fmt.Sprintf("sms:%s", number), nil
 }
 
 type WifiPayload struct {
@@ -170,25 +196,32 @@ func encodeWifi(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.SSID) == "" {
-		return "", fmt.Errorf("%w: ssid is required", ErrInvalidPayload)
+	ssid, err := requiredString(p.SSID, "ssid")
+	if err != nil {
+		return "", err
 	}
-	
+
 	auth := "WPA2"
 	if p.Security != "" {
-		if p.Security == "none" {
+		switch p.Security {
+		case "none":
 			auth = "nopass"
-		} else {
+		case "wpa", "wpa2", "wpa3":
 			auth = strings.ToUpper(p.Security)
+		default:
+			return "", fmt.Errorf("%w: unsupported wifi security", ErrInvalidPayload)
 		}
 	}
-	
+	if auth != "nopass" && strings.TrimSpace(p.Password) == "" {
+		return "", fmt.Errorf("%w: wifi password is required unless security is none", ErrInvalidPayload)
+	}
+
 	hidden := "false"
 	if p.Hidden {
 		hidden = "true"
 	}
-	
-	return fmt.Sprintf("WIFI:T:%s;S:%s;P:%s;H:%s;;", auth, escapeWifi(p.SSID), escapeWifi(p.Password), hidden), nil
+
+	return fmt.Sprintf("WIFI:T:%s;S:%s;P:%s;H:%s;;", auth, escapeWifi(ssid), escapeWifi(p.Password), hidden), nil
 }
 
 type VCardPayload struct {
@@ -213,15 +246,26 @@ func encodeVCard(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.FullName) == "" {
-		return "", fmt.Errorf("%w: full name is required", ErrInvalidPayload)
+	fullName, err := requiredString(p.FullName, "full name")
+	if err != nil {
+		return "", err
 	}
-	
+	if p.Email != "" {
+		if _, err := validateEmail(p.Email, "email"); err != nil {
+			return "", err
+		}
+	}
+	if p.URL != "" {
+		if _, err := ValidateDestination(p.URL); err != nil {
+			return "", err
+		}
+	}
+
 	var lines []string
 	lines = append(lines, "BEGIN:VCARD")
 	lines = append(lines, "VERSION:3.0")
-	lines = append(lines, fmt.Sprintf("FN:%s", escapeVCard(p.FullName)))
-	
+	lines = append(lines, fmt.Sprintf("FN:%s", escapeVCard(fullName)))
+
 	if p.Organization != "" {
 		lines = append(lines, fmt.Sprintf("ORG:%s", escapeVCard(p.Organization)))
 	}
@@ -237,7 +281,7 @@ func encodeVCard(raw []byte) (string, error) {
 	if p.URL != "" {
 		lines = append(lines, fmt.Sprintf("URL:%s", p.URL))
 	}
-	
+
 	lines = append(lines, "END:VCARD")
 	return strings.Join(lines, "\n"), nil
 }
@@ -256,11 +300,11 @@ func encodeLocation(raw []byte) (string, error) {
 	if p.Latitude < -90 || p.Latitude > 90 || p.Longitude < -180 || p.Longitude > 180 {
 		return "", fmt.Errorf("%w: invalid coordinates", ErrInvalidPayload)
 	}
-	
+
 	lat := strconv.FormatFloat(p.Latitude, 'f', -1, 64)
 	lon := strconv.FormatFloat(p.Longitude, 'f', -1, 64)
 	base := fmt.Sprintf("geo:%s,%s", lat, lon)
-	
+
 	if p.Label != "" {
 		return fmt.Sprintf("%s?q=%s,%s(%s)", base, lat, lon, url.QueryEscape(p.Label)), nil
 	}
@@ -279,11 +323,19 @@ func encodeCryptoAddress(raw []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.TrimSpace(p.Currency) == "" || strings.TrimSpace(p.Address) == "" {
-		return "", fmt.Errorf("%w: currency and address are required", ErrInvalidPayload)
+	currency, err := requiredString(p.Currency, "currency")
+	if err != nil {
+		return "", err
 	}
-	
-	if p.Currency == "btc" {
+	address, err := requiredString(p.Address, "address")
+	if err != nil {
+		return "", err
+	}
+	if !isSupportedCryptoCurrency(currency) {
+		return "", fmt.Errorf("%w: unsupported crypto currency", ErrInvalidPayload)
+	}
+
+	if currency == "btc" {
 		params := url.Values{}
 		if p.Amount != "" {
 			params.Set("amount", p.Amount)
@@ -293,11 +345,19 @@ func encodeCryptoAddress(raw []byte) (string, error) {
 		}
 		query := params.Encode()
 		if query != "" {
-			return fmt.Sprintf("bitcoin:%s?%s", p.Address, query), nil
+			return fmt.Sprintf("bitcoin:%s?%s", address, query), nil
 		}
-		return fmt.Sprintf("bitcoin:%s", p.Address), nil
+		return fmt.Sprintf("bitcoin:%s", address), nil
 	}
-	
-	// For other currencies, just return the address directly as per frontend encodeQrPayload
-	return p.Address, nil
+
+	return address, nil
+}
+
+func isSupportedCryptoCurrency(currency string) bool {
+	switch currency {
+	case "btc", "eth", "usdc", "sol", "ltc", "other":
+		return true
+	default:
+		return false
+	}
 }

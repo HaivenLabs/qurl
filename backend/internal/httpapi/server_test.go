@@ -171,6 +171,40 @@ func TestExportEndpointReturnsDownload(t *testing.T) {
 	}
 }
 
+func TestDirectURLEndpointRejectsNonURLPayload(t *testing.T) {
+	srv := New(config.Config{
+		ServiceName: "test-service",
+		ListenAddr:  ":0",
+		APIVersion:  version.APIVersion,
+	})
+
+	body := bytes.NewBufferString(`{
+		"schemaVersion":"qurl.qr-project-config.v1",
+		"payload":{
+			"schemaVersion":"qurl.qr-payload-config.v1",
+			"kind":"text",
+			"payload":{"text":"not a url"}
+		},
+		"export":{
+			"schemaVersion":"qurl.qr-export-config.v1",
+			"format":"svg",
+			"pixelSize":320,
+			"fileName":"qurl-qr"
+		}
+	}`)
+	req := httptest.NewRequest(http.MethodPost, version.DirectURLPreviewPath, body)
+	rec := httptest.NewRecorder()
+
+	srv.Handler().ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+	if !strings.Contains(rec.Body.String(), "payload kind") {
+		t.Fatalf("body = %q", rec.Body.String())
+	}
+}
+
 func TestQRMethodsRejectUnsupportedMethods(t *testing.T) {
 	srv := New(config.Config{
 		ServiceName: "test-service",
