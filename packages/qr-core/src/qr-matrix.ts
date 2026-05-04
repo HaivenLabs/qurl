@@ -2,6 +2,7 @@ import QRCode from "qrcode";
 import type { QRCode as QrCodeModel } from "qrcode";
 
 import { normalizeDirectUrl } from "./direct-url";
+import { encodeQrPayload, type QrPayloadConfigV1 } from "./payloads";
 
 export type QrMatrix = readonly boolean[][];
 
@@ -46,13 +47,38 @@ function renderSvg(matrix: QrMatrix, quietZoneModules: number): string {
   ].join("");
 }
 
+export function createQrMatrix(input: string): boolean[][] {
+  return createMatrixFromModel(createQrCodeModel(input));
+}
+
+export function createQrMatrixFromPayload(config: QrPayloadConfigV1): boolean[][] {
+  return createQrMatrix(encodeQrPayload(config));
+}
+
+export function createQrSvg(input: string): string {
+  return renderSvg(createQrMatrix(input), DEFAULT_QUIET_ZONE_MODULES);
+}
+
+export function createQrSvgFromPayload(config: QrPayloadConfigV1): string {
+  return createQrSvg(encodeQrPayload(config));
+}
+
+export function createQrPngDataUrlFromPayload(config: QrPayloadConfigV1): Promise<string> {
+  return QRCode.toDataURL(encodeQrPayload(config), {
+    errorCorrectionLevel: "M",
+    margin: DEFAULT_QUIET_ZONE_MODULES,
+    scale: 12,
+    type: "image/png",
+  });
+}
+
 export function createDirectUrlQrMatrix(input: string): boolean[][] {
   const normalized = normalizeDirectUrl(input);
-  return createMatrixFromModel(createQrCodeModel(normalized.destinationUrl));
+  return createQrMatrix(normalized.destinationUrl);
 }
 
 export function createDirectUrlQrSvg(input: string): string {
-  return renderSvg(createDirectUrlQrMatrix(input), DEFAULT_QUIET_ZONE_MODULES);
+  return createQrSvg(normalizeDirectUrl(input).destinationUrl);
 }
 
 export function createDirectUrlQrMatrixWithQuietZone(

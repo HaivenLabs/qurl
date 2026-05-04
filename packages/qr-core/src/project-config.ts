@@ -1,4 +1,4 @@
-import type { DirectUrlPayloadConfigV1 } from "./direct-url";
+import { encodeQrPayload, type QrPayloadConfigV1 } from "./payloads";
 
 export type QrErrorCorrectionLevel = "L" | "M" | "Q" | "H";
 
@@ -17,7 +17,7 @@ export type QrDesignConfigV1 = {
 
 export type QrExportConfigV1 = {
   schemaVersion: "qurl.qr-export-config.v1";
-  format: "svg";
+  format: "svg" | "png";
   pixelSize: number;
   marginModules: number;
   transparentBackground: boolean;
@@ -27,7 +27,7 @@ export type QrExportConfigV1 = {
 export type QrProjectConfigV1 = {
   schemaVersion: "qurl.qr-project-config.v1";
   name: string;
-  payload: DirectUrlPayloadConfigV1;
+  payload: QrPayloadConfigV1;
   design: QrDesignConfigV1;
   export: QrExportConfigV1;
 };
@@ -35,16 +35,17 @@ export type QrProjectConfigV1 = {
 const DEFAULT_PROJECT_NAME = "Direct QR";
 
 function slugifyFileName(input: string): string {
-  const hostname = new URL(input).hostname.replace(/^www\./, "");
-  const slug = hostname
+  const slug = input
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-  return slug.length > 0 ? `qurl-${slug}` : "qurl-direct-qr";
+  return slug.length > 0 ? `qurl-${slug.slice(0, 48)}` : "qurl-qr";
 }
 
-export function createDirectUrlProjectConfig(payload: DirectUrlPayloadConfigV1): QrProjectConfigV1 {
+export function createQrProjectConfig(payload: QrPayloadConfigV1): QrProjectConfigV1 {
+  const encodedPayload = encodeQrPayload(payload);
+
   return {
     schemaVersion: "qurl.qr-project-config.v1",
     name: DEFAULT_PROJECT_NAME,
@@ -67,7 +68,11 @@ export function createDirectUrlProjectConfig(payload: DirectUrlPayloadConfigV1):
       pixelSize: 1024,
       marginModules: 4,
       transparentBackground: false,
-      fileName: slugifyFileName(payload.payload.destinationUrl),
+      fileName: slugifyFileName(encodedPayload),
     },
   };
+}
+
+export function createDirectUrlProjectConfig(payload: QrPayloadConfigV1<"url">): QrProjectConfigV1 {
+  return createQrProjectConfig(payload);
 }

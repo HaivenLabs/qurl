@@ -95,6 +95,8 @@ scripts                  Local bootstrap, dev, and check helpers
 
 The current architecture is a modular monolith: shared TypeScript product/domain packages plus a small Go API boundary. The repo should stay boring here until Slice 1 is proven.
 
+Architecture reference for humans and coding agents: [`docs/architecture-reference.md`](docs/architecture-reference.md).
+
 ---
 
 ## Local development
