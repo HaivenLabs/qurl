@@ -1,4 +1,3 @@
-<defs><clipPath id="frame-clip"><path d="M20 21H70V68Q70 82 55 82H35Q20 82 20 68Z"/></clipPath></defs>
 <path d="M20 21H70V68Q70 82 55 82H35Q20 82 20 68Z" fill="none" stroke="{{color}}" stroke-width="3.2" stroke-linejoin="round"/>
 <path d="M70 34H78Q88 34 88 46Q88 58 78 58H70" fill="none" stroke="{{color}}" stroke-width="3.2"/>
 <path d="M31 12C27 7 33 5 29 1M47 12C43 7 49 5 45 1M63 12C59 7 65 5 61 1" fill="none" stroke="{{color}}" stroke-width="2.2" stroke-linecap="round"/>

@@ -40,6 +40,11 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 		return renderTemplateSVG(bc, design, template, targetPixelSize), nil
 	}
 
+	// Acorn uses the same fill approach as circle (not the template system)
+	if isAcornSticker(design) {
+		return renderAcornSVG(bc, design, targetPixelSize), nil
+	}
+
 	bounds := bc.Bounds()
 	mods := bounds.Dx()
 
@@ -251,49 +256,6 @@ func decorativeCellOn(row, col int) bool {
 	n ^= n >> 13
 	n *= 1274126177
 	return n%100 < 58
-}
-
-// writeDecorativeTemplateFill scatters decorative data-pattern dots across the
-// full 100×100 viewBox, skipping the rectangle occupied by the real QR mount.
-// The caller is responsible for wrapping this in a clip-path group so the dots
-// are bounded by the frame shape.
-func writeDecorativeTemplateFill(buf *strings.Builder, mountX, mountY, mountSize, qrSize float64, design DesignConfig) {
-	style := design.ModuleStyle
-	if style == "" {
-		style = "dot"
-	}
-	fg := design.ForegroundColor
-	if fg == "" {
-		fg = "#000000"
-	}
-
-	cell := 1.8
-	margin := 1.0
-
-	// QR content bounding box (skip this area)
-	qrLeft := mountX
-	qrRight := mountX + qrSize
-	qrTop := mountY
-	qrBottom := mountY + qrSize
-
-	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" opacity="0.95">`, fg, fg))
-	row := 0
-	for y := margin; y < 100-margin; y += cell {
-		col := 0
-		for x := margin; x < 100-margin; x += cell {
-			// Skip the QR code area
-			if x+cell > qrLeft && x < qrRight && y+cell > qrTop && y < qrBottom {
-				col++
-				continue
-			}
-			if decorativeCellOn(row, col) {
-				writeDecorativeBodyShape(buf, x, y, cell, style)
-			}
-			col++
-		}
-		row++
-	}
-	buf.WriteString(`</g>`)
 }
 
 func writeQRCoreSVG(buf *strings.Builder, bc barcode.Barcode, design DesignConfig) float64 {
@@ -557,6 +519,201 @@ func isCircleSticker(design DesignConfig) bool {
 	return stickerStyle(design) == "circle"
 }
 
+func isAcornSticker(design DesignConfig) bool {
+	return stickerStyle(design) == "acorn"
+}
+
+// acorn outline path scaled to fit a viewBox of canvasMods×canvasMods
+const acornPathTemplate = `M %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f L %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f C %.2f %.2f %.2f %.2f %.2f %.2f Z`
+
+// acornRawPoints are the control points of the Acorns logo path in the original
+// 42×51 coordinate system (from the SVG source).
+var acornRawPoints = [62][2]float64{
+	{39.81, 23.91}, {43.02, 23.12}, {43.02, 7.50}, {24.20, 5.90},
+	{23.88, 5.09}, {22.42, 1.59}, {19.46, 0.32},
+	{19.10, 0.16}, {18.71, 0.06}, {18.33, 0.00},
+	{18.10, -0.03}, {17.92, 0.25}, {18.07, 0.44},
+	{18.77, 1.29}, {19.38, 4.32}, {18.27, 5.86},
+	{-0.97, 7.27}, {-0.99, 23.11}, {2.24, 23.91},
+	{4.27, 27.08},
+	{4.12, 27.05}, {3.96, 27.05}, {3.81, 27.09},
+	{3.66, 27.12}, {3.52, 27.19}, {3.39, 27.28},
+	{3.27, 27.38}, {3.17, 27.50}, {3.09, 27.64},
+	{3.02, 27.78}, {2.98, 27.93}, {2.96, 28.09},
+	{2.66, 32.40}, {2.88, 45.96}, {18.32, 48.66},
+	{19.15, 49.37}, {20.52, 51.01}, {21.02, 51.00},
+	{21.52, 51.01}, {22.89, 49.37}, {23.71, 48.66},
+	{39.04, 45.67}, {39.35, 32.37}, {39.07, 28.09},
+	{39.06, 27.94}, {39.01, 27.78}, {38.94, 27.65},
+	{38.87, 27.51}, {38.77, 27.39}, {38.64, 27.29},
+	{38.52, 27.19}, {38.38, 27.13}, {38.23, 27.09},
+	{38.07, 27.06}, {37.92, 27.05}, {37.76, 27.09},
+}
+
+func acornScaledPath(s float64, cx, cy float64) string {
+	sc := func(raw [2]float64) (float64, float64) {
+		return cx + (raw[0]-21.0)*s, cy + (raw[1]-25.5)*s
+	}
+	p := acornRawPoints
+	args := make([]interface{}, 0, 124)
+	for i := 0; i < len(p); i++ {
+		x, y := sc(p[i])
+		args = append(args, x, y)
+	}
+	return fmt.Sprintf(acornPathTemplate, args...)
+}
+
+func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int) []byte {
+	bounds := bc.Bounds()
+	mods := bounds.Dx()
+
+	bg := design.BackgroundColor
+	if bg == "" {
+		bg = "#ffffff"
+	}
+	fg := design.ForegroundColor
+	if fg == "" {
+		fg = "#000000"
+	}
+
+	quiet := design.QuietZoneModules
+	if quiet <= 0 {
+		quiet = 4
+	}
+	outerMods := mods + (quiet * 2)
+	canvasMods := outerMods + 6 // extra padding so the tall acorn fits
+
+	// The acorn is roughly 42 wide × 51 tall in its native coords.
+	// Scale to fit the canvas height (the taller dimension), with stroke margin.
+	acornNativeH := 53.0 // 51 + padding for stroke
+	acornScale := float64(canvasMods-2) / acornNativeH
+	centerX := float64(canvasMods) / 2
+	centerY := float64(canvasMods) / 2
+
+	// Inscribed safe rectangle for the QR code inside the acorn.
+	// The acorn's usable interior is roughly 28 units wide × 28 units tall.
+	safeSide := acornScale * 26.0
+	contentScale := safeSide / float64(mods)
+	offsetX := centerX - (float64(mods)*contentScale)/2
+	offsetY := centerY - (float64(mods)*contentScale)/2
+
+	acornPath := acornScaledPath(acornScale, centerX, centerY)
+
+	var buf strings.Builder
+	buf.Grow(mods * mods * 20)
+
+	buf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	buf.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" role="img" aria-label="QR code">`,
+		canvasMods, canvasMods, targetPixelSize, targetPixelSize))
+
+	if !design.BackgroundTransparent {
+		buf.WriteString(fmt.Sprintf(`<rect width="100%%" height="100%%" fill="%s"/>`, bg))
+	}
+
+	// ClipPath using the acorn outline
+	buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-acorn-clip"><path d="%s"/></clipPath></defs>`, acornPath))
+	buf.WriteString(`<g clip-path="url(#qurl-acorn-clip)">`)
+
+	// Decorative fill: scatter dots across the full canvas, skip the QR content area.
+	// The SVG clipPath crops everything to the acorn shape.
+	drawDecorativeShapeFill(&buf, canvasMods, offsetX, offsetY, contentScale, mods, design)
+
+	// Real QR code content
+	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offsetX, offsetY, contentScale))
+
+	drawEye(&buf, 0, 0, design, "top-left")
+	drawEye(&buf, mods-7, 0, design, "top-right")
+	drawEye(&buf, 0, mods-7, design, "bottom-left")
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		runStart := -1
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			if (x < 7 && y < 7) || (x >= mods-7 && y < 7) || (x < 7 && y >= mods-7) {
+				if runStart != -1 {
+					writeSVGRx(&buf, runStart, y, x-runStart, design.ModuleStyle)
+					runStart = -1
+				}
+				continue
+			}
+			if isDark(bc.At(x, y)) {
+				if design.ModuleStyle != "" && design.ModuleStyle != "square" {
+					writeBodyShape(&buf, x, y, design.ModuleStyle)
+					continue
+				}
+				if runStart == -1 {
+					runStart = x
+				}
+				continue
+			}
+			if runStart != -1 {
+				writeSVGRx(&buf, runStart, y, x-runStart, design.ModuleStyle)
+				runStart = -1
+			}
+		}
+		if runStart != -1 {
+			writeSVGRx(&buf, runStart, y, bounds.Max.X-runStart, design.ModuleStyle)
+		}
+	}
+	buf.WriteString(`</g>`) // close QR content group
+	buf.WriteString(`</g>`) // close clip group
+
+	// Acorn outline stroke (drawn OUTSIDE the clip so it's not clipped)
+	stickerColor := fg
+	if design.Sticker != nil && design.Sticker.Color != "" {
+		stickerColor = design.Sticker.Color
+	}
+	if design.Frame != nil && design.Frame.Color != "" {
+		stickerColor = design.Frame.Color
+	}
+	buf.WriteString(fmt.Sprintf(`<path d="%s" fill="none" stroke="%s" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>`, acornPath, stickerColor))
+
+	buf.WriteString(`</svg>`)
+	return []byte(buf.String())
+}
+
+// drawDecorativeShapeFill scatters decorative dots across the full canvas,
+// skipping the QR content rectangle. The caller uses an SVG clipPath to crop
+// everything to the desired shape (acorn, etc). Same approach as the circle fill.
+func drawDecorativeShapeFill(buf *strings.Builder, canvasMods int, contentOffsetX, contentOffsetY, contentScale float64, mods int, design DesignConfig) {
+	style := design.ModuleStyle
+	if style == "" {
+		style = "dot"
+	}
+	color := design.ForegroundColor
+	if color == "" {
+		color = "#000000"
+	}
+
+	cell := math.Max(0.72, contentScale*0.96)
+	contentMinX := contentOffsetX - (cell * 0.5)
+	contentMaxX := contentOffsetX + float64(mods)*contentScale + (cell * 0.5)
+	contentMinY := contentOffsetY - (cell * 0.5)
+	contentMaxY := contentOffsetY + float64(mods)*contentScale + (cell * 0.5)
+
+	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" opacity="0.98">`, color, color))
+	for row := 0; ; row++ {
+		y := 0.5 + float64(row)*cell
+		if y > float64(canvasMods)-0.5 {
+			break
+		}
+		for col := 0; ; col++ {
+			x := 0.5 + float64(col)*cell
+			if x > float64(canvasMods)-0.5 {
+				break
+			}
+			// Skip the QR content area
+			if x > contentMinX && x < contentMaxX && y > contentMinY && y < contentMaxY {
+				continue
+			}
+			if !decorativeCellOn(row, col) {
+				continue
+			}
+			writeDecorativeBodyShape(buf, x-(cell/2), y-(cell/2), cell, style)
+		}
+	}
+	buf.WriteString(`</g>`)
+}
+
 func stickerStyle(design DesignConfig) string {
 	style := ""
 	if design.Sticker != nil {
@@ -628,7 +785,6 @@ func frameTemplates() map[string]frameTemplate {
 		"ticket-pass":           {ID: "ticket-pass", MountX: 30, MountY: 30, Mount: 40},
 		"shopping-bag":          {ID: "shopping-bag", MountX: 24, MountY: 34, Mount: 52},
 		"classic-bottom-banner": {ID: "classic-bottom-banner", MountX: 18, MountY: 12, Mount: 64},
-		"acorn":                 {ID: "acorn", MountX: 34, MountY: 18, Mount: 52},
 	}
 }
 
@@ -667,17 +823,9 @@ func renderTemplateSVG(bc barcode.Barcode, design DesignConfig, template frameTe
 		buf.WriteString(assetStr)
 	}
 
-	hasClip := strings.Contains(buf.String(), `id="frame-clip"`)
-	if hasClip {
-		buf.WriteString(`<g clip-path="url(#frame-clip)">`)
-		writeDecorativeTemplateFill(&buf, template.MountX, template.MountY, template.Mount, coreSize*scale, design)
-	}
 	buf.WriteString(fmt.Sprintf(`<g id="qr-mount" transform="translate(%.3f %.3f) scale(%.5f)">`, template.MountX, template.MountY, scale))
 	buf.WriteString(qr.String())
 	buf.WriteString(`</g>`)
-	if hasClip {
-		buf.WriteString(`</g>`)
-	}
 	buf.WriteString(`</svg>`)
 	return []byte(buf.String())
 }

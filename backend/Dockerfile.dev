@@ -1,0 +1,11 @@
+FROM golang:1.22-alpine
+
+RUN go install github.com/air-verse/air@latest
+
+WORKDIR /src/backend
+
+EXPOSE 8080
+
+ENV QURL_LISTEN_ADDR=:8080
+
+CMD ["air", "-c", ".air.toml"]

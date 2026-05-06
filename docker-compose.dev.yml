@@ -1,0 +1,11 @@
+# Dev override: hot-reload for the Go backend via Air.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.dev
+    volumes:
+      - ./backend:/src/backend
+    environment:
+      QURL_LISTEN_ADDR: :8080

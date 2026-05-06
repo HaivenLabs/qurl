@@ -1,3 +1,2 @@
-<defs><clipPath id="frame-clip"><path d="M13 4H87Q94 4 94 11V78Q94 85 87 85H43L27 96V85H13Q6 85 6 78V11Q6 4 13 4Z"/></clipPath></defs>
 <path d="M13 4H87Q94 4 94 11V78Q94 85 87 85H43L27 96V85H13Q6 85 6 78V11Q6 4 13 4Z" fill="none" stroke="{{color}}" stroke-width="3.2" stroke-linejoin="round"/>
 <text x="50" y="80" font-family="Inter,Arial,sans-serif" font-size="7" font-weight="800" fill="{{color}}" text-anchor="middle">{{label}}</text>
