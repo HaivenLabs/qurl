@@ -2,11 +2,15 @@ export { createDirectUrlPayload, encodeDirectQrPayload, normalizeDirectUrl } fro
 export {
   createDirectUrlProjectConfig,
   createQrProjectConfig,
+  type QrBodyStyle,
   type QrDesignConfigV1,
+  type QrEyeStyle,
   type QrErrorCorrectionLevel,
   type QrExportConfigV1,
   type QrProjectConfigV1,
+  type QrStickerStyle,
 } from "./project-config";
+export { QR_FRAME_OPTIONS, type QrFrameOption } from "./frame-options";
 export {
   createQrPayload,
   encodeQrPayload,

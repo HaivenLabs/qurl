@@ -77,3 +77,5 @@ cd ..
 docker compose build
 docker compose up
 ```
+
+Docker is the default runtime. The web app is served at `http://localhost:3000`; the backend API remains available at `http://localhost:8080`.

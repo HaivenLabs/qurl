@@ -4,7 +4,9 @@
   "title": "QR Design Config v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion"],
+  "required": [
+    "schemaVersion"
+  ],
   "properties": {
     "schemaVersion": {
       "type": "string",
@@ -12,7 +14,12 @@
     },
     "errorCorrectionLevel": {
       "type": "string",
-      "enum": ["L", "M", "Q", "H"]
+      "enum": [
+        "L",
+        "M",
+        "Q",
+        "H"
+      ]
     },
     "quietZoneModules": {
       "type": "integer",
@@ -32,20 +39,96 @@
     },
     "moduleStyle": {
       "type": "string",
-      "enum": ["square", "rounded", "dot"]
+      "enum": [
+        "square",
+        "rounded",
+        "dot",
+        "heart",
+        "diamond",
+        "spade",
+        "club",
+        "star",
+        "triangle",
+        "hexagon",
+        "pentagon",
+        "x",
+        "o",
+        "twinkle"
+      ]
     },
     "eyeStyle": {
       "type": "string",
-      "enum": ["square", "rounded"]
+      "enum": [
+        "square",
+        "rounded",
+        "circle",
+        "dot",
+        "leaf",
+        "diamond",
+        "dotted-square",
+        "round-top-left",
+        "round-top-right",
+        "round-bottom-right",
+        "round-bottom-left",
+        "leaf-top-left",
+        "leaf-top-right",
+        "leaf-bottom-right",
+        "leaf-bottom-left",
+        "cut-top-left",
+        "cut-top-right",
+        "cut-bottom-right",
+        "cut-bottom-left"
+      ]
+    },
+    "eyeColorOuter": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "eyeColorInner": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "eyeTopLeftStyle": {
+      "$ref": "#/$defs/eyeStyle"
+    },
+    "eyeTopRightStyle": {
+      "$ref": "#/$defs/eyeStyle"
+    },
+    "eyeBottomLeftStyle": {
+      "$ref": "#/$defs/eyeStyle"
+    },
+    "eyeTopLeftOuterColor": {
+      "$ref": "#/$defs/color"
+    },
+    "eyeTopLeftInnerColor": {
+      "$ref": "#/$defs/color"
+    },
+    "eyeTopRightOuterColor": {
+      "$ref": "#/$defs/color"
+    },
+    "eyeTopRightInnerColor": {
+      "$ref": "#/$defs/color"
+    },
+    "eyeBottomLeftOuterColor": {
+      "$ref": "#/$defs/color"
+    },
+    "eyeBottomLeftInnerColor": {
+      "$ref": "#/$defs/color"
     },
     "logo": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["none", "image", "text"]
+          "enum": [
+            "none",
+            "image",
+            "text"
+          ]
         },
         "assetRef": {
           "type": "string",
@@ -56,39 +139,137 @@
         },
         "fit": {
           "type": "string",
-          "enum": ["contain", "cover"]
+          "enum": [
+            "contain",
+            "cover"
+          ]
         },
         "sizeRatio": {
           "type": "number",
           "minimum": 0.05,
           "maximum": 0.4
+        },
+        "backgroundColor": {
+          "$ref": "#/$defs/color"
+        },
+        "foregroundColor": {
+          "$ref": "#/$defs/color"
+        },
+        "shape": {
+          "type": "string",
+          "enum": [
+            "circle",
+            "rounded-square",
+            "none"
+          ]
         }
       }
     },
     "frame": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["enabled"],
+      "required": [
+        "enabled"
+      ],
       "properties": {
         "enabled": {
           "type": "boolean"
         },
         "style": {
           "type": "string",
-          "enum": ["none", "square", "rounded", "pill"]
+          "enum": [
+            "none",
+            "square",
+            "rounded",
+            "pill",
+            "circle"
+          ]
         },
         "label": {
           "type": "string"
         },
         "labelPosition": {
           "type": "string",
-          "enum": ["top", "bottom"]
+          "enum": [
+            "top",
+            "bottom"
+          ]
+        },
+        "color": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "sticker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "style"
+      ],
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": [
+            "none",
+            "circle",
+            "rounded-square",
+            "scan-me-bottom",
+            "badge",
+            "scan-me-speech-bubble",
+            "storefront",
+            "coffee-cup",
+            "mobile-phone",
+            "gift-box",
+            "clipboard",
+            "dashed-border-hearts",
+            "ticket-pass",
+            "shopping-bag",
+            "classic-bottom-banner",
+            "acorn"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 36
+        },
+        "color": {
+          "$ref": "#/$defs/color"
         }
       }
     },
     "templateId": {
       "type": "string",
       "minLength": 1
+    }
+  },
+  "$defs": {
+    "color": {
+      "type": "string",
+      "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "eyeStyle": {
+      "type": "string",
+      "enum": [
+        "square",
+        "rounded",
+        "circle",
+        "dot",
+        "leaf",
+        "diamond",
+        "dotted-square",
+        "round-top-left",
+        "round-top-right",
+        "round-bottom-right",
+        "round-bottom-left",
+        "leaf-top-left",
+        "leaf-top-right",
+        "leaf-bottom-right",
+        "leaf-bottom-left",
+        "cut-top-left",
+        "cut-top-right",
+        "cut-bottom-right",
+        "cut-bottom-left"
+      ]
     }
   }
 }

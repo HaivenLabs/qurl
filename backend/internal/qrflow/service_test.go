@@ -68,6 +68,42 @@ func TestPreviewReturnsSVGDataURL(t *testing.T) {
 	}
 }
 
+func TestPreviewInjectsQRIntoComplexFrameTemplate(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/frame", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "dot",
+		EyeStyle:             "square",
+		Sticker: &StickerConfig{
+			Style: "coffee-cup",
+			Text:  "DRINK ME",
+			Color: "#005244",
+		},
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `id="qr-mount"`) {
+		t.Fatalf("template preview did not include qr mount: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, "DRINK ME") {
+		t.Fatalf("template preview did not include overridden label: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, "M20 21H70") {
+		t.Fatalf("template preview did not include coffee cup frame")
+	}
+}
+
 func TestExportPNGReturnsValidImageBytes(t *testing.T) {
 	t.Parallel()
 
@@ -91,6 +127,21 @@ func TestExportPNGReturnsValidImageBytes(t *testing.T) {
 
 	if _, err := png.Decode(bytes.NewReader(resp.Bytes)); err != nil {
 		t.Fatalf("png decode: %v", err)
+	}
+}
+
+func TestExportPNGRejectsComplexFrameTemplates(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/download", FormatPNG, 256)
+	req.Design = DesignConfig{
+		SchemaVersion: DesignSchemaVersion,
+		Sticker:       &StickerConfig{Style: "shopping-bag"},
+	}
+
+	if _, err := svc.Export(req); err == nil {
+		t.Fatal("expected complex frame PNG export error")
 	}
 }
 

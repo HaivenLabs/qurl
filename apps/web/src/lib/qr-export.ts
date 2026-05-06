@@ -3,6 +3,7 @@ import {
   createQrPngDataUrlFromPayload,
   createQrProjectConfig,
   createQrSvgFromPayload,
+  type QrDesignConfigV1,
   type QrPayloadConfigV1,
   type QrProjectConfigV1,
 } from "@qurl/qr-core";
@@ -49,8 +50,12 @@ function resolvePreviewUrl(path: string): string | null {
   }
 }
 
-function buildProjectConfig(payload: QrPayloadConfigV1, format: "svg" | "png"): QrProjectConfigV1 {
-  const projectConfig = createQrProjectConfig(payload);
+function buildProjectConfig(
+  payload: QrPayloadConfigV1,
+  format: "svg" | "png",
+  design?: Partial<QrDesignConfigV1>,
+): QrProjectConfigV1 {
+  const projectConfig = createQrProjectConfig(payload, design);
 
   return {
     ...projectConfig,
@@ -64,8 +69,9 @@ function buildProjectConfig(payload: QrPayloadConfigV1, format: "svg" | "png"): 
 export async function resolveQrDownloadArtifact(
   payload: QrPayloadConfigV1,
   format: "svg" | "png",
+  design?: Partial<QrDesignConfigV1>,
 ): Promise<QrDownloadArtifact> {
-  const projectConfig = buildProjectConfig(payload, format);
+  const projectConfig = buildProjectConfig(payload, format, design);
   const exportUrl = resolvePreviewUrl(EXPORT_PATH);
 
   if (exportUrl) {

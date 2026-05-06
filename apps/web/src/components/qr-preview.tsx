@@ -5,6 +5,7 @@ import {
   createQrMatrixFromPayload,
   createQrProjectConfig,
   encodeQrPayload,
+  type QrDesignConfigV1,
   type QrPayloadConfigV1,
 } from "@qurl/qr-core";
 import { palette, radii, spacing } from "@qurl/ui";
@@ -47,9 +48,10 @@ function resolvePreviewUrl(path: string): string | null {
 type QrPreviewProps = {
   payload: QrPayloadConfigV1 | null;
   payloadPreview: string;
+  design?: Partial<QrDesignConfigV1>;
 };
 
-export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
+export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFormat, setDownloadingFormat] = useState<"svg" | "png" | null>(null);
   const [downloadNote, setDownloadNote] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
     setIsPreviewLoading(true);
 
     fetch(previewUrl, {
-      body: JSON.stringify(createQrProjectConfig(payload)),
+      body: JSON.stringify(createQrProjectConfig(payload, design)),
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -150,7 +152,7 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
     return () => {
       controller.abort();
     };
-  }, [payload]);
+  }, [design, payload]);
 
   const handleDownload = async (format: "svg" | "png") => {
     if (!payload) {
@@ -162,7 +164,7 @@ export function QrPreview({ payload, payloadPreview }: QrPreviewProps) {
     setDownloadNote(null);
 
     try {
-      const artifact = await resolveQrDownloadArtifact(payload, format);
+      const artifact = await resolveQrDownloadArtifact(payload, format, design);
       triggerDownload(artifact);
     } catch (error) {
       setDownloadNote(

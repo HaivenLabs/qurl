@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { createElement, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
   createQrPayload,
   encodeQrPayload,
+  QR_FRAME_OPTIONS,
   QR_TYPE_REGISTRY_V1,
+  type QrDesignConfigV1,
+  type QrStickerStyle,
   type QrPayloadConfigV1,
   type QrPayloadKind,
 } from "@qurl/qr-core";
@@ -55,9 +58,49 @@ const initialForm: FormState = {
   cryptoAddress: "bc1qexampleaddress",
 };
 
+const CURATED_COLORS = [
+  "#000000",
+  "#355f5d",
+  "#005244",
+  "#737373",
+  "#b91c1c",
+  "#ef4444",
+  "#9d174d",
+  "#c026d3",
+  "#6d28d9",
+  "#3b82f6",
+  "#1d4ed8",
+  "#1e3a8a",
+  "#0f766e",
+  "#15803d",
+  "#f97316",
+  "#78350f",
+  "#ffffff",
+  "#fff7e8",
+];
+
 export default function CreateScreen() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [activeKind, setActiveKind] = useState<QrPayloadKind>("url");
+
+  const [design, setDesign] = useState<Partial<QrDesignConfigV1>>({
+    errorCorrectionLevel: "H",
+    foregroundColor: "#355f5d",
+    backgroundColor: "#ffffff",
+    eyeColorOuter: "#355f5d",
+    eyeColorInner: "#355f5d",
+    moduleStyle: "dot",
+    eyeStyle: "leaf",
+    backgroundTransparent: false,
+    logo: { mode: "none" },
+    frame: { enabled: true, style: "circle", color: "#005244" },
+    sticker: { style: "circle", color: "#005244" },
+    quietZoneModules: 4,
+  });
+
+  const [activeTab, setActiveTab] = useState<"frames" | "style" | "color">("color");
+
+  const colors = CURATED_COLORS;
 
   const payloadResult = buildPayload(activeKind, form);
   const activeType = QR_TYPE_REGISTRY_V1.types.find((type) => type.kind === activeKind);
@@ -135,35 +178,260 @@ export default function CreateScreen() {
 
             <SectionCard
               eyebrow="Step 2"
-              title="Look and feel"
-              subtitle="The scaffold leaves room for logo placement, color control, and production exports."
+              title="Design QR Code"
+              subtitle="Tune frames, color, data patterns, and corner markers while preserving scan quality."
             >
-              <View style={styles.swatchRow}>
-                <View style={[styles.swatch, { backgroundColor: palette.ink }]} />
-                <View style={[styles.swatch, { backgroundColor: palette.accent }]} />
-                <View style={[styles.swatch, { backgroundColor: palette.highlight }]} />
-                <View style={[styles.swatch, { backgroundColor: palette.borderStrong }]} />
-              </View>
+              <View style={styles.designTab}>
+                <View style={styles.tabsHeader}>
+                  {(["frames", "style", "color"] as const).map((tab) => (
+                    <Pressable
+                      key={tab}
+                      style={[styles.tabBtn, activeTab === tab && styles.tabBtnActive]}
+                      onPress={() => setActiveTab(tab)}
+                    >
+                      <Text
+                        style={[styles.tabBtnText, activeTab === tab && styles.tabBtnTextActive]}
+                      >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      </Text>
+                    </Pressable>
+                  ))}
+                  <Pressable style={styles.favBtn}>
+                    <Text style={styles.favBtnText}>Fav Designs</Text>
+                  </Pressable>
+                </View>
 
-              <View style={styles.helperGrid}>
-                <View style={styles.helperTile}>
-                  <Text style={styles.helperLabel}>Quiet zone</Text>
-                  <Text style={styles.helperValue}>Reserved</Text>
-                </View>
-                <View style={styles.helperTile}>
-                  <Text style={styles.helperLabel}>Export</Text>
-                  <Text style={styles.helperValue}>SVG and PNG</Text>
-                </View>
-                <View style={styles.helperTile}>
-                  <Text style={styles.helperLabel}>Tracking</Text>
-                  <Text style={styles.helperValue}>Opt in only</Text>
-                </View>
+                {activeTab === "color" && (
+                  <View style={styles.tabPanel}>
+                    <View style={styles.swatchGrid}>
+                      {colors.map((c) => (
+                        <Pressable
+                          key={c}
+                          style={[
+                            styles.swatchWrap,
+                            design.foregroundColor === c && styles.swatchWrapActive,
+                          ]}
+                          onPress={() =>
+                            setDesign((d) => ({
+                              ...d,
+                              foregroundColor: c,
+                              eyeColorOuter: c,
+                              eyeColorInner: c,
+                            }))
+                          }
+                        >
+                          <View style={[styles.swatchSquare, { backgroundColor: c }]} />
+                        </Pressable>
+                      ))}
+                    </View>
+
+                    <View style={styles.colorInputRow}>
+                      <TinyColorInput
+                        label="Data pattern color"
+                        value={design.foregroundColor || ""}
+                        onChange={(v) => setDesign((d) => ({ ...d, foregroundColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Outer marker color"
+                        value={design.eyeColorOuter || ""}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeColorOuter: v }))}
+                      />
+                      <TinyColorInput
+                        label="Inner marker color"
+                        value={design.eyeColorInner || ""}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeColorInner: v }))}
+                      />
+                      <TinyColorInput
+                        label="Background color"
+                        value={design.backgroundColor || ""}
+                        onChange={(v) => setDesign((d) => ({ ...d, backgroundColor: v }))}
+                      />
+                    </View>
+                  </View>
+                )}
+
+                {activeTab === "style" && (
+                  <View style={styles.tabPanel}>
+                    <Text style={styles.inputLabel}>Data Pattern</Text>
+                    <View style={styles.swatchGrid}>
+                      {(
+                        [
+                          "dot",
+                          "square",
+                          "rounded",
+                          "heart",
+                          "diamond",
+                          "spade",
+                          "club",
+                          "star",
+                          "triangle",
+                          "hexagon",
+                          "pentagon",
+                          "x",
+                          "o",
+                          "twinkle",
+                        ] as const
+                      ).map((s) => (
+                        <Pressable
+                          key={s}
+                          onPress={() => setDesign((d) => ({ ...d, moduleStyle: s }))}
+                          style={[
+                            styles.shapeBox,
+                            design.moduleStyle === s && styles.shapeBoxActive,
+                          ]}
+                        >
+                          <Text style={styles.shapeText}>
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+
+                    <Text style={styles.inputLabel}>Corner Markers</Text>
+                    <View style={styles.swatchGrid}>
+                      {(
+                        [
+                          "square",
+                          "rounded",
+                          "circle",
+                          "round-top-left",
+                          "round-top-right",
+                          "round-bottom-right",
+                          "round-bottom-left",
+                          "leaf-top-left",
+                          "leaf-top-right",
+                          "leaf-bottom-right",
+                          "leaf-bottom-left",
+                          "cut-top-left",
+                          "cut-top-right",
+                          "cut-bottom-right",
+                          "cut-bottom-left",
+                          "diamond",
+                          "dotted-square",
+                        ] as const
+                      ).map((s) => (
+                        <Pressable
+                          key={s}
+                          onPress={() => setDesign((d) => ({ ...d, eyeStyle: s }))}
+                          style={[styles.shapeBox, design.eyeStyle === s && styles.shapeBoxActive]}
+                        >
+                          <Text style={styles.shapeText}>{labelize(s)}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                    <Text style={styles.inputLabel}>Custom marker colors</Text>
+                    <View style={styles.colorInputRow}>
+                      <TinyColorInput
+                        label="Top left outer"
+                        value={design.eyeTopLeftOuterColor || design.eyeColorOuter || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopLeftOuterColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Top left inner"
+                        value={design.eyeTopLeftInnerColor || design.eyeColorInner || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopLeftInnerColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Top right outer"
+                        value={design.eyeTopRightOuterColor || design.eyeColorOuter || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopRightOuterColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Top right inner"
+                        value={design.eyeTopRightInnerColor || design.eyeColorInner || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopRightInnerColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Bottom left outer"
+                        value={design.eyeBottomLeftOuterColor || design.eyeColorOuter || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeBottomLeftOuterColor: v }))}
+                      />
+                      <TinyColorInput
+                        label="Bottom left inner"
+                        value={design.eyeBottomLeftInnerColor || design.eyeColorInner || "#355f5d"}
+                        onChange={(v) => setDesign((d) => ({ ...d, eyeBottomLeftInnerColor: v }))}
+                      />
+                    </View>
+                  </View>
+                )}
+
+                {activeTab === "frames" && (
+                  <View style={styles.tabPanel}>
+                    <View style={styles.swatchGrid}>
+                      {QR_FRAME_OPTIONS.map((option) => (
+                        <Pressable
+                          key={option.id}
+                          onPress={() =>
+                            setDesign((d) => ({
+                              ...d,
+                              frame: {
+                                ...(d.frame ?? { enabled: false }),
+                                enabled: option.id !== "none",
+                                style: frameStyleForOption(option.id),
+                                color: d.frame?.color ?? d.sticker?.color ?? "#005244",
+                                label: option.defaultText ?? d.frame?.label,
+                              },
+                              sticker: {
+                                ...(d.sticker ?? {}),
+                                style: option.id,
+                                text: option.defaultText ?? d.sticker?.text,
+                                color: d.sticker?.color ?? d.frame?.color ?? "#005244",
+                              },
+                            }))
+                          }
+                          style={[
+                            styles.frameBox,
+                            (design.sticker?.style ?? "none") === option.id &&
+                            styles.shapeBoxActive,
+                          ]}
+                        >
+                          <FrameSwatch
+                            color={design.sticker?.color || design.frame?.color || "#005244"}
+                            id={option.id}
+                          />
+                          <Text style={styles.frameText}>{option.label}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                    <View style={styles.colorInputRow}>
+                      <TinyColorInput
+                        label="Frame color"
+                        value={design.sticker?.color || design.frame?.color || "#005244"}
+                        onChange={(v) =>
+                          setDesign((d) => ({
+                            ...d,
+                            frame: { ...(d.frame ?? { enabled: true, style: "circle" }), color: v },
+                            sticker: { ...(d.sticker ?? { style: "circle" }), color: v },
+                          }))
+                        }
+                      />
+                      <InputBlock
+                        label="Frame text"
+                        onChangeText={(v) =>
+                          setDesign((d) => ({
+                            ...d,
+                            frame: {
+                              ...(d.frame ?? { enabled: true, style: "rounded" }),
+                              label: v,
+                            },
+                            sticker: { ...(d.sticker ?? { style: "scan-me-bottom" }), text: v },
+                          }))
+                        }
+                        value={design.sticker?.text || design.frame?.label || ""}
+                      />
+                    </View>
+                  </View>
+                )}
               </View>
             </SectionCard>
           </View>
 
           <View style={styles.column}>
-            <QrPreview payload={payloadResult.payload} payloadPreview={payloadPreview} />
+            <QrPreview
+              payload={payloadResult.payload}
+              payloadPreview={payloadPreview}
+              design={design}
+            />
 
             <View style={styles.statsRow}>
               <StatTile
@@ -249,6 +517,22 @@ function buildPayload(
       error: error instanceof Error ? error.message : "This QR payload is not valid yet.",
     };
   }
+}
+
+function labelize(value: string): string {
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normalizeHexInput(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return "";
+  }
+  const prefixed = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+  return prefixed.slice(0, 9);
 }
 
 function renderPayloadFields(
@@ -436,6 +720,180 @@ function InputBlock({
         value={value}
       />
     </View>
+  );
+}
+
+function TinyColorInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const pickerValue = /^#[0-9a-fA-F]{6}$/.test(value) ? value : "#000000";
+
+  return (
+    <View style={styles.tinyCol}>
+      <Text style={styles.tinyLabel}>{label}</Text>
+      <View style={styles.tinyInputBox}>
+        {createElement("input", {
+          "aria-label": `${label} picker`,
+          type: "color",
+          value: pickerValue,
+          onChange: (event: { currentTarget: { value: string } }) =>
+            onChange(event.currentTarget.value),
+          style: {
+            background: "transparent",
+            border: "0",
+            cursor: "pointer",
+            height: 28,
+            padding: 0,
+            width: 32,
+          },
+        })}
+        <TextInput
+          style={styles.tinyInput}
+          value={value}
+          onChangeText={(next) => onChange(normalizeHexInput(next))}
+          autoCapitalize="none"
+          placeholder="#000000"
+          placeholderTextColor={palette.muted}
+        />
+      </View>
+      <View style={styles.miniSwatchRow}>
+        {CURATED_COLORS.slice(0, 8).map((color) => (
+          <Pressable
+            key={`${label}-${color}`}
+            accessibilityLabel={`Use ${color}`}
+            onPress={() => onChange(color)}
+            style={[
+              styles.miniSwatch,
+              { backgroundColor: color },
+              value.toLowerCase() === color.toLowerCase() && styles.miniSwatchActive,
+            ]}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function frameStyleForOption(id: QrStickerStyle): "none" | "circle" | "rounded" {
+  if (id === "circle") {
+    return "circle";
+  }
+  if (id === "rounded-square") {
+    return "rounded";
+  }
+  return "none";
+}
+
+function FrameSwatch({ color, id }: { color: string; id: QrStickerStyle }) {
+  const stroke = color || "#005244";
+  const common = {
+    fill: "none",
+    stroke,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: 4,
+  };
+
+  const children: ReturnType<typeof createElement>[] = [];
+  const add = (tag: string, props: Record<string, unknown>) => {
+    children.push(createElement(tag, { key: children.length, ...props }));
+  };
+
+  switch (id) {
+    case "none":
+      add("path", { ...common, d: "M24 24L76 76M76 24L24 76" });
+      break;
+    case "circle":
+      add("circle", { ...common, cx: 50, cy: 50, r: 36 });
+      break;
+    case "rounded-square":
+      add("rect", { ...common, x: 18, y: 18, width: 64, height: 64, rx: 14 });
+      break;
+    case "scan-me-speech-bubble":
+      add("path", {
+        ...common,
+        d: "M13 10H87Q94 10 94 17V68Q94 75 87 75H43L27 86V75H13Q6 75 6 68V17Q6 10 13 10Z",
+      });
+      break;
+    case "storefront":
+      add("path", {
+        ...common,
+        d: "M16 26H84L78 11H22ZM21 26V80H79V26M16 26A8.5 8 0 0 0 33 26A8.5 8 0 0 0 50 26A8.5 8 0 0 0 67 26A8.5 8 0 0 0 84 26",
+      });
+      break;
+    case "coffee-cup":
+      add("path", {
+        ...common,
+        d: "M20 21H70V60Q70 74 55 74H35Q20 74 20 60ZM70 34H78Q88 34 88 46Q88 58 78 58H70M31 12C27 7 33 5 29 1M47 12C43 7 49 5 45 1M63 12C59 7 65 5 61 1M18 83H72",
+      });
+      break;
+    case "mobile-phone":
+      add("rect", { ...common, x: 18, y: 5, width: 64, height: 80, rx: 10 });
+      add("path", { ...common, d: "M39 12H61M46 76H54" });
+      break;
+    case "gift-box":
+      add("path", {
+        ...common,
+        d: "M15 34H85V93H15ZM10 24H90V38H10ZM50 24V38M34 24C22 16 30 7 42 21M66 24C78 16 70 7 58 21",
+      });
+      break;
+    case "clipboard":
+      add("rect", { ...common, x: 18, y: 12, width: 64, height: 74, rx: 6 });
+      add("path", { ...common, d: "M38 8H62Q65 8 65 12V19H35V12Q35 8 38 8ZM30 76H70" });
+      break;
+    case "dashed-border-hearts":
+      add("rect", {
+        ...common,
+        x: 8,
+        y: 8,
+        width: 84,
+        height: 84,
+        rx: 16,
+        strokeDasharray: "4 4",
+      });
+      add("path", {
+        fill: stroke,
+        d: "M20 18C15 13 8 20 20 29C32 20 25 13 20 18ZM80 18C75 13 68 20 80 29C92 20 85 13 80 18ZM20 78C15 73 8 80 20 89C32 80 25 73 20 78ZM80 78C75 73 68 80 80 89C92 80 85 73 80 78Z",
+      });
+      break;
+    case "ticket-pass":
+      add("path", {
+        ...common,
+        d: "M11 22H89V35Q79 35 79 50Q79 65 89 65V78H11V65Q21 65 21 50Q21 35 11 35Z",
+      });
+      add("path", { ...common, strokeDasharray: "3 4", strokeWidth: 2.4, d: "M26 28V72M74 28V72" });
+      break;
+    case "shopping-bag":
+      add("path", { ...common, d: "M19 28H81L85 88H15ZM35 28Q35 12 50 12Q65 12 65 28" });
+      break;
+    case "acorn":
+      add("path", {
+        ...common,
+        d: "M 84.45 43.08 C 88.62 42.05 88.62 21.76 64.15 19.67 C 63.74 18.62 61.84 14.07 58.00 12.41 C 57.52 12.21 57.03 12.07 56.52 12.00 C 56.22 11.96 56.00 12.33 56.19 12.57 C 57.10 13.68 57.90 17.62 56.45 19.62 C 31.44 21.45 31.42 42.04 35.62 43.08 L 38.25 47.21 C 38.05 47.17 37.85 47.17 37.65 47.22 C 37.45 47.26 37.27 47.35 37.11 47.47 C 36.95 47.59 36.82 47.75 36.72 47.93 C 36.62 48.11 36.57 48.31 36.55 48.51 C 36.15 54.12 36.44 71.75 56.52 75.25 C 57.59 76.18 59.38 78.31 60.03 78.30 C 60.67 78.31 62.46 76.18 63.53 75.25 C 83.46 71.37 83.86 54.08 83.49 48.52 C 83.48 48.32 83.42 48.12 83.32 47.94 C 83.23 47.76 83.10 47.60 82.94 47.48 C 82.77 47.35 82.59 47.26 82.39 47.22 C 82.20 47.17 81.99 47.17 81.79 47.21 Z",
+      });
+      break;
+    case "classic-bottom-banner":
+    case "scan-me-bottom":
+    case "badge":
+      add("rect", { ...common, x: 14, y: 12, width: 72, height: 72, rx: 10 });
+      add("rect", { fill: stroke, x: 16, y: 72, width: 68, height: 14, rx: 4, stroke: "none" });
+      break;
+  }
+
+  return createElement(
+    "svg",
+    {
+      "aria-hidden": true,
+      viewBox: "0 0 100 100",
+      style: { height: 42, width: 42 },
+    },
+    ...children,
   );
 }
 
@@ -639,5 +1097,145 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
+  },
+  designTab: {
+    marginTop: spacing.xs,
+  },
+  tabsHeader: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+    paddingBottom: spacing.sm,
+    gap: spacing.lg,
+    alignItems: "center",
+  },
+  tabBtn: {
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  tabBtnActive: {
+    borderBottomColor: palette.highlight,
+  },
+  tabBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: palette.muted,
+  },
+  tabBtnTextActive: {
+    color: palette.ink,
+  },
+  favBtn: {
+    marginLeft: "auto",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#4db8a6",
+    borderRadius: radii.sm,
+  },
+  favBtnText: {
+    color: "#4db8a6",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  tabPanel: {
+    paddingTop: spacing.lg,
+    gap: spacing.lg,
+  },
+  swatchGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  swatchWrap: {
+    padding: 2,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  swatchWrapActive: {
+    borderColor: "#16a34a",
+  },
+  swatchSquare: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.sm,
+  },
+  colorInputRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.md,
+  },
+  tinyCol: {
+    gap: spacing.xs,
+    flex: 1,
+    minWidth: 120,
+  },
+  tinyLabel: {
+    fontSize: 11,
+    color: palette.muted,
+  },
+  tinyInputBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: palette.border,
+    borderRadius: radii.sm,
+    padding: 4,
+  },
+  tinyInput: {
+    flex: 1,
+    fontSize: 13,
+    color: palette.ink,
+  },
+  miniSwatchRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+  },
+  miniSwatch: {
+    borderColor: palette.border,
+    borderRadius: 3,
+    borderWidth: 1,
+    height: 18,
+    width: 18,
+  },
+  miniSwatchActive: {
+    borderColor: palette.ink,
+    borderWidth: 2,
+  },
+  shapeBox: {
+    width: 64,
+    height: 64,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: palette.border,
+    borderRadius: radii.md,
+  },
+  frameBox: {
+    width: 92,
+    minHeight: 88,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: palette.border,
+    borderRadius: radii.md,
+    padding: spacing.xs,
+  },
+  shapeBoxActive: {
+    borderColor: "#16a34a",
+  },
+  shapeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: palette.ink,
+  },
+  frameText: {
+    color: palette.ink,
+    fontSize: 10,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });
