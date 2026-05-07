@@ -35,6 +35,8 @@ type Format string
 const (
 	FormatSVG Format = "svg"
 	FormatPNG Format = "png"
+	FormatJPG Format = "jpg"
+	FormatEPS Format = "eps"
 )
 
 type ProjectConfig struct {
@@ -147,24 +149,31 @@ func (s *Service) Export(req ProjectConfig) (ExportResponse, error) {
 			Filename:      filename,
 			Bytes:         svgBytes,
 		}, nil
-	case FormatPNG:
+	case FormatPNG, FormatJPG:
 		if _, ok := frameTemplateForDesign(req.Design.ApplyDefaults()); ok {
-			return ExportResponse{}, fmt.Errorf("%w: PNG export for complex SVG frames is not available yet; use SVG export", ErrUnsupportedFormat)
+			return ExportResponse{}, fmt.Errorf("%w: %s export for complex SVG frames is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
 		}
 
-		pngBytes, err := renderAdvancedPNG(bc, req.Design, size)
+		bytes, err := renderAdvancedPNG(bc, req.Design, size)
 		if err != nil {
 			return ExportResponse{}, err
+		}
+
+		mime := "image/png"
+		if format == FormatJPG {
+			mime = "image/jpeg"
 		}
 
 		return ExportResponse{
 			SchemaVersion: ResponseSchemaVersion,
 			Destination:   normalized,
-			Format:        FormatPNG,
-			MimeType:      "image/png",
+			Format:        format,
+			MimeType:      mime,
 			Filename:      filename,
-			Bytes:         pngBytes,
+			Bytes:         bytes,
 		}, nil
+	case FormatEPS:
+		return ExportResponse{}, fmt.Errorf("%w: EPS export is not available yet; use SVG export", ErrUnsupportedFormat)
 	default:
 		return ExportResponse{}, fmt.Errorf("%w %q", ErrUnsupportedFormat, format)
 	}

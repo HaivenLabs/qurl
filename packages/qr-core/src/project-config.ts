@@ -103,7 +103,7 @@ export type QrDesignConfigV1 = {
 
 export type QrExportConfigV1 = {
   schemaVersion: "qurl.qr-export-config.v1";
-  format: "svg" | "png";
+  format: "svg" | "png" | "jpg" | "eps";
   pixelSize: number;
   marginModules: number;
   transparentBackground: boolean;

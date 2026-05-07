@@ -1,6 +1,7 @@
+FROM cosmtrek/air:v1.52.3 AS air
 FROM golang:1.22-alpine
 
-RUN go install github.com/air-verse/air@latest
+COPY --from=air /go/bin/air /usr/local/bin/air
 
 WORKDIR /src/backend
 

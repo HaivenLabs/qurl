@@ -50,9 +50,11 @@ function resolvePreviewUrl(path: string): string | null {
   }
 }
 
+export type QrExportFormat = "svg" | "png" | "jpg" | "eps";
+
 function buildProjectConfig(
   payload: QrPayloadConfigV1,
-  format: "svg" | "png",
+  format: QrExportFormat,
   design?: Partial<QrDesignConfigV1>,
 ): QrProjectConfigV1 {
   const projectConfig = createQrProjectConfig(payload, design);
@@ -68,7 +70,7 @@ function buildProjectConfig(
 
 export async function resolveQrDownloadArtifact(
   payload: QrPayloadConfigV1,
-  format: "svg" | "png",
+  format: QrExportFormat,
   design?: Partial<QrDesignConfigV1>,
 ): Promise<QrDownloadArtifact> {
   const projectConfig = buildProjectConfig(payload, format, design);
@@ -80,18 +82,34 @@ export async function resolveQrDownloadArtifact(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: format === "png" ? "image/png, */*" : "image/svg+xml, */*",
+          Accept:
+            format === "png"
+              ? "image/png"
+              : format === "jpg"
+                ? "image/jpeg"
+                : format === "svg"
+                  ? "image/svg+xml"
+                  : "application/postscript",
         },
         body: JSON.stringify(projectConfig),
       });
 
       if (response.ok) {
         const content =
-          format === "png" ? await blobToDataUrl(await response.blob()) : await response.text();
+          format === "png" || format === "jpg"
+            ? await blobToDataUrl(await response.blob())
+            : await response.text();
         if (content.length > 0) {
           return {
             fileName: `${projectConfig.export.fileName}.${format}`,
-            mimeType: format === "png" ? "image/png" : "image/svg+xml;charset=utf-8",
+            mimeType:
+              format === "png"
+                ? "image/png"
+                : format === "jpg"
+                  ? "image/jpeg"
+                  : format === "svg"
+                    ? "image/svg+xml;charset=utf-8"
+                    : "application/postscript",
             source: "backend",
             content,
           };
@@ -102,6 +120,7 @@ export async function resolveQrDownloadArtifact(
     }
   }
 
+  // Local fallbacks for offline/unreachable backend
   if (format === "png") {
     return {
       fileName: `${projectConfig.export.fileName}.png`,
@@ -111,12 +130,16 @@ export async function resolveQrDownloadArtifact(
     };
   }
 
-  return {
-    fileName: `${projectConfig.export.fileName}.svg`,
-    mimeType: "image/svg+xml;charset=utf-8",
-    source: "local",
-    content: createQrSvgFromPayload(payload),
-  };
+  if (format === "svg") {
+    return {
+      fileName: `${projectConfig.export.fileName}.svg`,
+      mimeType: "image/svg+xml;charset=utf-8",
+      source: "local",
+      content: createQrSvgFromPayload(payload),
+    };
+  }
+
+  throw new Error(`Format ${format} requires a backend connection.`);
 }
 
 export function triggerDownload({ fileName, mimeType, content }: QrDownloadArtifact): void {

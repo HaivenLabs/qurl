@@ -10,7 +10,7 @@ import {
 } from "@qurl/qr-core";
 import { palette, radii, spacing } from "@qurl/ui";
 
-import { resolveQrDownloadArtifact, triggerDownload } from "../lib/qr-export";
+import { QrExportFormat, resolveQrDownloadArtifact, triggerDownload } from "../lib/qr-export";
 
 const PREVIEW_PATH = "/api/v1/qr/preview";
 
@@ -53,7 +53,7 @@ type QrPreviewProps = {
 
 export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadingFormat, setDownloadingFormat] = useState<"svg" | "png" | null>(null);
+  const [downloadingFormat, setDownloadingFormat] = useState<QrExportFormat | null>(null);
   const [downloadNote, setDownloadNote] = useState<string | null>(null);
   const [backendPreviewDataUrl, setBackendPreviewDataUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
@@ -154,7 +154,7 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
     };
   }, [design, payload]);
 
-  const handleDownload = async (format: "svg" | "png") => {
+  const handleDownload = async (format: QrExportFormat) => {
     if (!payload) {
       return;
     }
@@ -232,14 +232,8 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
       {previewNote ? <Text style={styles.previewNote}>{previewNote}</Text> : null}
 
       <View style={styles.footer}>
-        <View style={styles.footerCopy}>
-          <Text style={styles.footerLabel}>Payload</Text>
-          <Text style={styles.footerValue}>{payload ? payload.kind : "No valid payload"}</Text>
-          <Text style={styles.footerPreview}>{payloadPreview}</Text>
-        </View>
-
         <View style={styles.downloadRow}>
-          {(["svg", "png"] as const).map((format) => (
+          {(["png", "jpg", "svg", "eps"] as const).map((format) => (
             <Pressable
               key={format}
               disabled={!canDownload}
@@ -252,11 +246,37 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
             >
               <Text style={styles.downloadButtonText}>
                 {downloadingFormat === format
-                  ? "Downloading..."
-                  : `Download ${format.toUpperCase()}`}
+                  ? "..."
+                  : format.toUpperCase()}
               </Text>
             </Pressable>
           ))}
+
+          <Pressable
+            disabled={!canDownload}
+            onPress={() => {
+              const url = backendPreviewDataUrl || "";
+              if (!url) return;
+              const win = window.open("");
+              if (win) {
+                win.document.write(`<img src="${url}" style="width:100%; height:auto;" onload="window.print();window.close()">`);
+                win.document.close();
+              }
+            }}
+            style={({ pressed }) => [
+              styles.printButton,
+              !canDownload && styles.downloadButtonDisabled,
+              pressed && canDownload && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.printIcon}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            </Text>
+          </Pressable>
         </View>
 
         {downloadNote ? <Text style={styles.downloadNote}>{downloadNote}</Text> : null}
@@ -407,33 +427,47 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
+    alignItems: "center",
   },
   downloadButton: {
     alignItems: "center",
-    alignSelf: "stretch",
     backgroundColor: palette.accent,
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
     justifyContent: "center",
-    minHeight: 44,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    minWidth: 50,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    height: 32,
+  },
+  printButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: radii.sm,
+    justifyContent: "center",
+    width: 32,
+    height: 32,
+  },
+  printIcon: {
+    color: palette.surface,
   },
   downloadButtonDisabled: {
     opacity: 0.55,
   },
   downloadButtonText: {
     color: palette.surface,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 11,
+    fontWeight: "800",
     letterSpacing: 0,
   },
   downloadNote: {
     color: "#d8dee2",
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: spacing.xs,
   },
   buttonPressed: {
     opacity: 0.9,
     transform: [{ translateY: 1 }],
   },
 });
+

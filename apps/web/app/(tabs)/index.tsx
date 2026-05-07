@@ -98,7 +98,9 @@ export default function CreateScreen() {
     quietZoneModules: 4,
   });
 
-  const [activeTab, setActiveTab] = useState<"frames" | "style" | "color">("color");
+  const [activeTab, setActiveTab] = useState<
+    "payload" | "frames" | "pattern" | "markers" | "color"
+  >("payload");
 
   const colors = CURATED_COLORS;
 
@@ -141,65 +143,66 @@ export default function CreateScreen() {
         <View style={styles.workspace}>
           <View style={styles.column}>
             <SectionCard
-              eyebrow="Step 1"
-              title="Payload"
-              subtitle="Choose a static QR type. Every MVP type encodes directly into the QR."
-            >
-              <View style={styles.modeRow}>
-                {QR_TYPE_REGISTRY_V1.types.map((type) => {
-                  const selected = type.kind === activeKind;
-                  return (
-                    <Pressable
-                      key={type.kind}
-                      onPress={() => setActiveKind(type.kind)}
-                      style={({ pressed }) => [
-                        styles.modeChip,
-                        selected && styles.modeChipActive,
-                        pressed && styles.modeChipPressed,
-                      ]}
-                    >
-                      <Text style={[styles.modeText, selected && styles.modeTextActive]}>
-                        {type.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-
-              {renderPayloadFields(activeKind, form, updateField)}
-
-              <View style={styles.notePanel}>
-                <Text style={styles.noteTitle}>{activeType?.label ?? "Static QR"}</Text>
-                <Text style={payloadResult.payload ? styles.noteCopy : styles.errorCopy}>
-                  {payloadPreview}
-                </Text>
-              </View>
-            </SectionCard>
-
-            <SectionCard
-              eyebrow="Step 2"
-              title="Design QR Code"
-              subtitle="Tune frames, color, data patterns, and corner markers while preserving scan quality."
+              eyebrow="Core Design Studio"
+              title="Customize your QR"
+              subtitle="Tune payload, frames, color, patterns, and markers while preserving scan quality."
             >
               <View style={styles.designTab}>
                 <View style={styles.tabsHeader}>
-                  {(["frames", "style", "color"] as const).map((tab) => (
+                  {(
+                    [
+                      ["payload", "Payload"],
+                      ["frames", "Frames"],
+                      ["pattern", "Data Pattern"],
+                      ["markers", "Corner Markers"],
+                      ["color", "Color"],
+                    ] as const
+                  ).map(([id, label]) => (
                     <Pressable
-                      key={tab}
-                      style={[styles.tabBtn, activeTab === tab && styles.tabBtnActive]}
-                      onPress={() => setActiveTab(tab)}
+                      key={id}
+                      style={[styles.tabBtn, activeTab === id && styles.tabBtnActive]}
+                      onPress={() => setActiveTab(id)}
                     >
-                      <Text
-                        style={[styles.tabBtnText, activeTab === tab && styles.tabBtnTextActive]}
-                      >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      <Text style={[styles.tabBtnText, activeTab === id && styles.tabBtnTextActive]}>
+                        {label}
                       </Text>
                     </Pressable>
                   ))}
-                  <Pressable style={styles.favBtn}>
-                    <Text style={styles.favBtnText}>Fav Designs</Text>
-                  </Pressable>
                 </View>
+
+                {activeTab === "payload" && (
+                  <View style={styles.tabPanel}>
+                    <View style={styles.modeRow}>
+                      {QR_TYPE_REGISTRY_V1.types.map((type) => {
+                        const selected = type.kind === activeKind;
+                        return (
+                          <Pressable
+                            key={type.kind}
+                            onPress={() => setActiveKind(type.kind)}
+                            style={({ pressed }) => [
+                              styles.modeChip,
+                              selected && styles.modeChipActive,
+                              pressed && styles.modeChipPressed,
+                            ]}
+                          >
+                            <Text style={[styles.modeText, selected && styles.modeTextActive]}>
+                              {type.label}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+
+                    {renderPayloadFields(activeKind, form, updateField)}
+
+                    <View style={styles.notePanel}>
+                      <Text style={styles.noteTitle}>{activeType?.label ?? "Static QR"}</Text>
+                      <Text style={payloadResult.payload ? styles.noteCopy : styles.errorCopy}>
+                        {payloadPreview}
+                      </Text>
+                    </View>
+                  </View>
+                )}
 
                 {activeTab === "color" && (
                   <View style={styles.tabPanel}>
@@ -250,7 +253,7 @@ export default function CreateScreen() {
                   </View>
                 )}
 
-                {activeTab === "style" && (
+                {activeTab === "pattern" && (
                   <View style={styles.tabPanel}>
                     <Text style={styles.inputLabel}>Data Pattern</Text>
                     <View style={styles.swatchGrid}>
@@ -280,13 +283,15 @@ export default function CreateScreen() {
                             design.moduleStyle === s && styles.shapeBoxActive,
                           ]}
                         >
-                          <Text style={styles.shapeText}>
-                            {s.charAt(0).toUpperCase() + s.slice(1)}
-                          </Text>
+                          <Text style={styles.shapeText}>{labelize(s)}</Text>
                         </Pressable>
                       ))}
                     </View>
+                  </View>
+                )}
 
+                {activeTab === "markers" && (
+                  <View style={styles.tabPanel}>
                     <Text style={styles.inputLabel}>Corner Markers</Text>
                     <View style={styles.swatchGrid}>
                       {(
@@ -432,16 +437,6 @@ export default function CreateScreen() {
               payloadPreview={payloadPreview}
               design={design}
             />
-
-            <View style={styles.statsRow}>
-              <StatTile
-                label="Promise"
-                value="Direct"
-                detail="No hidden redirects or surprise domains."
-              />
-              <StatTile label="State" value="Draft" detail="Anonymous until a save flow exists." />
-              <StatTile label="Types" value="9" detail="URL, text, contact, network, and more." />
-            </View>
           </View>
         </View>
       </View>
