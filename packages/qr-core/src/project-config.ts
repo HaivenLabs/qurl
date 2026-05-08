@@ -81,8 +81,8 @@ export type QrDesignConfigV1 = {
         assetRef?: string;
         text?: string;
         fit?: "contain" | "cover";
+        /** Fraction of the QR content side. Kept intentionally small for scan safety. */
         sizeRatio?: number;
-        backgroundColor?: string;
         foregroundColor?: string;
         shape?: "circle" | "rounded-square" | "none";
       };

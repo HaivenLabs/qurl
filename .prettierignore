@@ -8,3 +8,4 @@ pnpm-lock.yaml
 .expo-shared/
 apps/web/expo-env.d.ts
 web-build/
+docs/references/

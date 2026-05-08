@@ -131,7 +131,7 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 		}
 	}
 	buf.WriteString(`</g>`)
-	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods), design)
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods), design, targetPixelSize, float64(canvasMods))
 	buf.WriteString(`</svg>`)
 	return []byte(buf.String()), nil
 }
@@ -173,7 +173,7 @@ func renderCircleSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize in
 	writeQRCoreSVGOnly(&buf, bc, design)
 	buf.WriteString(`</g>`)
 	buf.WriteString(`</g>`)
-	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design)
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design, targetPixelSize, float64(canvasMods))
 
 	stickerColor := fg
 	if design.Sticker != nil && design.Sticker.Color != "" {
@@ -204,10 +204,6 @@ func renderRoundedSquareSVG(bc barcode.Barcode, design DesignConfig, targetPixel
 	}
 	canvasMods := mods + (quiet * 2) + 2
 
-	// Safe area for the QR code.
-	// We want bit more margin than the stroke.
-	// Native mods + quiet*2 is the core. We add 2 generic padding.
-	// Let's use 90% of the canvas for the QR to give it a nice "frame" feel.
 	safeSide := float64(canvasMods) * 0.82
 	contentScale := safeSide / float64(mods)
 	offset := (float64(canvasMods) - (float64(mods) * contentScale)) / 2
@@ -231,7 +227,7 @@ func renderRoundedSquareSVG(bc barcode.Barcode, design DesignConfig, targetPixel
 	writeQRCoreSVGOnly(&buf, bc, design)
 	buf.WriteString(`</g>`)
 	buf.WriteString(`</g>`)
-	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design)
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design, targetPixelSize, float64(canvasMods))
 
 	stickerColor := fg
 	if design.Sticker != nil && design.Sticker.Color != "" {
@@ -750,7 +746,7 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 	}
 	buf.WriteString(`</g>`) // close QR content group
 	buf.WriteString(`</g>`) // close clip group
-	writeLogoOverlay(&buf, centerX, centerY, float64(mods)*contentScale, design)
+	writeLogoOverlay(&buf, centerX, centerY, float64(mods)*contentScale, design, targetPixelSize, float64(canvasMods))
 
 	// Acorn outline stroke (drawn OUTSIDE the clip so it's not clipped)
 	stickerColor := fg
@@ -910,7 +906,7 @@ func renderTemplateSVG(bc barcode.Barcode, design DesignConfig, template frameTe
 	buf.WriteString(fmt.Sprintf(`<g id="qr-mount" transform="translate(%.3f %.3f) scale(%.5f)">`, template.MountX, template.MountY, scale))
 	buf.WriteString(qr.String())
 	buf.WriteString(`</g>`)
-	writeLogoOverlay(&buf, template.MountX+(template.Mount/2), template.MountY+(template.Mount/2), template.Mount, design)
+	writeLogoOverlay(&buf, template.MountX+(template.Mount/2), template.MountY+(template.Mount/2), template.Mount, design, targetPixelSize, 100)
 	buf.WriteString(`</svg>`)
 	return []byte(buf.String())
 }
@@ -948,7 +944,7 @@ func isSupportedLogoDataURL(value string) bool {
 		strings.HasPrefix(value, "data:image/svg+xml;")
 }
 
-func writeLogoOverlay(buf *strings.Builder, centerX, centerY, contentSide float64, design DesignConfig) {
+func writeLogoOverlay(buf *strings.Builder, centerX, centerY, contentSide float64, design DesignConfig, targetPixelSize int, viewBoxSide float64) {
 	if !hasRenderableImageLogo(design) {
 		return
 	}
@@ -958,17 +954,14 @@ func writeLogoOverlay(buf *strings.Builder, centerX, centerY, contentSide float6
 	if ratio <= 0 {
 		ratio = 0.22
 	}
-	ratio = math.Max(0.05, math.Min(0.4, ratio))
+	ratio = math.Max(0.1, math.Min(0.28, ratio))
 
 	side := contentSide * ratio
 	if side <= 0 {
 		return
 	}
 
-	bg := logo.BackgroundColor
-	if bg == "" {
-		bg = design.BackgroundColor
-	}
+	bg := design.BackgroundColor
 	if bg == "" {
 		bg = "#ffffff"
 	}
@@ -979,20 +972,27 @@ func writeLogoOverlay(buf *strings.Builder, centerX, centerY, contentSide float6
 	if shape == "" {
 		shape = "circle"
 	}
+	padding := logoBackingPaddingUnits(targetPixelSize, viewBoxSide)
 
 	buf.WriteString(`<g id="qurl-logo">`)
 	switch shape {
 	case "none":
 	case "rounded-square":
-		buf.WriteString(fmt.Sprintf(`<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f" fill="%s"/>`, x, y, side, side, side*0.18, bg))
+		buf.WriteString(fmt.Sprintf(`<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f" fill="%s"/>`, x-padding, y-padding, side+(padding*2), side+(padding*2), side*0.18, bg))
 	default:
-		buf.WriteString(fmt.Sprintf(`<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"/>`, centerX, centerY, side*0.56, bg))
+		buf.WriteString(fmt.Sprintf(`<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"/>`, centerX, centerY, side/2+padding, bg))
 	}
 
-	padding := side * 0.18
-	imageSide := side - padding*2
-	buf.WriteString(fmt.Sprintf(`<image href="%s" x="%.3f" y="%.3f" width="%.3f" height="%.3f" preserveAspectRatio="xMidYMid meet"/>`, escapeSVGAttr(logo.AssetRef), x+padding, y+padding, imageSide, imageSide))
+	buf.WriteString(fmt.Sprintf(`<image href="%s" x="%.3f" y="%.3f" width="%.3f" height="%.3f" preserveAspectRatio="xMidYMid meet"/>`, escapeSVGAttr(logo.AssetRef), x, y, side, side))
 	buf.WriteString(`</g>`)
+}
+
+func logoBackingPaddingUnits(targetPixelSize int, viewBoxSide float64) float64 {
+	const paddingPixels = 2.0
+	if targetPixelSize <= 0 || viewBoxSide <= 0 {
+		return paddingPixels
+	}
+	return paddingPixels * viewBoxSide / float64(targetPixelSize)
 }
 
 // renderAdvancedPNG converts the unscaled barcode to a nicely scaled and colored PNG image

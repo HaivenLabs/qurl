@@ -79,6 +79,49 @@ const CURATED_COLORS = [
   "#fff7e8",
 ];
 
+const MIN_LOGO_SIZE_PX = 10;
+const MAX_LOGO_SIZE_PX = 28;
+const DEFAULT_LOGO_SIZE_PX = 22;
+
+function clampLogoSizePx(size: number): number {
+  return Math.min(MAX_LOGO_SIZE_PX, Math.max(MIN_LOGO_SIZE_PX, Math.round(size)));
+}
+
+function logoSizeRatioToPx(ratio?: number): number {
+  return clampLogoSizePx((ratio ?? DEFAULT_LOGO_SIZE_PX / 100) * 100);
+}
+
+function logoSizePxToRatio(size: number): number {
+  return clampLogoSizePx(size) / 100;
+}
+
+const PRESET_LOGOS = [
+  { id: "none", name: "None", asset: null },
+  { id: "scan-me-focused", name: "Scan Me Focused", asset: "/assets/images/scan-me-focused.svg" },
+  { id: "scan-me-simple", name: "Scan Me Simple", asset: "/assets/images/scan-me-simple.svg" },
+  { id: "scan-me-rounded", name: "Scan Me Rounded", asset: "/assets/images/scan-me-rounded.svg" },
+  { id: "scan-me-italic", name: "Scan Me Italic", asset: "/assets/images/scan-me-italic.svg" },
+  { id: "rating", name: "Star", asset: "/assets/images/rating.svg" },
+  { id: "business", name: "Shop", asset: "/assets/images/business.svg" },
+  { id: "vcard", name: "Card", asset: "/assets/images/vcard.svg" },
+  { id: "pdf", name: "PDF", asset: "/assets/images/pdf.svg" },
+  { id: "percent", name: "Percent", asset: "/assets/images/percent.svg" },
+  { id: "facebook", name: "Facebook", asset: "/assets/images/facebook.svg" },
+  { id: "instagram", name: "Instagram", asset: "/assets/images/instagram.svg" },
+  { id: "linkedin", name: "LinkedIn", asset: "/assets/images/linkedin.svg" },
+  { id: "x", name: "X", asset: "/assets/images/x.svg" },
+  { id: "youtube", name: "YouTube", asset: "/assets/images/youtube.svg" },
+  { id: "tiktok", name: "TikTok", asset: "/assets/images/tiktok.svg" },
+  { id: "pinterest", name: "Pinterest", asset: "/assets/images/pinterest.svg" },
+  { id: "app-store", name: "App Store", asset: "/assets/images/app-store.svg" },
+  { id: "gmail", name: "Gmail", asset: "/assets/images/gmail.svg" },
+  { id: "behance", name: "Behance", asset: "/assets/images/behance.svg" },
+  { id: "wifi", name: "Wifi", asset: "/assets/images/wifi.svg" },
+  { id: "power-point", name: "PowerPoint", asset: "/assets/images/power-point.svg" },
+  { id: "spotify", name: "Spotify", asset: "/assets/images/spotify.svg" },
+  { id: "pdf-icon", name: "PDF Red", asset: "/assets/images/pdf-icon.svg" },
+];
+
 export default function CreateScreen() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [activeKind, setActiveKind] = useState<QrPayloadKind>("url");
@@ -388,7 +431,7 @@ export default function CreateScreen() {
                           style={[
                             styles.frameBox,
                             (design.sticker?.style ?? "none") === option.id &&
-                            styles.shapeBoxActive,
+                              styles.shapeBoxActive,
                           ]}
                         >
                           <FrameSwatch
@@ -417,29 +460,78 @@ export default function CreateScreen() {
 
                 {activeTab === "logo" && (
                   <View style={styles.tabPanel}>
-                    <View style={styles.logoPanel}>
-                      <View style={styles.logoPreviewBox}>
+                    <View style={styles.swatchGrid}>
+                      {PRESET_LOGOS.map((option) => (
+                        <Pressable
+                          key={option.id}
+                          onPress={() =>
+                            setDesign((d) => ({
+                              ...d,
+                              errorCorrectionLevel: "H",
+                              logo:
+                                option.id === "none"
+                                  ? { mode: "none" }
+                                  : {
+                                      mode: "image",
+                                      assetRef: option.asset!,
+                                      fit: "contain",
+                                      sizeRatio:
+                                        d.logo?.mode === "image"
+                                          ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
+                                          : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
+                                      shape:
+                                        d.logo?.mode === "image"
+                                          ? (d.logo.shape ?? "circle")
+                                          : "circle",
+                                    },
+                            }))
+                          }
+                          style={[
+                            styles.frameBox,
+                            (design.logo?.mode === "image" &&
+                              design.logo.assetRef === option.asset) ||
+                            (design.logo?.mode === "none" && option.id === "none")
+                              ? styles.shapeBoxActive
+                              : null,
+                          ]}
+                        >
+                          <View style={styles.logoSwatch}>
+                            {option.asset ? (
+                              createElement("img", {
+                                src: option.asset,
+                                style: { width: "100%", height: "100%", objectFit: "contain" },
+                              })
+                            ) : (
+                              <View style={styles.noneIcon}>
+                                <Text style={styles.noneIconText}>Ø</Text>
+                              </View>
+                            )}
+                          </View>
+                        </Pressable>
+                      ))}
+                    </View>
+
+                    <View style={styles.imageSelector}>
+                      <View style={styles.fileUploadBox}>
                         {design.logo?.mode === "image" && design.logo.assetRef ? (
                           createElement("img", {
                             alt: "Uploaded logo preview",
                             src: design.logo.assetRef,
                             style: {
-                              display: "block",
                               height: "100%",
                               objectFit: "contain",
                               width: "100%",
                             },
                           })
                         ) : (
-                          <Text style={styles.logoEmptyText}>No logo</Text>
+                          <Text style={styles.logoEmptyText}>No Logo</Text>
                         )}
                       </View>
 
                       <View style={styles.logoControls}>
-                        <Text style={styles.inputLabel}>Logo Image</Text>
+                        <Text style={styles.inputLabel}>Upload Custom Logo</Text>
                         {createElement("input", {
-                          "aria-label": "Upload logo",
-                          accept: "image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg",
+                          accept: "image/*",
                           type: "file",
                           onChange: (event: { currentTarget: HTMLInputElement }) => {
                             const file = event.currentTarget.files?.[0];
@@ -473,11 +565,9 @@ export default function CreateScreen() {
                                   assetRef: result,
                                   fit: "contain",
                                   sizeRatio:
-                                    d.logo?.mode === "image" ? (d.logo.sizeRatio ?? 0.22) : 0.22,
-                                  backgroundColor:
                                     d.logo?.mode === "image"
-                                      ? (d.logo.backgroundColor ?? d.backgroundColor ?? "#ffffff")
-                                      : (d.backgroundColor ?? "#ffffff"),
+                                      ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
+                                      : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
                                   shape:
                                     d.logo?.mode === "image"
                                       ? (d.logo.shape ?? "circle")
@@ -506,23 +596,46 @@ export default function CreateScreen() {
                           </Pressable>
                         </View>
 
-                        <TinyColorInput
-                          label="Logo background"
-                          value={
-                            design.logo?.mode === "image"
-                              ? design.logo.backgroundColor || design.backgroundColor || "#ffffff"
-                              : design.backgroundColor || "#ffffff"
-                          }
-                          onChange={(v) =>
-                            setDesign((d) => ({
-                              ...d,
-                              logo:
-                                d.logo?.mode === "image"
-                                  ? { ...d.logo, backgroundColor: v }
-                                  : { mode: "none" },
-                            }))
-                          }
-                        />
+                        <View style={styles.logoSizeControl}>
+                          <View style={styles.logoSizeHeader}>
+                            <Text style={styles.inputLabel}>Logo size</Text>
+                            <Text style={styles.logoSizeValue}>
+                              {design.logo?.mode === "image"
+                                ? logoSizeRatioToPx(design.logo.sizeRatio)
+                                : DEFAULT_LOGO_SIZE_PX}
+                              px
+                            </Text>
+                          </View>
+                          {createElement("input", {
+                            "aria-label": "Logo size",
+                            disabled: design.logo?.mode !== "image",
+                            max: MAX_LOGO_SIZE_PX,
+                            min: MIN_LOGO_SIZE_PX,
+                            step: 1,
+                            type: "range",
+                            value:
+                              design.logo?.mode === "image"
+                                ? logoSizeRatioToPx(design.logo.sizeRatio)
+                                : DEFAULT_LOGO_SIZE_PX,
+                            onChange: (event: { currentTarget: HTMLInputElement }) => {
+                              const next = Number(event.currentTarget.value);
+                              setDesign((d) => ({
+                                ...d,
+                                logo:
+                                  d.logo?.mode === "image"
+                                    ? {
+                                        ...d.logo,
+                                        sizeRatio: logoSizePxToRatio(next),
+                                      }
+                                    : { mode: "none" },
+                              }));
+                            },
+                            style: {
+                              accentColor: "#005244",
+                              width: "100%",
+                            },
+                          })}
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -1324,11 +1437,27 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-  logoPanel: {
+  logoSwatch: {
+    height: 32,
+    width: 32,
+  },
+  imageSelector: {
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.lg,
+    marginTop: spacing.lg,
+  },
+  fileUploadBox: {
+    alignItems: "center",
+    aspectRatio: 1,
+    backgroundColor: palette.panel,
+    borderColor: palette.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    justifyContent: "center",
+    padding: spacing.sm,
+    width: 120,
   },
   logoPreviewBox: {
     alignItems: "center",
@@ -1354,6 +1483,30 @@ const styles = StyleSheet.create({
   logoActionRow: {
     alignItems: "flex-start",
     flexDirection: "row",
+  },
+  logoSizeControl: {
+    gap: spacing.xs,
+  },
+  logoSizeHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  logoSizeValue: {
+    color: palette.muted,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  noneIcon: {
+    alignItems: "center",
+    height: "100%",
+    justifyContent: "center",
+    width: "100%",
+  },
+  noneIconText: {
+    color: palette.muted,
+    fontSize: 24,
+    opacity: 0.3,
   },
   secondaryButton: {
     borderColor: palette.borderStrong,

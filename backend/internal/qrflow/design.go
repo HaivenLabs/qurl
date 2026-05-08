@@ -31,8 +31,7 @@ type LogoConfig struct {
 	AssetRef        string  `json:"assetRef,omitempty"`
 	Text            string  `json:"text,omitempty"`
 	Fit             string  `json:"fit,omitempty"`       // "contain", "cover"
-	SizeRatio       float64 `json:"sizeRatio,omitempty"` // 0.05 to 0.4
-	BackgroundColor string  `json:"backgroundColor,omitempty"`
+	SizeRatio       float64 `json:"sizeRatio,omitempty"` // 0.1 to 0.28
 	ForegroundColor string  `json:"foregroundColor,omitempty"`
 	Shape           string  `json:"shape,omitempty"`
 }

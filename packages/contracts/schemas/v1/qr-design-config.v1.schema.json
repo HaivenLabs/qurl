@@ -130,11 +130,8 @@
         },
         "sizeRatio": {
           "type": "number",
-          "minimum": 0.05,
-          "maximum": 0.4
-        },
-        "backgroundColor": {
-          "$ref": "#/$defs/color"
+          "minimum": 0.1,
+          "maximum": 0.28
         },
         "foregroundColor": {
           "$ref": "#/$defs/color"

@@ -1,0 +1,268 @@
+self.__BUILD_MANIFEST = {
+  "/": [
+    "static/chunks/01ek1ge4uc3e-.js"
+  ],
+  "/404": [
+    "static/chunks/0anojki22v~iw.js"
+  ],
+  "/429": [
+    "static/chunks/000dwj8drgcig.js"
+  ],
+  "/500": [
+    "static/chunks/0hsh2wokm7-pz.js"
+  ],
+  "/503": [
+    "static/chunks/07rb4-tn9xh~a.js"
+  ],
+  "/[locale]": [
+    "static/chunks/04-bee_3oekmt.js"
+  ],
+  "/_error": [
+    "static/chunks/0kw9fjserutk5.js"
+  ],
+  "/about": [
+    "static/chunks/116hox2m8nmoh.js"
+  ],
+  "/author/[id]": [
+    "static/chunks/0~_wj-4eu_wyk.js"
+  ],
+  "/auto-login": [
+    "static/chunks/0~1517oz9wb-f.js"
+  ],
+  "/checkout": [
+    "static/chunks/0w.879xuz3vfq.js"
+  ],
+  "/checkout/result": [
+    "static/chunks/029rtskdu0l~-.js"
+  ],
+  "/contact": [
+    "static/chunks/0n.bn1c00kdyz.js"
+  ],
+  "/create-free-qr-code": [
+    "static/chunks/15j0e~x-h0qw0.js"
+  ],
+  "/dashboard": [
+    "static/chunks/0g4ma.qfjkpe9.js"
+  ],
+  "/dashboard/analytics": [
+    "static/chunks/13bzw.kiiczfg.js"
+  ],
+  "/dashboard/builder": [
+    "static/chunks/16sx8mt1oi_it.js"
+  ],
+  "/dashboard/builder/[slug]/[id]/customize": [
+    "static/chunks/0fxolmguz_w~r.js"
+  ],
+  "/dashboard/builder/[slug]/[id]/design": [
+    "static/chunks/00ya0ax.idccu.js"
+  ],
+  "/dashboard/builder/[slug]/[id]/setup": [
+    "static/chunks/0jcc.s7cl34l8.js"
+  ],
+  "/dashboard/builder/[slug]/customize": [
+    "static/chunks/0eksaawnbgusi.js"
+  ],
+  "/dashboard/builder/[slug]/design": [
+    "static/chunks/0qqcjp35nc88v.js"
+  ],
+  "/dashboard/builder/[slug]/setup": [
+    "static/chunks/0xf-8l9b8u318.js"
+  ],
+  "/dashboard/pricing": [
+    "static/chunks/0jl8fo.l8qsre.js"
+  ],
+  "/dashboard/user/UserLayout": [
+    "static/chunks/0eow1k1tej7vr.js"
+  ],
+  "/dashboard/user/account": [
+    "static/chunks/09vdfer_8o1~3.js"
+  ],
+  "/dashboard/user/account/cancel-subscription": [
+    "static/chunks/13aahg1_kb.xj.js"
+  ],
+  "/dashboard/user/api-keys": [
+    "static/chunks/0aq-87scg32ug.js"
+  ],
+  "/dashboard/user/billing/BillingLayout": [
+    "static/chunks/0-dmw-_c1qylh.js"
+  ],
+  "/dashboard/user/billing/info": [
+    "static/chunks/0n.h32~5wgyth.js"
+  ],
+  "/dashboard/user/billing/payment-details": [
+    "static/chunks/15qwdwrl70ovb.js"
+  ],
+  "/dashboard/user/billing/receipts": [
+    "static/chunks/0_35iom1pw107.js"
+  ],
+  "/dashboard/user/change-email": [
+    "static/chunks/0d7qeh54udm7~.js"
+  ],
+  "/dashboard/user/change-password": [
+    "static/chunks/0-gkyrpy8wrw2.js"
+  ],
+  "/dashboard/user/close-account": [
+    "static/chunks/0nkbkk3g.yl8n.js"
+  ],
+  "/dashboard/user/settings": [
+    "static/chunks/0nnyw-wkws_.8.js"
+  ],
+  "/dashboard/user/user-management": [
+    "static/chunks/0qmyrh3_ap172.js"
+  ],
+  "/expired-token": [
+    "static/chunks/15-ngh0d_hgdm.js"
+  ],
+  "/fast-qr-generator": [
+    "static/chunks/07cg43qz-e.fq.js"
+  ],
+  "/google/redirect": [
+    "static/chunks/0u_8sh-yum-ps.js"
+  ],
+  "/login": [
+    "static/chunks/1568fyhybf--2.js"
+  ],
+  "/logout": [
+    "static/chunks/0auxl4252d-vj.js"
+  ],
+  "/new-password": [
+    "static/chunks/0.09lho537q74.js"
+  ],
+  "/non-profit": [
+    "static/chunks/13s~suwclpq9q.js"
+  ],
+  "/password-recovery": [
+    "static/chunks/0~hlaypu33a.4.js"
+  ],
+  "/password-success": [
+    "static/chunks/0g5i~wdi0wo0z.js"
+  ],
+  "/policy": [
+    "static/chunks/06usg4nyglsyu.js"
+  ],
+  "/preview-types": [
+    "static/chunks/038f474si6dl~.js"
+  ],
+  "/preview-types/[slug]": [
+    "static/chunks/03sr5tkrfazq5.js"
+  ],
+  "/pricing": [
+    "static/chunks/0jntcis1jq7ny.js"
+  ],
+  "/qr-api": [
+    "static/chunks/0kyik1j4igpvb.js"
+  ],
+  "/qr-code-generator": [
+    "static/chunks/0bjd3wefc2-ae.js"
+  ],
+  "/qr-creator": [
+    "static/chunks/0lmoxu.n_wcz6.js"
+  ],
+  "/qr-generator": [
+    "static/chunks/14w1pzkqx.mxb.js"
+  ],
+  "/qr-maker": [
+    "static/chunks/0kj_6nt3oev9u.js"
+  ],
+  "/register": [
+    "static/chunks/0mm769-wkk4ia.js"
+  ],
+  "/signature-auth": [
+    "static/chunks/0hmjtggjnjaqw.js"
+  ],
+  "/signup-modal": [
+    "static/chunks/0u27lfgc5jp2d.js"
+  ],
+  "/social-auth": [
+    "static/chunks/0t9h9g7-efo7f.js"
+  ],
+  "/solutions": [
+    "static/chunks/0k-hnx1fpj_-m.js"
+  ],
+  "/solutions/[slug]": [
+    "static/chunks/0_rrnw1zw-3~g.js"
+  ],
+  "/terms": [
+    "static/chunks/0j4vvq6d5_5ta.js"
+  ],
+  "/url-to-qr-code": [
+    "static/chunks/0pdh6-mxju84t.js"
+  ],
+  "/verify-email": [
+    "static/chunks/0x-cy3c45959x.js"
+  ],
+  "__rewrites": {
+    "afterFiles": [],
+    "beforeFiles": [],
+    "fallback": []
+  },
+  "sortedPages": [
+    "/",
+    "/404",
+    "/429",
+    "/500",
+    "/503",
+    "/_app",
+    "/_error",
+    "/about",
+    "/api/auth/[...nextauth]",
+    "/api/status",
+    "/author/[id]",
+    "/auto-login",
+    "/checkout",
+    "/checkout/result",
+    "/contact",
+    "/create-free-qr-code",
+    "/dashboard",
+    "/dashboard/analytics",
+    "/dashboard/builder",
+    "/dashboard/builder/[slug]/customize",
+    "/dashboard/builder/[slug]/design",
+    "/dashboard/builder/[slug]/setup",
+    "/dashboard/builder/[slug]/[id]/customize",
+    "/dashboard/builder/[slug]/[id]/design",
+    "/dashboard/builder/[slug]/[id]/setup",
+    "/dashboard/pricing",
+    "/dashboard/user/UserLayout",
+    "/dashboard/user/account",
+    "/dashboard/user/account/cancel-subscription",
+    "/dashboard/user/api-keys",
+    "/dashboard/user/billing/BillingLayout",
+    "/dashboard/user/billing/info",
+    "/dashboard/user/billing/payment-details",
+    "/dashboard/user/billing/receipts",
+    "/dashboard/user/change-email",
+    "/dashboard/user/change-password",
+    "/dashboard/user/close-account",
+    "/dashboard/user/settings",
+    "/dashboard/user/user-management",
+    "/expired-token",
+    "/fast-qr-generator",
+    "/google/redirect",
+    "/login",
+    "/logout",
+    "/new-password",
+    "/non-profit",
+    "/password-recovery",
+    "/password-success",
+    "/policy",
+    "/preview-types",
+    "/preview-types/[slug]",
+    "/pricing",
+    "/qr-api",
+    "/qr-code-generator",
+    "/qr-creator",
+    "/qr-generator",
+    "/qr-maker",
+    "/register",
+    "/signature-auth",
+    "/signup-modal",
+    "/social-auth",
+    "/solutions",
+    "/solutions/[slug]",
+    "/terms",
+    "/url-to-qr-code",
+    "/verify-email",
+    "/[locale]"
+  ]
+};self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB()

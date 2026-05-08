@@ -3,6 +3,8 @@ package qrflow
 import (
 	"bytes"
 	"image/png"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -114,11 +116,10 @@ func TestPreviewRendersUploadedImageLogo(t *testing.T) {
 		ModuleStyle:          "dot",
 		EyeStyle:             "square",
 		Logo: &LogoConfig{
-			Mode:            "image",
-			AssetRef:        "data:image/png;base64,iVBORw0KGgo=",
-			BackgroundColor: "#ffffff",
-			Shape:           "circle",
-			SizeRatio:       0.22,
+			Mode:      "image",
+			AssetRef:  "data:image/png;base64,iVBORw0KGgo=",
+			Shape:     "circle",
+			SizeRatio: 0.22,
 		},
 	}
 
@@ -149,11 +150,10 @@ func TestPreviewRendersUploadedSVGLogo(t *testing.T) {
 		ModuleStyle:          "dot",
 		EyeStyle:             "square",
 		Logo: &LogoConfig{
-			Mode:            "image",
-			AssetRef:        "data:image/svg+xml;base64,PHN2Zy8+",
-			BackgroundColor: "#ffffff",
-			Shape:           "circle",
-			SizeRatio:       0.22,
+			Mode:      "image",
+			AssetRef:  "data:image/svg+xml;base64,PHN2Zy8+",
+			Shape:     "circle",
+			SizeRatio: 0.22,
 		},
 	}
 
@@ -167,6 +167,49 @@ func TestPreviewRendersUploadedSVGLogo(t *testing.T) {
 	}
 	if !strings.Contains(resp.SVG, `href="data:image/svg+xml;base64,PHN2Zy8+"`) {
 		t.Fatalf("svg logo preview did not include uploaded svg image")
+	}
+}
+
+func TestLogoBackingUsesTwoPixelBorder(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/logo-border", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "dot",
+		EyeStyle:             "square",
+		Logo: &LogoConfig{
+			Mode:      "image",
+			AssetRef:  "data:image/svg+xml;base64,PHN2Zy8+",
+			Shape:     "circle",
+			SizeRatio: 0.22,
+		},
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	viewBox := regexp.MustCompile(`viewBox="0 0 ([\d.]+) ([\d.]+)" width="(\d+)"`).FindStringSubmatch(resp.SVG)
+	circle := regexp.MustCompile(`<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="#ffffff"/>`).FindStringSubmatch(resp.SVG)
+	image := regexp.MustCompile(`<image href="[^"]+" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"`).FindStringSubmatch(resp.SVG)
+	if len(viewBox) != 4 || len(circle) != 4 || len(image) != 5 {
+		t.Fatalf("logo preview did not include measurable backing/image geometry: %s", resp.SVG)
+	}
+
+	scale := mustParseFloat(t, viewBox[3]) / mustParseFloat(t, viewBox[1])
+	cx := mustParseFloat(t, circle[1])
+	radius := mustParseFloat(t, circle[3])
+	imageX := mustParseFloat(t, image[1])
+	borderPixels := (imageX - (cx - radius)) * scale
+	if borderPixels < 1.95 || borderPixels > 2.05 {
+		t.Fatalf("logo border = %.3f px, want 2px", borderPixels)
 	}
 }
 
@@ -273,4 +316,13 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func mustParseFloat(t *testing.T, value string) float64 {
+	t.Helper()
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		t.Fatalf("parse float %q: %v", value, err)
+	}
+	return parsed
 }
