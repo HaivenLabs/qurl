@@ -167,7 +167,7 @@ func renderCircleSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize in
 	radius := float64(canvasMods)/2 - 0.85
 	buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-circle-content"><circle cx="%.3f" cy="%.3f" r="%.3f"/></clipPath></defs>`, float64(canvasMods)/2, float64(canvasMods)/2, radius))
 	buf.WriteString(`<g clip-path="url(#qurl-circle-content)">`)
-	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, design)
+	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, float64(quiet)*contentScale, design)
 
 	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offset, offset, contentScale))
 	writeQRCoreSVGOnly(&buf, bc, design)
@@ -221,7 +221,7 @@ func renderRoundedSquareSVG(bc barcode.Barcode, design DesignConfig, targetPixel
 
 	buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-rounded-content"><rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f"/></clipPath></defs>`, frameMargin, frameMargin, frameSize, frameSize, cornerRadius))
 	buf.WriteString(`<g clip-path="url(#qurl-rounded-content)">`)
-	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, design)
+	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, float64(quiet)*contentScale, design)
 
 	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offset, offset, contentScale))
 	writeQRCoreSVGOnly(&buf, bc, design)
@@ -679,13 +679,11 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 	centerY := float64(canvasMods) / 2
 
 	// Inscribed safe rectangle for the QR code inside the acorn.
-	// The acorn's interior (the 'nut' part) is centered lower than the geometric midpoint.
-	// Native Y range of the nut is roughly [22, 51], midpoint ~36.5.
-	// Geometric midpoint is 25.5. So we shift the content down by 11 native units.
+	// Keep it centered in the nut body so the lower finder stays clear of the tapered base.
 	safeSide := acornScale * 26.0
 	contentScale := safeSide / float64(mods)
 	offsetX := centerX - (float64(mods)*contentScale)/2
-	offsetY := centerY + (11.0 * acornScale) - (float64(mods)*contentScale)/2
+	offsetY := centerY - (float64(mods)*contentScale)/2
 
 	acornPath := acornScaledPath(acornScale, centerX, centerY)
 
@@ -706,7 +704,7 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 
 	// Decorative fill: scatter dots across the full canvas, skip the QR content area.
 	// The SVG clipPath crops everything to the acorn shape.
-	drawDecorativeShapeFill(&buf, canvasMods, offsetX, offsetY, contentScale, mods, design)
+	drawDecorativeShapeFill(&buf, canvasMods, offsetX, offsetY, contentScale, mods, float64(quiet)*contentScale, design)
 
 	// Real QR code content
 	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offsetX, offsetY, contentScale))
@@ -765,7 +763,7 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 // drawDecorativeShapeFill scatters decorative dots across the full canvas,
 // skipping the QR content rectangle. The caller uses an SVG clipPath to crop
 // everything to the desired shape (acorn, etc). Same approach as the circle fill.
-func drawDecorativeShapeFill(buf *strings.Builder, canvasMods int, contentOffsetX, contentOffsetY, contentScale float64, mods int, design DesignConfig) {
+func drawDecorativeShapeFill(buf *strings.Builder, canvasMods int, contentOffsetX, contentOffsetY, contentScale float64, mods int, contentPadding float64, design DesignConfig) {
 	style := design.ModuleStyle
 	if style == "" {
 		style = "dot"
@@ -776,10 +774,11 @@ func drawDecorativeShapeFill(buf *strings.Builder, canvasMods int, contentOffset
 	}
 
 	cell := math.Max(0.72, contentScale*0.96)
-	contentMinX := contentOffsetX - (cell * 0.5)
-	contentMaxX := contentOffsetX + float64(mods)*contentScale + (cell * 0.5)
-	contentMinY := contentOffsetY - (cell * 0.5)
-	contentMaxY := contentOffsetY + float64(mods)*contentScale + (cell * 0.5)
+	skipPadding := math.Max(cell*0.5, contentPadding)
+	contentMinX := contentOffsetX - skipPadding
+	contentMaxX := contentOffsetX + float64(mods)*contentScale + skipPadding
+	contentMinY := contentOffsetY - skipPadding
+	contentMaxY := contentOffsetY + float64(mods)*contentScale + skipPadding
 
 	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" opacity="0.98">`, color, color))
 	for row := 0; ; row++ {

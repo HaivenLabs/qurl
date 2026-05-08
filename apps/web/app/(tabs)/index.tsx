@@ -13,6 +13,7 @@ import {
 } from "@qurl/qr-core";
 import { layout, palette, radii, spacing } from "@qurl/ui";
 
+import { PRESET_LOGOS_DATA } from "../../src/lib/preset-logos";
 import { QrPreview } from "../../src/components/qr-preview";
 import { SectionCard } from "../../src/components/section-card";
 
@@ -97,29 +98,29 @@ function logoSizePxToRatio(size: number): number {
 
 const PRESET_LOGOS = [
   { id: "none", name: "None", asset: null },
-  { id: "scan-me-focused", name: "Scan Me Focused", asset: "/assets/images/scan-me-focused.svg" },
-  { id: "scan-me-simple", name: "Scan Me Simple", asset: "/assets/images/scan-me-simple.svg" },
-  { id: "scan-me-rounded", name: "Scan Me Rounded", asset: "/assets/images/scan-me-rounded.svg" },
-  { id: "scan-me-italic", name: "Scan Me Italic", asset: "/assets/images/scan-me-italic.svg" },
-  { id: "rating", name: "Star", asset: "/assets/images/rating.svg" },
-  { id: "business", name: "Shop", asset: "/assets/images/business.svg" },
-  { id: "vcard", name: "Card", asset: "/assets/images/vcard.svg" },
-  { id: "pdf", name: "PDF", asset: "/assets/images/pdf.svg" },
-  { id: "percent", name: "Percent", asset: "/assets/images/percent.svg" },
-  { id: "facebook", name: "Facebook", asset: "/assets/images/facebook.svg" },
-  { id: "instagram", name: "Instagram", asset: "/assets/images/instagram.svg" },
-  { id: "linkedin", name: "LinkedIn", asset: "/assets/images/linkedin.svg" },
-  { id: "x", name: "X", asset: "/assets/images/x.svg" },
-  { id: "youtube", name: "YouTube", asset: "/assets/images/youtube.svg" },
-  { id: "tiktok", name: "TikTok", asset: "/assets/images/tiktok.svg" },
-  { id: "pinterest", name: "Pinterest", asset: "/assets/images/pinterest.svg" },
-  { id: "app-store", name: "App Store", asset: "/assets/images/app-store.svg" },
-  { id: "gmail", name: "Gmail", asset: "/assets/images/gmail.svg" },
-  { id: "behance", name: "Behance", asset: "/assets/images/behance.svg" },
-  { id: "wifi", name: "Wifi", asset: "/assets/images/wifi.svg" },
-  { id: "power-point", name: "PowerPoint", asset: "/assets/images/power-point.svg" },
-  { id: "spotify", name: "Spotify", asset: "/assets/images/spotify.svg" },
-  { id: "pdf-icon", name: "PDF Red", asset: "/assets/images/pdf-icon.svg" },
+  { id: "scan-me-focused", name: "Scan Me Focused", asset: PRESET_LOGOS_DATA["scan-me-focused"] },
+  { id: "scan-me-simple", name: "Scan Me Simple", asset: PRESET_LOGOS_DATA["scan-me-simple"] },
+  { id: "scan-me-rounded", name: "Scan Me Rounded", asset: PRESET_LOGOS_DATA["scan-me-rounded"] },
+  { id: "scan-me-italic", name: "Scan Me Italic", asset: PRESET_LOGOS_DATA["scan-me-italic"] },
+  { id: "rating", name: "Star", asset: PRESET_LOGOS_DATA["rating"] },
+  { id: "business", name: "Shop", asset: PRESET_LOGOS_DATA["business"] },
+  { id: "vcard", name: "Card", asset: PRESET_LOGOS_DATA["vcard"] },
+  { id: "pdf", name: "PDF", asset: PRESET_LOGOS_DATA["pdf"] },
+  { id: "percent", name: "Percent", asset: PRESET_LOGOS_DATA["percent"] },
+  { id: "facebook", name: "Facebook", asset: PRESET_LOGOS_DATA["facebook"] },
+  { id: "instagram", name: "Instagram", asset: PRESET_LOGOS_DATA["instagram"] },
+  { id: "linkedin", name: "LinkedIn", asset: PRESET_LOGOS_DATA["linkedin"] },
+  { id: "x", name: "X", asset: PRESET_LOGOS_DATA["x"] },
+  { id: "youtube", name: "YouTube", asset: PRESET_LOGOS_DATA["youtube"] },
+  { id: "tiktok", name: "TikTok", asset: PRESET_LOGOS_DATA["tiktok"] },
+  { id: "pinterest", name: "Pinterest", asset: PRESET_LOGOS_DATA["pinterest"] },
+  { id: "app-store", name: "App Store", asset: PRESET_LOGOS_DATA["app-store"] },
+  { id: "gmail", name: "Gmail", asset: PRESET_LOGOS_DATA["gmail"] },
+  { id: "behance", name: "Behance", asset: PRESET_LOGOS_DATA["behance"] },
+  { id: "wifi", name: "Wifi", asset: PRESET_LOGOS_DATA["wifi"] },
+  { id: "power-point", name: "PowerPoint", asset: PRESET_LOGOS_DATA["power-point"] },
+  { id: "spotify", name: "Spotify", asset: PRESET_LOGOS_DATA["spotify"] },
+  { id: "pdf-icon", name: "PDF Red", asset: PRESET_LOGOS_DATA["pdf-icon"] },
 ];
 
 export default function CreateScreen() {
@@ -431,7 +432,7 @@ export default function CreateScreen() {
                           style={[
                             styles.frameBox,
                             (design.sticker?.style ?? "none") === option.id &&
-                              styles.shapeBoxActive,
+                            styles.shapeBoxActive,
                           ]}
                         >
                           <FrameSwatch
@@ -472,25 +473,25 @@ export default function CreateScreen() {
                                 option.id === "none"
                                   ? { mode: "none" }
                                   : {
-                                      mode: "image",
-                                      assetRef: option.asset!,
-                                      fit: "contain",
-                                      sizeRatio:
-                                        d.logo?.mode === "image"
-                                          ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
-                                          : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
-                                      shape:
-                                        d.logo?.mode === "image"
-                                          ? (d.logo.shape ?? "circle")
-                                          : "circle",
-                                    },
+                                    mode: "image",
+                                    assetRef: option.asset!,
+                                    fit: "contain",
+                                    sizeRatio:
+                                      d.logo?.mode === "image"
+                                        ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
+                                        : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
+                                    shape:
+                                      d.logo?.mode === "image"
+                                        ? (d.logo.shape ?? "circle")
+                                        : "circle",
+                                  },
                             }))
                           }
                           style={[
                             styles.frameBox,
                             (design.logo?.mode === "image" &&
                               design.logo.assetRef === option.asset) ||
-                            (design.logo?.mode === "none" && option.id === "none")
+                              (design.logo?.mode === "none" && option.id === "none")
                               ? styles.shapeBoxActive
                               : null,
                           ]}
@@ -624,9 +625,9 @@ export default function CreateScreen() {
                                 logo:
                                   d.logo?.mode === "image"
                                     ? {
-                                        ...d.logo,
-                                        sizeRatio: logoSizePxToRatio(next),
-                                      }
+                                      ...d.logo,
+                                      sizeRatio: logoSizePxToRatio(next),
+                                    }
                                     : { mode: "none" },
                               }));
                             },
