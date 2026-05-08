@@ -18,6 +18,5 @@ export const QR_FRAME_OPTIONS: QrFrameOption[] = [
   { id: "dashed-border-hearts", label: "Hearts" },
   { id: "ticket-pass", label: "Ticket Pass" },
   { id: "shopping-bag", label: "Shopping Bag" },
-  { id: "classic-bottom-banner", label: "Bottom Banner" },
   { id: "acorn", label: "Acorn" },
 ];

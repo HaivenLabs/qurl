@@ -388,7 +388,7 @@ export default function CreateScreen() {
                           style={[
                             styles.frameBox,
                             (design.sticker?.style ?? "none") === option.id &&
-                              styles.shapeBoxActive,
+                            styles.shapeBoxActive,
                           ]}
                         >
                           <FrameSwatch
@@ -966,14 +966,9 @@ function FrameSwatch({ color, id }: { color: string; id: QrStickerStyle }) {
     case "acorn":
       add("path", {
         ...common,
+        transform: "translate(-7.94, 4.85)",
         d: "M 84.45 43.08 C 88.62 42.05 88.62 21.76 64.15 19.67 C 63.74 18.62 61.84 14.07 58.00 12.41 C 57.52 12.21 57.03 12.07 56.52 12.00 C 56.22 11.96 56.00 12.33 56.19 12.57 C 57.10 13.68 57.90 17.62 56.45 19.62 C 31.44 21.45 31.42 42.04 35.62 43.08 L 38.25 47.21 C 38.05 47.17 37.85 47.17 37.65 47.22 C 37.45 47.26 37.27 47.35 37.11 47.47 C 36.95 47.59 36.82 47.75 36.72 47.93 C 36.62 48.11 36.57 48.31 36.55 48.51 C 36.15 54.12 36.44 71.75 56.52 75.25 C 57.59 76.18 59.38 78.31 60.03 78.30 C 60.67 78.31 62.46 76.18 63.53 75.25 C 83.46 71.37 83.86 54.08 83.49 48.52 C 83.48 48.32 83.42 48.12 83.32 47.94 C 83.23 47.76 83.10 47.60 82.94 47.48 C 82.77 47.35 82.59 47.26 82.39 47.22 C 82.20 47.17 81.99 47.17 81.79 47.21 Z",
       });
-      break;
-    case "classic-bottom-banner":
-    case "scan-me-bottom":
-    case "badge":
-      add("rect", { ...common, x: 14, y: 12, width: 72, height: 72, rx: 10 });
-      add("rect", { fill: stroke, x: 16, y: 72, width: 68, height: 14, rx: 4, stroke: "none" });
       break;
   }
 

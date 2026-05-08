@@ -683,11 +683,13 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 	centerY := float64(canvasMods) / 2
 
 	// Inscribed safe rectangle for the QR code inside the acorn.
-	// The acorn's usable interior is roughly 28 units wide × 28 units tall.
+	// The acorn's interior (the 'nut' part) is centered lower than the geometric midpoint.
+	// Native Y range of the nut is roughly [22, 51], midpoint ~36.5.
+	// Geometric midpoint is 25.5. So we shift the content down by 11 native units.
 	safeSide := acornScale * 26.0
 	contentScale := safeSide / float64(mods)
 	offsetX := centerX - (float64(mods)*contentScale)/2
-	offsetY := centerY - (float64(mods)*contentScale)/2
+	offsetY := centerY + (11.0 * acornScale) - (float64(mods)*contentScale)/2
 
 	acornPath := acornScaledPath(acornScale, centerX, centerY)
 
@@ -868,7 +870,6 @@ func frameTemplates() map[string]frameTemplate {
 		"dashed-border-hearts":  {ID: "dashed-border-hearts", MountX: 18, MountY: 18, Mount: 64},
 		"ticket-pass":           {ID: "ticket-pass", MountX: 30, MountY: 30, Mount: 40},
 		"shopping-bag":          {ID: "shopping-bag", MountX: 24, MountY: 34, Mount: 52},
-		"classic-bottom-banner": {ID: "classic-bottom-banner", MountX: 18, MountY: 12, Mount: 64},
 	}
 }
 
