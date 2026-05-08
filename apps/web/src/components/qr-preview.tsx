@@ -10,7 +10,7 @@ import {
 } from "@qurl/qr-core";
 import { palette, radii, spacing } from "@qurl/ui";
 
-import { QrExportFormat, resolveQrDownloadArtifact, triggerDownload } from "../lib/qr-export";
+import { resolveQrDownloadArtifact, triggerDownload, type QrExportFormat } from "../lib/qr-export";
 
 const PREVIEW_PATH = "/api/v1/qr/preview";
 
@@ -47,11 +47,10 @@ function resolvePreviewUrl(path: string): string | null {
 
 type QrPreviewProps = {
   payload: QrPayloadConfigV1 | null;
-  payloadPreview: string;
   design?: Partial<QrDesignConfigV1>;
 };
 
-export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
+export function QrPreview({ payload, design }: QrPreviewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFormat, setDownloadingFormat] = useState<QrExportFormat | null>(null);
   const [downloadNote, setDownloadNote] = useState<string | null>(null);
@@ -245,9 +244,7 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
               ]}
             >
               <Text style={styles.downloadButtonText}>
-                {downloadingFormat === format
-                  ? "..."
-                  : format.toUpperCase()}
+                {downloadingFormat === format ? "..." : format.toUpperCase()}
               </Text>
             </Pressable>
           ))}
@@ -259,7 +256,9 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
               if (!url) return;
               const win = window.open("");
               if (win) {
-                win.document.write(`<img src="${url}" style="width:100%; height:auto;" onload="window.print();window.close()">`);
+                win.document.write(
+                  `<img src="${url}" style="width:100%; height:auto;" onload="window.print();window.close()">`,
+                );
                 win.document.close();
               }
             }}
@@ -270,7 +269,16 @@ export function QrPreview({ payload, payloadPreview, design }: QrPreviewProps) {
             ]}
           >
             <Text style={styles.printIcon}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
@@ -470,4 +478,3 @@ const styles = StyleSheet.create({
     transform: [{ translateY: 1 }],
   },
 });
-

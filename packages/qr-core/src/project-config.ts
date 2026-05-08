@@ -75,17 +75,17 @@ export type QrDesignConfigV1 = {
   eyeBottomLeftOuterColor?: string;
   eyeBottomLeftInnerColor?: string;
   logo:
-  | { mode: "none" }
-  | {
-    mode: "text" | "image";
-    assetRef?: string;
-    text?: string;
-    fit?: "contain" | "cover";
-    sizeRatio?: number;
-    backgroundColor?: string;
-    foregroundColor?: string;
-    shape?: "circle" | "rounded-square" | "none";
-  };
+    | { mode: "none" }
+    | {
+        mode: "text" | "image";
+        assetRef?: string;
+        text?: string;
+        fit?: "contain" | "cover";
+        sizeRatio?: number;
+        backgroundColor?: string;
+        foregroundColor?: string;
+        shape?: "circle" | "rounded-square" | "none";
+      };
   frame: {
     enabled: boolean;
     style?: "none" | "square" | "rounded" | "pill" | "circle";

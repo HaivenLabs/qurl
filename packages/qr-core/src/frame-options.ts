@@ -3,14 +3,13 @@ import type { QrStickerStyle } from "./project-config";
 export type QrFrameOption = {
   id: QrStickerStyle;
   label: string;
-  defaultText?: string;
 };
 
 export const QR_FRAME_OPTIONS: QrFrameOption[] = [
   { id: "none", label: "None" },
   { id: "circle", label: "Circle" },
   { id: "rounded-square", label: "Rounded Square" },
-  { id: "scan-me-speech-bubble", label: "Speech Bubble", defaultText: "SCAN ME" },
+  { id: "scan-me-speech-bubble", label: "Speech Bubble" },
   { id: "storefront", label: "Storefront" },
   { id: "coffee-cup", label: "Coffee Cup" },
   { id: "mobile-phone", label: "Mobile Phone" },
@@ -19,6 +18,6 @@ export const QR_FRAME_OPTIONS: QrFrameOption[] = [
   { id: "dashed-border-hearts", label: "Hearts" },
   { id: "ticket-pass", label: "Ticket Pass" },
   { id: "shopping-bag", label: "Shopping Bag" },
-  { id: "classic-bottom-banner", label: "Bottom Banner", defaultText: "SCAN ME" },
-  { id: "acorn", label: "Acorn", defaultText: "SCAN ME" },
+  { id: "classic-bottom-banner", label: "Bottom Banner" },
+  { id: "acorn", label: "Acorn" },
 ];

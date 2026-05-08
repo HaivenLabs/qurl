@@ -4,9 +4,7 @@
   "title": "QR Design Config v1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schemaVersion"
-  ],
+  "required": ["schemaVersion"],
   "properties": {
     "schemaVersion": {
       "type": "string",
@@ -14,12 +12,7 @@
     },
     "errorCorrectionLevel": {
       "type": "string",
-      "enum": [
-        "L",
-        "M",
-        "Q",
-        "H"
-      ]
+      "enum": ["L", "M", "Q", "H"]
     },
     "quietZoneModules": {
       "type": "integer",
@@ -118,17 +111,11 @@
     "logo": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "mode"
-      ],
+      "required": ["mode"],
       "properties": {
         "mode": {
           "type": "string",
-          "enum": [
-            "none",
-            "image",
-            "text"
-          ]
+          "enum": ["none", "image", "text"]
         },
         "assetRef": {
           "type": "string",
@@ -139,10 +126,7 @@
         },
         "fit": {
           "type": "string",
-          "enum": [
-            "contain",
-            "cover"
-          ]
+          "enum": ["contain", "cover"]
         },
         "sizeRatio": {
           "type": "number",
@@ -157,43 +141,28 @@
         },
         "shape": {
           "type": "string",
-          "enum": [
-            "circle",
-            "rounded-square",
-            "none"
-          ]
+          "enum": ["circle", "rounded-square", "none"]
         }
       }
     },
     "frame": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "enabled"
-      ],
+      "required": ["enabled"],
       "properties": {
         "enabled": {
           "type": "boolean"
         },
         "style": {
           "type": "string",
-          "enum": [
-            "none",
-            "square",
-            "rounded",
-            "pill",
-            "circle"
-          ]
+          "enum": ["none", "square", "rounded", "pill", "circle"]
         },
         "label": {
           "type": "string"
         },
         "labelPosition": {
           "type": "string",
-          "enum": [
-            "top",
-            "bottom"
-          ]
+          "enum": ["top", "bottom"]
         },
         "color": {
           "$ref": "#/$defs/color"
@@ -203,9 +172,7 @@
     "sticker": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "style"
-      ],
+      "required": ["style"],
       "properties": {
         "style": {
           "type": "string",

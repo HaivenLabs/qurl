@@ -14,7 +14,7 @@ import {
 import { layout, palette, radii, spacing } from "@qurl/ui";
 
 import { QrPreview } from "../../src/components/qr-preview";
-import { SectionCard, StatTile } from "../../src/components/section-card";
+import { SectionCard } from "../../src/components/section-card";
 
 type FormState = {
   url: string;
@@ -99,7 +99,7 @@ export default function CreateScreen() {
   });
 
   const [activeTab, setActiveTab] = useState<
-    "payload" | "frames" | "pattern" | "markers" | "color"
+    "payload" | "frames" | "logo" | "pattern" | "markers" | "color"
   >("payload");
 
   const colors = CURATED_COLORS;
@@ -153,6 +153,7 @@ export default function CreateScreen() {
                     [
                       ["payload", "Payload"],
                       ["frames", "Frames"],
+                      ["logo", "Logo"],
                       ["pattern", "Data Pattern"],
                       ["markers", "Corner Markers"],
                       ["color", "Color"],
@@ -163,7 +164,9 @@ export default function CreateScreen() {
                       style={[styles.tabBtn, activeTab === id && styles.tabBtnActive]}
                       onPress={() => setActiveTab(id)}
                     >
-                      <Text style={[styles.tabBtnText, activeTab === id && styles.tabBtnTextActive]}>
+                      <Text
+                        style={[styles.tabBtnText, activeTab === id && styles.tabBtnTextActive]}
+                      >
                         {label}
                       </Text>
                     </Pressable>
@@ -374,12 +377,10 @@ export default function CreateScreen() {
                                 enabled: option.id !== "none",
                                 style: frameStyleForOption(option.id),
                                 color: d.frame?.color ?? d.sticker?.color ?? "#005244",
-                                label: option.defaultText ?? d.frame?.label,
                               },
                               sticker: {
                                 ...(d.sticker ?? {}),
                                 style: option.id,
-                                text: option.defaultText ?? d.sticker?.text,
                                 color: d.sticker?.color ?? d.frame?.color ?? "#005244",
                               },
                             }))
@@ -387,7 +388,7 @@ export default function CreateScreen() {
                           style={[
                             styles.frameBox,
                             (design.sticker?.style ?? "none") === option.id &&
-                            styles.shapeBoxActive,
+                              styles.shapeBoxActive,
                           ]}
                         >
                           <FrameSwatch
@@ -410,20 +411,119 @@ export default function CreateScreen() {
                           }))
                         }
                       />
-                      <InputBlock
-                        label="Frame text"
-                        onChangeText={(v) =>
-                          setDesign((d) => ({
-                            ...d,
-                            frame: {
-                              ...(d.frame ?? { enabled: true, style: "rounded" }),
-                              label: v,
+                    </View>
+                  </View>
+                )}
+
+                {activeTab === "logo" && (
+                  <View style={styles.tabPanel}>
+                    <View style={styles.logoPanel}>
+                      <View style={styles.logoPreviewBox}>
+                        {design.logo?.mode === "image" && design.logo.assetRef ? (
+                          createElement("img", {
+                            alt: "Uploaded logo preview",
+                            src: design.logo.assetRef,
+                            style: {
+                              display: "block",
+                              height: "100%",
+                              objectFit: "contain",
+                              width: "100%",
                             },
-                            sticker: { ...(d.sticker ?? { style: "scan-me-bottom" }), text: v },
-                          }))
-                        }
-                        value={design.sticker?.text || design.frame?.label || ""}
-                      />
+                          })
+                        ) : (
+                          <Text style={styles.logoEmptyText}>No logo</Text>
+                        )}
+                      </View>
+
+                      <View style={styles.logoControls}>
+                        <Text style={styles.inputLabel}>Logo Image</Text>
+                        {createElement("input", {
+                          "aria-label": "Upload logo",
+                          accept: "image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg",
+                          type: "file",
+                          onChange: (event: { currentTarget: HTMLInputElement }) => {
+                            const file = event.currentTarget.files?.[0];
+                            if (!file) {
+                              return;
+                            }
+                            if (
+                              ![
+                                "image/png",
+                                "image/jpeg",
+                                "image/webp",
+                                "image/gif",
+                                "image/svg+xml",
+                              ].includes(file.type) &&
+                              !file.name.toLowerCase().endsWith(".svg")
+                            ) {
+                              return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const result = reader.result;
+                              if (typeof result !== "string") {
+                                return;
+                              }
+                              setDesign((d) => ({
+                                ...d,
+                                errorCorrectionLevel: "H",
+                                logo: {
+                                  mode: "image",
+                                  assetRef: result,
+                                  fit: "contain",
+                                  sizeRatio:
+                                    d.logo?.mode === "image" ? (d.logo.sizeRatio ?? 0.22) : 0.22,
+                                  backgroundColor:
+                                    d.logo?.mode === "image"
+                                      ? (d.logo.backgroundColor ?? d.backgroundColor ?? "#ffffff")
+                                      : (d.backgroundColor ?? "#ffffff"),
+                                  shape:
+                                    d.logo?.mode === "image"
+                                      ? (d.logo.shape ?? "circle")
+                                      : "circle",
+                                },
+                              }));
+                            };
+                            reader.readAsDataURL(file);
+                          },
+                          style: {
+                            maxWidth: "100%",
+                          },
+                        })}
+
+                        <View style={styles.logoActionRow}>
+                          <Pressable
+                            onPress={() =>
+                              setDesign((d) => ({
+                                ...d,
+                                logo: { mode: "none" },
+                              }))
+                            }
+                            style={styles.secondaryButton}
+                          >
+                            <Text style={styles.secondaryButtonText}>Remove Logo</Text>
+                          </Pressable>
+                        </View>
+
+                        <TinyColorInput
+                          label="Logo background"
+                          value={
+                            design.logo?.mode === "image"
+                              ? design.logo.backgroundColor || design.backgroundColor || "#ffffff"
+                              : design.backgroundColor || "#ffffff"
+                          }
+                          onChange={(v) =>
+                            setDesign((d) => ({
+                              ...d,
+                              logo:
+                                d.logo?.mode === "image"
+                                  ? { ...d.logo, backgroundColor: v }
+                                  : { mode: "none" },
+                            }))
+                          }
+                        />
+                      </View>
                     </View>
                   </View>
                 )}
@@ -432,11 +532,7 @@ export default function CreateScreen() {
           </View>
 
           <View style={styles.column}>
-            <QrPreview
-              payload={payloadResult.payload}
-              payloadPreview={payloadPreview}
-              design={design}
-            />
+            <QrPreview payload={payloadResult.payload} design={design} />
           </View>
         </View>
       </View>
@@ -1232,5 +1328,48 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
     textAlign: "center",
+  },
+  logoPanel: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.lg,
+  },
+  logoPreviewBox: {
+    alignItems: "center",
+    aspectRatio: 1,
+    backgroundColor: palette.panel,
+    borderColor: palette.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    justifyContent: "center",
+    padding: spacing.sm,
+    width: 120,
+  },
+  logoEmptyText: {
+    color: palette.muted,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  logoControls: {
+    flex: 1,
+    gap: spacing.md,
+    minWidth: 220,
+  },
+  logoActionRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+  },
+  secondaryButton: {
+    borderColor: palette.borderStrong,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  secondaryButtonText: {
+    color: palette.ink,
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

@@ -153,6 +153,9 @@ func (s *Service) Export(req ProjectConfig) (ExportResponse, error) {
 		if _, ok := frameTemplateForDesign(req.Design.ApplyDefaults()); ok {
 			return ExportResponse{}, fmt.Errorf("%w: %s export for complex SVG frames is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
 		}
+		if hasRenderableImageLogo(req.Design.ApplyDefaults()) {
+			return ExportResponse{}, fmt.Errorf("%w: %s export for uploaded logos is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
+		}
 
 		bytes, err := renderAdvancedPNG(bc, req.Design, size)
 		if err != nil {

@@ -83,7 +83,6 @@ func TestPreviewInjectsQRIntoComplexFrameTemplate(t *testing.T) {
 		EyeStyle:             "square",
 		Sticker: &StickerConfig{
 			Style: "coffee-cup",
-			Text:  "DRINK ME",
 			Color: "#005244",
 		},
 	}
@@ -96,11 +95,78 @@ func TestPreviewInjectsQRIntoComplexFrameTemplate(t *testing.T) {
 	if !strings.Contains(resp.SVG, `id="qr-mount"`) {
 		t.Fatalf("template preview did not include qr mount: %s", resp.SVG)
 	}
-	if !strings.Contains(resp.SVG, "DRINK ME") {
-		t.Fatalf("template preview did not include overridden label: %s", resp.SVG)
-	}
 	if !strings.Contains(resp.SVG, "M20 21H70") {
 		t.Fatalf("template preview did not include coffee cup frame")
+	}
+}
+
+func TestPreviewRendersUploadedImageLogo(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/logo", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "dot",
+		EyeStyle:             "square",
+		Logo: &LogoConfig{
+			Mode:            "image",
+			AssetRef:        "data:image/png;base64,iVBORw0KGgo=",
+			BackgroundColor: "#ffffff",
+			Shape:           "circle",
+			SizeRatio:       0.22,
+		},
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `id="qurl-logo"`) {
+		t.Fatalf("logo preview did not include logo group: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `href="data:image/png;base64,iVBORw0KGgo="`) {
+		t.Fatalf("logo preview did not include uploaded image")
+	}
+}
+
+func TestPreviewRendersUploadedSVGLogo(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/logo", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "dot",
+		EyeStyle:             "square",
+		Logo: &LogoConfig{
+			Mode:            "image",
+			AssetRef:        "data:image/svg+xml;base64,PHN2Zy8+",
+			BackgroundColor: "#ffffff",
+			Shape:           "circle",
+			SizeRatio:       0.22,
+		},
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `id="qurl-logo"`) {
+		t.Fatalf("svg logo preview did not include logo group: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `href="data:image/svg+xml;base64,PHN2Zy8+"`) {
+		t.Fatalf("svg logo preview did not include uploaded svg image")
 	}
 }
 
@@ -142,6 +208,24 @@ func TestExportPNGRejectsComplexFrameTemplates(t *testing.T) {
 
 	if _, err := svc.Export(req); err == nil {
 		t.Fatal("expected complex frame PNG export error")
+	}
+}
+
+func TestExportPNGRejectsUploadedImageLogo(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/download", FormatPNG, 256)
+	req.Design = DesignConfig{
+		SchemaVersion: DesignSchemaVersion,
+		Logo: &LogoConfig{
+			Mode:     "image",
+			AssetRef: "data:image/png;base64,iVBORw0KGgo=",
+		},
+	}
+
+	if _, err := svc.Export(req); err == nil {
+		t.Fatal("expected uploaded logo PNG export error")
 	}
 }
 

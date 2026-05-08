@@ -40,6 +40,12 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 		return renderTemplateSVG(bc, design, template, targetPixelSize), nil
 	}
 
+	if isCircleSticker(design) {
+		return renderCircleSVG(bc, design, targetPixelSize), nil
+	}
+	if isRoundedSquareSticker(design) {
+		return renderRoundedSquareSVG(bc, design, targetPixelSize), nil
+	}
 	// Acorn uses the same fill approach as circle (not the template system)
 	if isAcornSticker(design) {
 		return renderAcornSVG(bc, design, targetPixelSize), nil
@@ -61,20 +67,9 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 	if quiet <= 0 {
 		quiet = 4
 	}
-	outerMods := mods + (quiet * 2)
-	canvasMods := outerMods
+	canvasMods := mods + (quiet * 2)
 	offset := float64(quiet)
 	contentScale := 1.0
-	if hasOuterSticker(design) {
-		canvasMods += 2
-		offset += 1
-	}
-	if isCircleSticker(design) {
-		innerRadius := float64(canvasMods)/2 - 1.35
-		safeSquare := (innerRadius * 2) / math.Sqrt2
-		contentScale = safeSquare / float64(mods)
-		offset = (float64(canvasMods) - (float64(mods) * contentScale)) / 2
-	}
 
 	var buf strings.Builder
 	buf.Grow(mods * mods * 20)
@@ -93,13 +88,6 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 
 	if !design.BackgroundTransparent {
 		buf.WriteString(fmt.Sprintf(`<rect width="100%%" height="100%%" fill="%s"/>`, bg))
-	}
-
-	if isCircleSticker(design) {
-		radius := float64(canvasMods)/2 - 0.85
-		buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-circle-content"><circle cx="%.3f" cy="%.3f" r="%.3f"/></clipPath></defs>`, float64(canvasMods)/2, float64(canvasMods)/2, radius))
-		buf.WriteString(`<g clip-path="url(#qurl-circle-content)">`)
-		drawDecorativeCircleFill(&buf, canvasMods, offset, contentScale, mods, design)
 	}
 
 	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offset, offset, contentScale))
@@ -143,14 +131,159 @@ func renderAdvancedSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize 
 		}
 	}
 	buf.WriteString(`</g>`)
-	if isCircleSticker(design) {
-		buf.WriteString(`</g>`)
-	}
-
-	drawSticker(&buf, canvasMods, design)
-
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods), design)
 	buf.WriteString(`</svg>`)
 	return []byte(buf.String()), nil
+}
+
+func renderCircleSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int) []byte {
+	bounds := bc.Bounds()
+	mods := bounds.Dx()
+	bg := design.BackgroundColor
+	if bg == "" {
+		bg = "#ffffff"
+	}
+	fg := design.ForegroundColor
+	if fg == "" {
+		fg = "#000000"
+	}
+	quiet := design.QuietZoneModules
+	if quiet <= 0 {
+		quiet = 4
+	}
+	canvasMods := mods + (quiet * 2) + 2
+	innerRadius := float64(canvasMods)/2 - 1.35
+	safeSquare := (innerRadius * 2) / math.Sqrt2
+	contentScale := safeSquare / float64(mods)
+	offset := (float64(canvasMods) - (float64(mods) * contentScale)) / 2
+
+	var buf strings.Builder
+	buf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	buf.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" role="img" aria-label="QR code">`, canvasMods, canvasMods, targetPixelSize, targetPixelSize))
+	if !design.BackgroundTransparent {
+		buf.WriteString(fmt.Sprintf(`<rect width="100%%" height="100%%" fill="%s"/>`, bg))
+	}
+
+	radius := float64(canvasMods)/2 - 0.85
+	buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-circle-content"><circle cx="%.3f" cy="%.3f" r="%.3f"/></clipPath></defs>`, float64(canvasMods)/2, float64(canvasMods)/2, radius))
+	buf.WriteString(`<g clip-path="url(#qurl-circle-content)">`)
+	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, design)
+
+	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offset, offset, contentScale))
+	writeQRCoreSVGOnly(&buf, bc, design)
+	buf.WriteString(`</g>`)
+	buf.WriteString(`</g>`)
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design)
+
+	stickerColor := fg
+	if design.Sticker != nil && design.Sticker.Color != "" {
+		stickerColor = design.Sticker.Color
+	}
+	if design.Frame != nil && design.Frame.Color != "" {
+		stickerColor = design.Frame.Color
+	}
+	buf.WriteString(fmt.Sprintf(`<circle cx="%.3f" cy="%.3f" r="%.3f" fill="none" stroke="%s" stroke-width="1.1"/>`, float64(canvasMods)/2, float64(canvasMods)/2, radius, stickerColor))
+	buf.WriteString(`</svg>`)
+	return []byte(buf.String())
+}
+
+func renderRoundedSquareSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int) []byte {
+	bounds := bc.Bounds()
+	mods := bounds.Dx()
+	bg := design.BackgroundColor
+	if bg == "" {
+		bg = "#ffffff"
+	}
+	fg := design.ForegroundColor
+	if fg == "" {
+		fg = "#000000"
+	}
+	quiet := design.QuietZoneModules
+	if quiet <= 0 {
+		quiet = 4
+	}
+	canvasMods := mods + (quiet * 2) + 2
+
+	// Safe area for the QR code.
+	// We want bit more margin than the stroke.
+	// Native mods + quiet*2 is the core. We add 2 generic padding.
+	// Let's use 90% of the canvas for the QR to give it a nice "frame" feel.
+	safeSide := float64(canvasMods) * 0.82
+	contentScale := safeSide / float64(mods)
+	offset := (float64(canvasMods) - (float64(mods) * contentScale)) / 2
+
+	var buf strings.Builder
+	buf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	buf.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" role="img" aria-label="QR code">`, canvasMods, canvasMods, targetPixelSize, targetPixelSize))
+	if !design.BackgroundTransparent {
+		buf.WriteString(fmt.Sprintf(`<rect width="100%%" height="100%%" fill="%s"/>`, bg))
+	}
+
+	frameMargin := 1.2
+	frameSize := float64(canvasMods) - (frameMargin * 2)
+	cornerRadius := frameSize * 0.15
+
+	buf.WriteString(fmt.Sprintf(`<defs><clipPath id="qurl-rounded-content"><rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f"/></clipPath></defs>`, frameMargin, frameMargin, frameSize, frameSize, cornerRadius))
+	buf.WriteString(`<g clip-path="url(#qurl-rounded-content)">`)
+	drawDecorativeShapeFill(&buf, canvasMods, offset, offset, contentScale, mods, design)
+
+	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" transform="translate(%.3f,%.3f) scale(%.5f)">`, fg, fg, offset, offset, contentScale))
+	writeQRCoreSVGOnly(&buf, bc, design)
+	buf.WriteString(`</g>`)
+	buf.WriteString(`</g>`)
+	writeLogoOverlay(&buf, float64(canvasMods)/2, float64(canvasMods)/2, float64(mods)*contentScale, design)
+
+	stickerColor := fg
+	if design.Sticker != nil && design.Sticker.Color != "" {
+		stickerColor = design.Sticker.Color
+	}
+	if design.Frame != nil && design.Frame.Color != "" {
+		stickerColor = design.Frame.Color
+	}
+	buf.WriteString(fmt.Sprintf(`<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f" fill="none" stroke="%s" stroke-width="1.1"/>`, frameMargin, frameMargin, frameSize, frameSize, cornerRadius, stickerColor))
+	buf.WriteString(`</svg>`)
+	return []byte(buf.String())
+}
+
+func writeQRCoreSVGOnly(buf *strings.Builder, bc barcode.Barcode, design DesignConfig) {
+	bounds := bc.Bounds()
+	mods := bounds.Dx()
+
+	drawEye(buf, 0, 0, design, "top-left")
+	drawEye(buf, mods-7, 0, design, "top-right")
+	drawEye(buf, 0, mods-7, design, "bottom-left")
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		runStart := -1
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			if (x < 7 && y < 7) || (x >= mods-7 && y < 7) || (x < 7 && y >= mods-7) {
+				if runStart != -1 {
+					writeSVGRx(buf, runStart, y, x-runStart, design.ModuleStyle)
+					runStart = -1
+				}
+				continue
+			}
+
+			if isDark(bc.At(x, y)) {
+				if design.ModuleStyle != "" && design.ModuleStyle != "square" {
+					writeBodyShape(buf, x, y, design.ModuleStyle)
+					continue
+				}
+				if runStart == -1 {
+					runStart = x
+				}
+				continue
+			}
+
+			if runStart != -1 {
+				writeSVGRx(buf, runStart, y, x-runStart, design.ModuleStyle)
+				runStart = -1
+			}
+		}
+		if runStart != -1 {
+			writeSVGRx(buf, runStart, y, bounds.Max.X-runStart, design.ModuleStyle)
+		}
+	}
 }
 
 // writeSVGRx writes the appropriate SVG module geometry
@@ -204,50 +337,6 @@ func writeBodyShape(buf *strings.Builder, x, y int, style string) {
 func writeDecorativeBodyShape(buf *strings.Builder, x, y, scale float64, style string) {
 	buf.WriteString(fmt.Sprintf(`<g transform="translate(%.3f,%.3f) scale(%.5f)">`, x, y, scale))
 	writeBodyShape(buf, 0, 0, style)
-	buf.WriteString(`</g>`)
-}
-
-func drawDecorativeCircleFill(buf *strings.Builder, canvasMods int, contentOffset, contentScale float64, mods int, design DesignConfig) {
-	style := design.ModuleStyle
-	if style == "" {
-		style = "dot"
-	}
-	color := design.ForegroundColor
-	if color == "" {
-		color = "#000000"
-	}
-
-	center := float64(canvasMods) / 2
-	radius := center - 1.65
-	cell := math.Max(0.72, contentScale*0.96)
-	contentMin := contentOffset - (cell * 0.5)
-	contentMax := contentOffset + float64(mods)*contentScale + (cell * 0.5)
-
-	buf.WriteString(fmt.Sprintf(`<g fill="%s" color="%s" opacity="0.98">`, color, color))
-	for row := 0; ; row++ {
-		y := 1.25 + float64(row)*cell
-		if y > float64(canvasMods)-1.25 {
-			break
-		}
-		for col := 0; ; col++ {
-			x := 1.25 + float64(col)*cell
-			if x > float64(canvasMods)-1.25 {
-				break
-			}
-
-			if x > contentMin && x < contentMax && y > contentMin && y < contentMax {
-				continue
-			}
-			if math.Hypot(x-center, y-center) > radius {
-				continue
-			}
-			if !decorativeCellOn(row, col) {
-				continue
-			}
-
-			writeDecorativeBodyShape(buf, x-(cell/2), y-(cell/2), cell, style)
-		}
-	}
 	buf.WriteString(`</g>`)
 }
 
@@ -518,6 +607,9 @@ func hasOuterSticker(design DesignConfig) bool {
 func isCircleSticker(design DesignConfig) bool {
 	return stickerStyle(design) == "circle"
 }
+func isRoundedSquareSticker(design DesignConfig) bool {
+	return stickerStyle(design) == "rounded-square" || stickerStyle(design) == "rounded"
+}
 
 func isAcornSticker(design DesignConfig) bool {
 	return stickerStyle(design) == "acorn"
@@ -656,6 +748,7 @@ func renderAcornSVG(bc barcode.Barcode, design DesignConfig, targetPixelSize int
 	}
 	buf.WriteString(`</g>`) // close QR content group
 	buf.WriteString(`</g>`) // close clip group
+	writeLogoOverlay(&buf, centerX, centerY, float64(mods)*contentScale, design)
 
 	// Acorn outline stroke (drawn OUTSIDE the clip so it's not clipped)
 	stickerColor := fg
@@ -734,19 +827,14 @@ func drawSticker(buf *strings.Builder, size int, design DesignConfig) {
 	if style == "" {
 		style = "circle"
 	}
-	label := ""
 	if design.Sticker != nil {
 		if design.Sticker.Color != "" {
 			color = design.Sticker.Color
 		}
-		label = design.Sticker.Text
 	}
 	if design.Frame != nil {
 		if design.Frame.Color != "" {
 			color = design.Frame.Color
-		}
-		if design.Frame.Label != "" {
-			label = design.Frame.Label
 		}
 	}
 	switch style {
@@ -754,10 +842,6 @@ func drawSticker(buf *strings.Builder, size int, design DesignConfig) {
 		buf.WriteString(fmt.Sprintf(`<circle cx="%f" cy="%f" r="%f" fill="none" stroke="%s" stroke-width="0.55"/>`, float64(size)/2, float64(size)/2, float64(size)/2-0.5, color))
 	case "rounded-square", "scan-me-bottom", "badge":
 		buf.WriteString(fmt.Sprintf(`<rect x="0.35" y="0.35" width="%f" height="%f" rx="2.2" fill="none" stroke="%s" stroke-width="0.5"/>`, float64(size)-0.7, float64(size)-0.7, color))
-	}
-	if label != "" && style != "circle" {
-		escaped := strings.ReplaceAll(strings.ReplaceAll(label, "&", "&amp;"), "<", "&lt;")
-		buf.WriteString(fmt.Sprintf(`<text x="%f" y="%f" font-family="Inter, Arial, sans-serif" font-size="1.2" font-weight="800" fill="%s" text-anchor="middle">%s</text>`, float64(size)/2, float64(size)-0.9, color, escaped))
 	}
 }
 
@@ -800,7 +884,6 @@ func renderTemplateSVG(bc barcode.Barcode, design DesignConfig, template frameTe
 	if design.Frame != nil && design.Frame.Color != "" {
 		color = design.Frame.Color
 	}
-	label := frameLabel(design)
 
 	var qr strings.Builder
 	coreSize := writeQRCoreSVG(&qr, bc, design)
@@ -819,29 +902,20 @@ func renderTemplateSVG(bc barcode.Barcode, design DesignConfig, template frameTe
 	if err == nil {
 		assetStr := string(assetBytes)
 		assetStr = strings.ReplaceAll(assetStr, "{{color}}", color)
-		assetStr = strings.ReplaceAll(assetStr, "{{label}}", label)
+		assetStr = strings.ReplaceAll(assetStr, "{{label}}", "")
 		buf.WriteString(assetStr)
 	}
 
 	buf.WriteString(fmt.Sprintf(`<g id="qr-mount" transform="translate(%.3f %.3f) scale(%.5f)">`, template.MountX, template.MountY, scale))
 	buf.WriteString(qr.String())
 	buf.WriteString(`</g>`)
+	writeLogoOverlay(&buf, template.MountX+(template.Mount/2), template.MountY+(template.Mount/2), template.Mount, design)
 	buf.WriteString(`</svg>`)
 	return []byte(buf.String())
 }
 
 func frameLabel(design DesignConfig) string {
-	label := ""
-	if design.Sticker != nil {
-		label = design.Sticker.Text
-	}
-	if design.Frame != nil && design.Frame.Label != "" {
-		label = design.Frame.Label
-	}
-	if label == "" {
-		label = "SCAN ME"
-	}
-	return escapeSVGText(label)
+	return ""
 }
 
 func escapeSVGText(value string) string {
@@ -849,6 +923,75 @@ func escapeSVGText(value string) string {
 	value = strings.ReplaceAll(value, "<", "&lt;")
 	value = strings.ReplaceAll(value, ">", "&gt;")
 	return value
+}
+
+func escapeSVGAttr(value string) string {
+	value = escapeSVGText(value)
+	value = strings.ReplaceAll(value, `"`, "&quot;")
+	return value
+}
+
+func hasRenderableImageLogo(design DesignConfig) bool {
+	if design.Logo == nil || design.Logo.Mode != "image" {
+		return false
+	}
+	return isSupportedLogoDataURL(design.Logo.AssetRef)
+}
+
+func isSupportedLogoDataURL(value string) bool {
+	return strings.HasPrefix(value, "data:image/png;") ||
+		strings.HasPrefix(value, "data:image/jpeg;") ||
+		strings.HasPrefix(value, "data:image/jpg;") ||
+		strings.HasPrefix(value, "data:image/webp;") ||
+		strings.HasPrefix(value, "data:image/gif;") ||
+		strings.HasPrefix(value, "data:image/svg+xml;")
+}
+
+func writeLogoOverlay(buf *strings.Builder, centerX, centerY, contentSide float64, design DesignConfig) {
+	if !hasRenderableImageLogo(design) {
+		return
+	}
+
+	logo := design.Logo
+	ratio := logo.SizeRatio
+	if ratio <= 0 {
+		ratio = 0.22
+	}
+	ratio = math.Max(0.05, math.Min(0.4, ratio))
+
+	side := contentSide * ratio
+	if side <= 0 {
+		return
+	}
+
+	bg := logo.BackgroundColor
+	if bg == "" {
+		bg = design.BackgroundColor
+	}
+	if bg == "" {
+		bg = "#ffffff"
+	}
+
+	x := centerX - side/2
+	y := centerY - side/2
+	shape := logo.Shape
+	if shape == "" {
+		shape = "circle"
+	}
+
+	buf.WriteString(`<g id="qurl-logo">`)
+	switch shape {
+	case "none":
+	case "rounded-square":
+		buf.WriteString(fmt.Sprintf(`<rect x="%.3f" y="%.3f" width="%.3f" height="%.3f" rx="%.3f" fill="%s"/>`, x, y, side, side, side*0.18, bg))
+	default:
+		buf.WriteString(fmt.Sprintf(`<circle cx="%.3f" cy="%.3f" r="%.3f" fill="%s"/>`, centerX, centerY, side*0.56, bg))
+	}
+
+	padding := side * 0.18
+	imageSide := side - padding*2
+	buf.WriteString(fmt.Sprintf(`<image href="%s" x="%.3f" y="%.3f" width="%.3f" height="%.3f" preserveAspectRatio="xMidYMid meet"/>`, escapeSVGAttr(logo.AssetRef), x+padding, y+padding, imageSide, imageSide))
+	buf.WriteString(`</g>`)
 }
 
 // renderAdvancedPNG converts the unscaled barcode to a nicely scaled and colored PNG image
