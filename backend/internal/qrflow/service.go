@@ -149,7 +149,7 @@ func (s *Service) Export(req ProjectConfig) (ExportResponse, error) {
 			Filename:      filename,
 			Bytes:         svgBytes,
 		}, nil
-	case FormatPNG, FormatJPG:
+	case FormatPNG:
 		if _, ok := frameTemplateForDesign(req.Design.ApplyDefaults()); ok {
 			return ExportResponse{}, fmt.Errorf("%w: %s export for complex SVG frames is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
 		}
@@ -162,21 +162,49 @@ func (s *Service) Export(req ProjectConfig) (ExportResponse, error) {
 			return ExportResponse{}, err
 		}
 
-		mime := "image/png"
-		if format == FormatJPG {
-			mime = "image/jpeg"
+		return ExportResponse{
+			SchemaVersion: ResponseSchemaVersion,
+			Destination:   normalized,
+			Format:        format,
+			MimeType:      "image/png",
+			Filename:      filename,
+			Bytes:         bytes,
+		}, nil
+	case FormatJPG:
+		if _, ok := frameTemplateForDesign(req.Design.ApplyDefaults()); ok {
+			return ExportResponse{}, fmt.Errorf("%w: %s export for complex SVG frames is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
+		}
+		if hasRenderableImageLogo(req.Design.ApplyDefaults()) {
+			return ExportResponse{}, fmt.Errorf("%w: %s export for uploaded logos is not available yet; use SVG export", ErrUnsupportedFormat, strings.ToUpper(string(format)))
+		}
+
+		bytes, err := renderAdvancedJPG(bc, req.Design, size)
+		if err != nil {
+			return ExportResponse{}, err
 		}
 
 		return ExportResponse{
 			SchemaVersion: ResponseSchemaVersion,
 			Destination:   normalized,
 			Format:        format,
-			MimeType:      mime,
+			MimeType:      "image/jpeg",
 			Filename:      filename,
 			Bytes:         bytes,
 		}, nil
 	case FormatEPS:
-		return ExportResponse{}, fmt.Errorf("%w: EPS export is not available yet; use SVG export", ErrUnsupportedFormat)
+		bytes, err := renderAdvancedEPS(bc, req.Design)
+		if err != nil {
+			return ExportResponse{}, err
+		}
+
+		return ExportResponse{
+			SchemaVersion: ResponseSchemaVersion,
+			Destination:   normalized,
+			Format:        format,
+			MimeType:      "application/postscript",
+			Filename:      filename,
+			Bytes:         bytes,
+		}, nil
 	default:
 		return ExportResponse{}, fmt.Errorf("%w %q", ErrUnsupportedFormat, format)
 	}
@@ -228,12 +256,16 @@ func (s *Service) generate(req ProjectConfig) (string, barcode.Barcode, error) {
 
 	level := qr.L
 	switch req.Design.ErrorCorrectionLevel {
+	case "L":
+		level = qr.L
 	case "M":
 		level = qr.M
 	case "Q":
 		level = qr.Q
 	case "H":
 		level = qr.H
+	default:
+		return "", nil, fmt.Errorf("%w: unsupported errorCorrectionLevel %q", ErrInvalidRequest, req.Design.ErrorCorrectionLevel)
 	}
 
 	encoded, err := qr.Encode(payloadStr, level, qr.Auto)

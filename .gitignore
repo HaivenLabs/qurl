@@ -24,6 +24,7 @@ dist/
 build/
 coverage/
 .cache/
+backend/tmp/
 .turbo/
 web-build/
 .expo/

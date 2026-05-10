@@ -27,13 +27,11 @@ type DesignConfig struct {
 }
 
 type LogoConfig struct {
-	Mode            string  `json:"mode"` // "none", "image", "text"
-	AssetRef        string  `json:"assetRef,omitempty"`
-	Text            string  `json:"text,omitempty"`
-	Fit             string  `json:"fit,omitempty"`       // "contain", "cover"
-	SizeRatio       float64 `json:"sizeRatio,omitempty"` // 0.1 to 0.28
-	ForegroundColor string  `json:"foregroundColor,omitempty"`
-	Shape           string  `json:"shape,omitempty"`
+	Mode      string  `json:"mode"` // "none", "image"
+	AssetRef  string  `json:"assetRef,omitempty"`
+	Fit       string  `json:"fit,omitempty"`       // "contain", "cover"
+	SizeRatio float64 `json:"sizeRatio,omitempty"` // 0.1 to 0.28
+	Shape     string  `json:"shape,omitempty"`
 }
 
 type FrameConfig struct {
@@ -52,7 +50,7 @@ type StickerConfig struct {
 
 func (d DesignConfig) ApplyDefaults() DesignConfig {
 	if d.ErrorCorrectionLevel == "" {
-		d.ErrorCorrectionLevel = "H"
+		d.ErrorCorrectionLevel = "M"
 	}
 	if d.ForegroundColor == "" {
 		d.ForegroundColor = "#355f5d"

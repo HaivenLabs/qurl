@@ -3,14 +3,18 @@ import type { QRCode as QrCodeModel } from "qrcode";
 
 import { normalizeDirectUrl } from "./direct-url";
 import { encodeQrPayload, type QrPayloadConfigV1 } from "./payloads";
+import type { QrErrorCorrectionLevel } from "./project-config";
 
 export type QrMatrix = readonly boolean[][];
 
 const DEFAULT_QUIET_ZONE_MODULES = 4;
 
-function createQrCodeModel(input: string): QrCodeModel {
+function createQrCodeModel(
+  input: string,
+  errorCorrectionLevel: QrErrorCorrectionLevel = "M",
+): QrCodeModel {
   return QRCode.create(input, {
-    errorCorrectionLevel: "M",
+    errorCorrectionLevel,
   });
 }
 
@@ -47,45 +51,64 @@ function renderSvg(matrix: QrMatrix, quietZoneModules: number): string {
   ].join("");
 }
 
-export function createQrMatrix(input: string): boolean[][] {
-  return createMatrixFromModel(createQrCodeModel(input));
+export function createQrMatrix(
+  input: string,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
+): boolean[][] {
+  return createMatrixFromModel(createQrCodeModel(input, errorCorrectionLevel));
 }
 
-export function createQrMatrixFromPayload(config: QrPayloadConfigV1): boolean[][] {
-  return createQrMatrix(encodeQrPayload(config));
+export function createQrMatrixFromPayload(
+  config: QrPayloadConfigV1,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
+): boolean[][] {
+  return createQrMatrix(encodeQrPayload(config), errorCorrectionLevel);
 }
 
-export function createQrSvg(input: string): string {
-  return renderSvg(createQrMatrix(input), DEFAULT_QUIET_ZONE_MODULES);
+export function createQrSvg(input: string, errorCorrectionLevel?: QrErrorCorrectionLevel): string {
+  return renderSvg(createQrMatrix(input, errorCorrectionLevel), DEFAULT_QUIET_ZONE_MODULES);
 }
 
-export function createQrSvgFromPayload(config: QrPayloadConfigV1): string {
-  return createQrSvg(encodeQrPayload(config));
+export function createQrSvgFromPayload(
+  config: QrPayloadConfigV1,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
+): string {
+  return createQrSvg(encodeQrPayload(config), errorCorrectionLevel);
 }
 
-export function createQrPngDataUrlFromPayload(config: QrPayloadConfigV1): Promise<string> {
+export function createQrPngDataUrlFromPayload(
+  config: QrPayloadConfigV1,
+  errorCorrectionLevel: QrErrorCorrectionLevel = "M",
+): Promise<string> {
   return QRCode.toDataURL(encodeQrPayload(config), {
-    errorCorrectionLevel: "M",
+    errorCorrectionLevel,
     margin: DEFAULT_QUIET_ZONE_MODULES,
     scale: 12,
     type: "image/png",
   });
 }
 
-export function createDirectUrlQrMatrix(input: string): boolean[][] {
+export function createDirectUrlQrMatrix(
+  input: string,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
+): boolean[][] {
   const normalized = normalizeDirectUrl(input);
-  return createQrMatrix(normalized.destinationUrl);
+  return createQrMatrix(normalized.destinationUrl, errorCorrectionLevel);
 }
 
-export function createDirectUrlQrSvg(input: string): string {
-  return createQrSvg(normalizeDirectUrl(input).destinationUrl);
+export function createDirectUrlQrSvg(
+  input: string,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
+): string {
+  return createQrSvg(normalizeDirectUrl(input).destinationUrl, errorCorrectionLevel);
 }
 
 export function createDirectUrlQrMatrixWithQuietZone(
   input: string,
   quietZoneModules = DEFAULT_QUIET_ZONE_MODULES,
+  errorCorrectionLevel?: QrErrorCorrectionLevel,
 ): boolean[][] {
-  const matrix = createDirectUrlQrMatrix(input);
+  const matrix = createDirectUrlQrMatrix(input, errorCorrectionLevel);
   const size = matrix.length;
   const paddedSize = size + quietZoneModules * 2;
   const padded = Array.from({ length: paddedSize }, () =>

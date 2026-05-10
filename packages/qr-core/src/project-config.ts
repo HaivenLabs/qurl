@@ -22,6 +22,11 @@ export type QrEyeStyle =
   | "circle"
   | "dot"
   | "leaf"
+  | "teardrop"
+  | "teardrop-top-right"
+  | "teardrop-bottom-right"
+  | "teardrop-bottom-left"
+  | "teardrop-top-left"
   | "diamond"
   | "dotted-square"
   | "round-top-left"
@@ -77,13 +82,11 @@ export type QrDesignConfigV1 = {
   logo:
     | { mode: "none" }
     | {
-        mode: "text" | "image";
+        mode: "image";
         assetRef?: string;
-        text?: string;
         fit?: "contain" | "cover";
         /** Fraction of the QR content side. Kept intentionally small for scan safety. */
         sizeRatio?: number;
-        foregroundColor?: string;
         shape?: "circle" | "rounded-square" | "none";
       };
   frame: {
@@ -141,7 +144,7 @@ export function createQrProjectConfig(
     payload,
     design: {
       schemaVersion: "qurl.qr-design-config.v1",
-      errorCorrectionLevel: "H",
+      errorCorrectionLevel: "M",
       quietZoneModules: 4,
       foregroundColor: "#355f5d",
       backgroundColor: "#ffffff",

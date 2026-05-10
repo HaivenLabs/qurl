@@ -126,7 +126,10 @@ export async function resolveQrDownloadArtifact(
       fileName: `${projectConfig.export.fileName}.png`,
       mimeType: "image/png",
       source: "local",
-      content: await createQrPngDataUrlFromPayload(payload),
+      content: await createQrPngDataUrlFromPayload(
+        payload,
+        projectConfig.design.errorCorrectionLevel,
+      ),
     };
   }
 
@@ -135,7 +138,7 @@ export async function resolveQrDownloadArtifact(
       fileName: `${projectConfig.export.fileName}.svg`,
       mimeType: "image/svg+xml;charset=utf-8",
       source: "local",
-      content: createQrSvgFromPayload(payload),
+      content: createQrSvgFromPayload(payload, projectConfig.design.errorCorrectionLevel),
     };
   }
 
@@ -144,7 +147,7 @@ export async function resolveQrDownloadArtifact(
 
 export function triggerDownload({ fileName, mimeType, content }: QrDownloadArtifact): void {
   const blob =
-    mimeType === "image/png" && content.startsWith("data:")
+    content.startsWith("data:")
       ? dataUrlToBlob(content)
       : new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

@@ -57,6 +57,11 @@
         "circle",
         "dot",
         "leaf",
+        "teardrop",
+        "teardrop-top-right",
+        "teardrop-bottom-right",
+        "teardrop-bottom-left",
+        "teardrop-top-left",
         "diamond",
         "dotted-square",
         "round-top-left",
@@ -115,14 +120,11 @@
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["none", "image", "text"]
+          "enum": ["none", "image"]
         },
         "assetRef": {
           "type": "string",
           "minLength": 1
-        },
-        "text": {
-          "type": "string"
         },
         "fit": {
           "type": "string",
@@ -132,9 +134,6 @@
           "type": "number",
           "minimum": 0.1,
           "maximum": 0.28
-        },
-        "foregroundColor": {
-          "$ref": "#/$defs/color"
         },
         "shape": {
           "type": "string",
@@ -219,6 +218,11 @@
         "circle",
         "dot",
         "leaf",
+        "teardrop",
+        "teardrop-top-right",
+        "teardrop-bottom-right",
+        "teardrop-bottom-left",
+        "teardrop-top-left",
         "diamond",
         "dotted-square",
         "round-top-left",

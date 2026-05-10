@@ -73,7 +73,7 @@ export function QrPreview({ payload, design }: QrPreviewProps) {
 
     try {
       return {
-        matrix: createQrMatrixFromPayload(payload),
+        matrix: createQrMatrixFromPayload(payload, design?.errorCorrectionLevel ?? "M"),
         issue: null,
       };
     } catch (error) {
@@ -85,7 +85,7 @@ export function QrPreview({ payload, design }: QrPreviewProps) {
             : "The local preview renderer could not render this URL.",
       };
     }
-  }, [payload]);
+  }, [design?.errorCorrectionLevel, payload]);
 
   const previewMatrix = previewModel.matrix;
   const canDownload = Boolean(payload) && !isDownloading;

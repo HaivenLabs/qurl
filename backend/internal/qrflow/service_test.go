@@ -102,6 +102,233 @@ func TestPreviewInjectsQRIntoComplexFrameTemplate(t *testing.T) {
 	}
 }
 
+func TestNoFramePreviewKeepsQRCodeCoreScanSafe(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/scan-safe", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "square",
+		EyeStyle:             "square",
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `shape-rendering="crispEdges"`) {
+		t.Fatalf("scan-safe QR core did not request crisp SVG rendering: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `<rect x="0" y="0" width="7" height="1"/>`) {
+		t.Fatalf("scan-safe QR core did not include the raw finder matrix row: %s", resp.SVG)
+	}
+	if strings.Contains(resp.SVG, `<circle`) || strings.Contains(resp.SVG, `<path`) {
+		t.Fatalf("no-frame QR core used decorative geometry instead of raw matrix rectangles: %s", resp.SVG)
+	}
+}
+
+func TestCustomCornerMarkersOnlyReplaceFinderBlocks(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/custom-markers", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "square",
+		EyeStyle:             "leaf",
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `<rect x="0" y="0" width="7" height="7" fill="#ffffff"/>`) {
+		t.Fatalf("custom marker preview did not isolate the finder block before drawing marker: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `<path d="`) {
+		t.Fatalf("custom marker preview did not draw the selected marker shape: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `shape-rendering="geometricPrecision" transform="translate(0,0)"`) {
+		t.Fatalf("custom marker preview did not render marker curves precisely: %s", resp.SVG)
+	}
+	for _, insetGeometry := range []string{"0.45", "6.1", "1.45", "4.1", "2.55"} {
+		if strings.Contains(resp.SVG, insetGeometry) {
+			t.Fatalf("custom marker preview used shrunken finder geometry %q: %s", insetGeometry, resp.SVG)
+		}
+	}
+	if strings.Contains(resp.SVG, `<circle`) {
+		t.Fatalf("data modules used decorative dot geometry instead of the shared raw matrix path: %s", resp.SVG)
+	}
+}
+
+func TestRoundedCornerMarkersUsePreciseCurveRendering(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/rounded-markers", FormatSVG, 320)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ForegroundColor:      "#355f5d",
+		BackgroundColor:      "#ffffff",
+		ErrorCorrectionLevel: "H",
+		QuietZoneModules:     4,
+		ModuleStyle:          "square",
+		EyeStyle:             "rounded",
+	}
+
+	resp, err := svc.Preview(req)
+	if err != nil {
+		t.Fatalf("Preview error: %v", err)
+	}
+
+	if !strings.Contains(resp.SVG, `shape-rendering="geometricPrecision" transform="translate(0,0)"`) {
+		t.Fatalf("rounded marker preview did not use precise curve rendering: %s", resp.SVG)
+	}
+	if !strings.Contains(resp.SVG, `M1.680 0.000`) {
+		t.Fatalf("rounded marker preview did not keep high-precision marker geometry: %s", resp.SVG)
+	}
+}
+
+func TestDataPatternUsesSelectedModuleStyleOutsideFinderBlocks(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	tests := []struct {
+		style string
+		want  string
+	}{
+		{style: "dot", want: `<circle cx="`},
+		{style: "rounded", want: `shape-rendering="geometricPrecision"`},
+		{style: "heart", want: `shape-rendering="geometricPrecision" transform=`},
+		{style: "spade", want: `shape-rendering="geometricPrecision" transform=`},
+		{style: "club", want: `shape-rendering="geometricPrecision"`},
+		{style: "star", want: `shape-rendering="geometricPrecision" d="M`},
+		{style: "triangle", want: `shape-rendering="geometricPrecision" d="M`},
+		{style: "hexagon", want: `shape-rendering="geometricPrecision" d="M`},
+		{style: "pentagon", want: `shape-rendering="geometricPrecision" d="M`},
+		{style: "twinkle", want: `shape-rendering="geometricPrecision" d="M`},
+		{style: "x", want: `shape-rendering="geometricPrecision" d="M`},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.style, func(t *testing.T) {
+			t.Parallel()
+
+			req := testProjectConfig("https://example.com/data-pattern-"+tc.style, FormatSVG, 320)
+			req.Design = DesignConfig{
+				SchemaVersion:        DesignSchemaVersion,
+				ForegroundColor:      "#355f5d",
+				BackgroundColor:      "#ffffff",
+				ErrorCorrectionLevel: "H",
+				QuietZoneModules:     4,
+				ModuleStyle:          tc.style,
+				EyeStyle:             "square",
+			}
+
+			resp, err := svc.Preview(req)
+			if err != nil {
+				t.Fatalf("Preview error: %v", err)
+			}
+
+			if !strings.Contains(resp.SVG, `<rect x="0" y="0" width="7" height="1"/>`) {
+				t.Fatalf("finder modules were not kept as raw matrix rows: %s", resp.SVG)
+			}
+			if !strings.Contains(resp.SVG, tc.want) {
+				t.Fatalf("data pattern %q did not render selected module geometry %q: %s", tc.style, tc.want, resp.SVG)
+			}
+		})
+	}
+}
+
+func TestFramedPreviewsUseSameScanSafeQRCodeCore(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	frames := []string{"circle", "rounded-square", "acorn", "coffee-cup"}
+	for _, frame := range frames {
+		frame := frame
+		t.Run(frame, func(t *testing.T) {
+			t.Parallel()
+
+			req := testProjectConfig("https://example.com/"+frame, FormatSVG, 320)
+			req.Design = DesignConfig{
+				SchemaVersion:        DesignSchemaVersion,
+				ForegroundColor:      "#355f5d",
+				BackgroundColor:      "#ffffff",
+				ErrorCorrectionLevel: "H",
+				QuietZoneModules:     4,
+				ModuleStyle:          "dot",
+				EyeStyle:             "square",
+				Sticker: &StickerConfig{
+					Style: frame,
+					Color: "#005244",
+				},
+			}
+
+			resp, err := svc.Preview(req)
+			if err != nil {
+				t.Fatalf("Preview error: %v", err)
+			}
+
+			if !strings.Contains(resp.SVG, `shape-rendering="crispEdges"`) {
+				t.Fatalf("framed preview did not use the shared scan-safe QR core: %s", resp.SVG)
+			}
+			if !strings.Contains(resp.SVG, `<rect x="0" y="0" width="7" height="1"/>`) {
+				t.Fatalf("framed preview did not include the raw finder matrix row: %s", resp.SVG)
+			}
+		})
+	}
+}
+
+func TestDecorativeFillUsesSelectedModuleStyle(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	for _, style := range []string{"square", "heart", "hexagon", "twinkle"} {
+		style := style
+		t.Run(style, func(t *testing.T) {
+			t.Parallel()
+
+			req := testProjectConfig("https://example.com/decorative-"+style, FormatSVG, 320)
+			req.Design = DesignConfig{
+				SchemaVersion:        DesignSchemaVersion,
+				ForegroundColor:      "#355f5d",
+				BackgroundColor:      "#ffffff",
+				ErrorCorrectionLevel: "H",
+				QuietZoneModules:     4,
+				ModuleStyle:          style,
+				EyeStyle:             "square",
+				Sticker: &StickerConfig{
+					Style: "circle",
+					Color: "#005244",
+				},
+			}
+
+			resp, err := svc.Preview(req)
+			if err != nil {
+				t.Fatalf("Preview error: %v", err)
+			}
+
+			want := `id="qurl-decorative-fill" data-module-style="` + style + `"`
+			if !strings.Contains(resp.SVG, want) {
+				t.Fatalf("decorative fill did not use selected module style %q: %s", style, resp.SVG)
+			}
+		})
+	}
+}
+
 func TestPreviewRendersUploadedImageLogo(t *testing.T) {
 	t.Parallel()
 
@@ -217,7 +444,8 @@ func TestExportPNGReturnsValidImageBytes(t *testing.T) {
 	t.Parallel()
 
 	svc := New()
-	resp, err := svc.Export(testProjectConfig("https://example.com/download", FormatPNG, 256))
+	req := testProjectConfig("https://example.com/download", FormatPNG, 256)
+	resp, err := svc.Export(req)
 	if err != nil {
 		t.Fatalf("Export error: %v", err)
 	}
@@ -234,8 +462,22 @@ func TestExportPNGReturnsValidImageBytes(t *testing.T) {
 		t.Fatalf("export does not look like a PNG file")
 	}
 
-	if _, err := png.Decode(bytes.NewReader(resp.Bytes)); err != nil {
+	decoded, err := png.Decode(bytes.NewReader(resp.Bytes))
+	if err != nil {
 		t.Fatalf("png decode: %v", err)
+	}
+
+	_, bc, err := svc.generate(req)
+	if err != nil {
+		t.Fatalf("generate qr: %v", err)
+	}
+	quiet := 4
+	scale := decoded.Bounds().Dx() / (bc.Bounds().Dx() + quiet*2)
+	if isDark(decoded.At(0, 0)) {
+		t.Fatal("png export should keep the canvas edge clear")
+	}
+	if !isDark(decoded.At(quiet*scale, quiet*scale)) {
+		t.Fatal("png export did not place the raw QR matrix after the clear edge")
 	}
 }
 
@@ -281,6 +523,25 @@ func TestExportRejectsUnsupportedSchemaVersion(t *testing.T) {
 	_, err := svc.Export(req)
 	if err == nil {
 		t.Fatal("expected schema version error")
+	}
+}
+
+func TestPreviewRejectsUnsupportedErrorCorrectionLevel(t *testing.T) {
+	t.Parallel()
+
+	svc := New()
+	req := testProjectConfig("https://example.com/error-correction", FormatSVG, 256)
+	req.Design = DesignConfig{
+		SchemaVersion:        DesignSchemaVersion,
+		ErrorCorrectionLevel: "maximum-ish",
+	}
+
+	_, err := svc.Preview(req)
+	if err == nil {
+		t.Fatal("expected error correction level error")
+	}
+	if !strings.Contains(err.Error(), "unsupported errorCorrectionLevel") {
+		t.Fatalf("expected error correction level error, got %v", err)
 	}
 }
 

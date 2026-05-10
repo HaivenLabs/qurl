@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, useState, type Dispatch, type SetStateAction } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
@@ -6,7 +6,10 @@ import {
   encodeQrPayload,
   QR_FRAME_OPTIONS,
   QR_TYPE_REGISTRY_V1,
+  type QrBodyStyle,
   type QrDesignConfigV1,
+  type QrErrorCorrectionLevel,
+  type QrEyeStyle,
   type QrStickerStyle,
   type QrPayloadConfigV1,
   type QrPayloadKind,
@@ -80,6 +83,45 @@ const CURATED_COLORS = [
   "#fff7e8",
 ];
 
+const MARKER_STYLES: QrEyeStyle[] = [
+  "square",
+  "rounded",
+  "circle",
+  "teardrop-top-right",
+  "teardrop-bottom-right",
+  "teardrop-bottom-left",
+  "teardrop-top-left",
+  "round-top-left",
+  "round-top-right",
+  "round-bottom-right",
+  "round-bottom-left",
+  "leaf-top-left",
+  "leaf-top-right",
+  "leaf-bottom-right",
+  "leaf-bottom-left",
+  "cut-top-left",
+  "cut-top-right",
+  "cut-bottom-right",
+  "cut-bottom-left",
+  "diamond",
+  "dotted-square",
+];
+
+const ERROR_CORRECTION_OPTIONS: Array<{ label: string; value: QrErrorCorrectionLevel }> = [
+  { label: "Very low", value: "L" },
+  { label: "Low", value: "M" },
+  { label: "Medium", value: "Q" },
+  { label: "High", value: "H" },
+];
+
+type MarkerCorner = "top-left" | "top-right" | "bottom-left";
+
+const MARKER_CORNERS: Array<{ id: MarkerCorner; label: string }> = [
+  { id: "top-left", label: "Top left" },
+  { id: "top-right", label: "Top right" },
+  { id: "bottom-left", label: "Bottom left" },
+];
+
 const MIN_LOGO_SIZE_PX = 10;
 const MAX_LOGO_SIZE_PX = 28;
 const DEFAULT_LOGO_SIZE_PX = 22;
@@ -128,7 +170,7 @@ export default function CreateScreen() {
   const [activeKind, setActiveKind] = useState<QrPayloadKind>("url");
 
   const [design, setDesign] = useState<Partial<QrDesignConfigV1>>({
-    errorCorrectionLevel: "H",
+    errorCorrectionLevel: "M",
     foregroundColor: "#355f5d",
     backgroundColor: "#ffffff",
     eyeColorOuter: "#355f5d",
@@ -142,11 +184,10 @@ export default function CreateScreen() {
     quietZoneModules: 4,
   });
 
-  const [activeTab, setActiveTab] = useState<
-    "payload" | "frames" | "logo" | "pattern" | "markers" | "color"
-  >("payload");
-
-  const colors = CURATED_COLORS;
+  const [activeTab, setActiveTab] = useState<"payload" | "frames" | "logo" | "pattern" | "markers">(
+    "payload",
+  );
+  const [markerMode, setMarkerMode] = useState<"all" | "custom">("all");
 
   const payloadResult = buildPayload(activeKind, form);
   const activeType = QR_TYPE_REGISTRY_V1.types.find((type) => type.kind === activeKind);
@@ -200,7 +241,6 @@ export default function CreateScreen() {
                       ["logo", "Logo"],
                       ["pattern", "Data Pattern"],
                       ["markers", "Corner Markers"],
-                      ["color", "Color"],
                     ] as const
                   ).map(([id, label]) => (
                     <Pressable
@@ -251,55 +291,6 @@ export default function CreateScreen() {
                   </View>
                 )}
 
-                {activeTab === "color" && (
-                  <View style={styles.tabPanel}>
-                    <View style={styles.swatchGrid}>
-                      {colors.map((c) => (
-                        <Pressable
-                          key={c}
-                          style={[
-                            styles.swatchWrap,
-                            design.foregroundColor === c && styles.swatchWrapActive,
-                          ]}
-                          onPress={() =>
-                            setDesign((d) => ({
-                              ...d,
-                              foregroundColor: c,
-                              eyeColorOuter: c,
-                              eyeColorInner: c,
-                            }))
-                          }
-                        >
-                          <View style={[styles.swatchSquare, { backgroundColor: c }]} />
-                        </Pressable>
-                      ))}
-                    </View>
-
-                    <View style={styles.colorInputRow}>
-                      <TinyColorInput
-                        label="Data pattern color"
-                        value={design.foregroundColor || ""}
-                        onChange={(v) => setDesign((d) => ({ ...d, foregroundColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Outer marker color"
-                        value={design.eyeColorOuter || ""}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeColorOuter: v }))}
-                      />
-                      <TinyColorInput
-                        label="Inner marker color"
-                        value={design.eyeColorInner || ""}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeColorInner: v }))}
-                      />
-                      <TinyColorInput
-                        label="Background color"
-                        value={design.backgroundColor || ""}
-                        onChange={(v) => setDesign((d) => ({ ...d, backgroundColor: v }))}
-                      />
-                    </View>
-                  </View>
-                )}
-
                 {activeTab === "pattern" && (
                   <View style={styles.tabPanel}>
                     <Text style={styles.inputLabel}>Data Pattern</Text>
@@ -330,9 +321,57 @@ export default function CreateScreen() {
                             design.moduleStyle === s && styles.shapeBoxActive,
                           ]}
                         >
-                          <Text style={styles.shapeText}>{labelize(s)}</Text>
+                          <PatternSwatch color={design.foregroundColor ?? "#355f5d"} id={s} />
                         </Pressable>
                       ))}
+                    </View>
+                    <View style={styles.logoSizeControl}>
+                      <View style={styles.logoSizeHeader}>
+                        <Text style={styles.inputLabel}>Error correction</Text>
+                        <Text style={styles.logoSizeValue}>
+                          {
+                            ERROR_CORRECTION_OPTIONS.find(
+                              (option) => option.value === (design.errorCorrectionLevel ?? "M"),
+                            )?.label
+                          }
+                        </Text>
+                      </View>
+                      {createElement("input", {
+                        "aria-label": "Error correction",
+                        max: ERROR_CORRECTION_OPTIONS.length - 1,
+                        min: 0,
+                        step: 1,
+                        type: "range",
+                        value: Math.max(
+                          0,
+                          ERROR_CORRECTION_OPTIONS.findIndex(
+                            (option) => option.value === (design.errorCorrectionLevel ?? "M"),
+                          ),
+                        ),
+                        onChange: (event: { currentTarget: HTMLInputElement }) => {
+                          const next = ERROR_CORRECTION_OPTIONS[Number(event.currentTarget.value)];
+                          setDesign((d) => ({
+                            ...d,
+                            errorCorrectionLevel: next?.value ?? "M",
+                          }));
+                        },
+                        style: {
+                          accentColor: "#005244",
+                          width: "100%",
+                        },
+                      })}
+                      {(design.errorCorrectionLevel ?? "M") === "L" ? (
+                        <Text style={styles.warningCopy}>
+                          Very low reduces scan resilience. Avoid it for styled or logo QR codes.
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View style={styles.colorInputRow}>
+                      <TinyColorInput
+                        label="Pattern color"
+                        value={design.foregroundColor || ""}
+                        onChange={(v) => setDesign((d) => ({ ...d, foregroundColor: v }))}
+                      />
                     </View>
                   </View>
                 )}
@@ -340,70 +379,99 @@ export default function CreateScreen() {
                 {activeTab === "markers" && (
                   <View style={styles.tabPanel}>
                     <Text style={styles.inputLabel}>Corner Markers</Text>
-                    <View style={styles.swatchGrid}>
-                      {(
-                        [
-                          "square",
-                          "rounded",
-                          "circle",
-                          "round-top-left",
-                          "round-top-right",
-                          "round-bottom-right",
-                          "round-bottom-left",
-                          "leaf-top-left",
-                          "leaf-top-right",
-                          "leaf-bottom-right",
-                          "leaf-bottom-left",
-                          "cut-top-left",
-                          "cut-top-right",
-                          "cut-bottom-right",
-                          "cut-bottom-left",
-                          "diamond",
-                          "dotted-square",
-                        ] as const
-                      ).map((s) => (
+                    <View style={styles.segmentedControl}>
+                      {(["all", "custom"] as const).map((mode) => (
                         <Pressable
-                          key={s}
-                          onPress={() => setDesign((d) => ({ ...d, eyeStyle: s }))}
-                          style={[styles.shapeBox, design.eyeStyle === s && styles.shapeBoxActive]}
+                          key={mode}
+                          onPress={() => setMarkerMode(mode)}
+                          style={[
+                            styles.segmentButton,
+                            markerMode === mode && styles.segmentButtonActive,
+                          ]}
                         >
-                          <Text style={styles.shapeText}>{labelize(s)}</Text>
+                          <Text
+                            style={[
+                              styles.segmentButtonText,
+                              markerMode === mode && styles.segmentButtonTextActive,
+                            ]}
+                          >
+                            {mode === "all" ? "All" : "Custom"}
+                          </Text>
                         </Pressable>
                       ))}
                     </View>
-                    <Text style={styles.inputLabel}>Custom marker colors</Text>
-                    <View style={styles.colorInputRow}>
-                      <TinyColorInput
-                        label="Top left outer"
-                        value={design.eyeTopLeftOuterColor || design.eyeColorOuter || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopLeftOuterColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Top left inner"
-                        value={design.eyeTopLeftInnerColor || design.eyeColorInner || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopLeftInnerColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Top right outer"
-                        value={design.eyeTopRightOuterColor || design.eyeColorOuter || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopRightOuterColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Top right inner"
-                        value={design.eyeTopRightInnerColor || design.eyeColorInner || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeTopRightInnerColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Bottom left outer"
-                        value={design.eyeBottomLeftOuterColor || design.eyeColorOuter || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeBottomLeftOuterColor: v }))}
-                      />
-                      <TinyColorInput
-                        label="Bottom left inner"
-                        value={design.eyeBottomLeftInnerColor || design.eyeColorInner || "#355f5d"}
-                        onChange={(v) => setDesign((d) => ({ ...d, eyeBottomLeftInnerColor: v }))}
-                      />
-                    </View>
+
+                    {markerMode === "all" ? (
+                      <>
+                        <View style={styles.swatchGrid}>
+                          {MARKER_STYLES.map((s) => (
+                            <Pressable
+                              key={s}
+                              accessibilityLabel={labelize(s)}
+                              onPress={() =>
+                                setDesign((d) => ({
+                                  ...d,
+                                  eyeStyle: s,
+                                  eyeTopLeftStyle: undefined,
+                                  eyeTopRightStyle: undefined,
+                                  eyeBottomLeftStyle: undefined,
+                                }))
+                              }
+                              style={[
+                                styles.shapeBox,
+                                design.eyeStyle === s && styles.shapeBoxActive,
+                              ]}
+                            >
+                              <MarkerSwatch
+                                color={design.eyeColorOuter ?? design.foregroundColor ?? "#355f5d"}
+                                id={s}
+                              />
+                            </Pressable>
+                          ))}
+                        </View>
+                        <Text style={styles.inputLabel}>Marker colors</Text>
+                        <View style={styles.colorInputRow}>
+                          <TinyColorInput
+                            label="Outer color"
+                            value={design.eyeColorOuter || "#355f5d"}
+                            onChange={(v) =>
+                              setDesign((d) => ({
+                                ...d,
+                                eyeColorOuter: v,
+                                eyeTopLeftOuterColor: undefined,
+                                eyeTopRightOuterColor: undefined,
+                                eyeBottomLeftOuterColor: undefined,
+                              }))
+                            }
+                          />
+                          <TinyColorInput
+                            label="Inner color"
+                            value={design.eyeColorInner || "#355f5d"}
+                            onChange={(v) =>
+                              setDesign((d) => ({
+                                ...d,
+                                eyeColorInner: v,
+                                eyeTopLeftInnerColor: undefined,
+                                eyeTopRightInnerColor: undefined,
+                                eyeBottomLeftInnerColor: undefined,
+                              }))
+                            }
+                          />
+                        </View>
+                      </>
+                    ) : (
+                      <View style={styles.markerCustomStack}>
+                        {MARKER_CORNERS.map((corner) => (
+                          <MarkerCornerEditor
+                            key={corner.id}
+                            corner={corner.id}
+                            design={design}
+                            label={corner.label}
+                            setDesign={setDesign}
+                          />
+                        ))}
+                      </View>
+                    )}
                   </View>
                 )}
 
@@ -432,7 +500,7 @@ export default function CreateScreen() {
                           style={[
                             styles.frameBox,
                             (design.sticker?.style ?? "none") === option.id &&
-                            styles.shapeBoxActive,
+                              styles.shapeBoxActive,
                           ]}
                         >
                           <FrameSwatch
@@ -455,6 +523,37 @@ export default function CreateScreen() {
                           }))
                         }
                       />
+                      <View style={styles.tinyCol}>
+                        <Text style={styles.tinyLabel}>Transparency</Text>
+                        <Pressable
+                          onPress={() =>
+                            setDesign((d) => ({
+                              ...d,
+                              backgroundTransparent: !d.backgroundTransparent,
+                            }))
+                          }
+                          style={[
+                            styles.modeChip,
+                            design.backgroundTransparent && styles.modeChipActive,
+                            { height: 38, justifyContent: "center", alignItems: "center" },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.modeText,
+                              design.backgroundTransparent && styles.modeTextActive,
+                            ]}
+                          >
+                            {design.backgroundTransparent ? "Transparent" : "Opaque"}
+                          </Text>
+                        </Pressable>
+                      </View>
+                      <TinyColorInput
+                        label="Background color"
+                        value={design.backgroundColor || ""}
+                        disabled={design.backgroundTransparent}
+                        onChange={(v) => setDesign((d) => ({ ...d, backgroundColor: v }))}
+                      />
                     </View>
                   </View>
                 )}
@@ -468,30 +567,29 @@ export default function CreateScreen() {
                           onPress={() =>
                             setDesign((d) => ({
                               ...d,
-                              errorCorrectionLevel: "H",
                               logo:
                                 option.id === "none"
                                   ? { mode: "none" }
                                   : {
-                                    mode: "image",
-                                    assetRef: option.asset!,
-                                    fit: "contain",
-                                    sizeRatio:
-                                      d.logo?.mode === "image"
-                                        ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
-                                        : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
-                                    shape:
-                                      d.logo?.mode === "image"
-                                        ? (d.logo.shape ?? "circle")
-                                        : "circle",
-                                  },
+                                      mode: "image",
+                                      assetRef: option.asset!,
+                                      fit: "contain",
+                                      sizeRatio:
+                                        d.logo?.mode === "image"
+                                          ? logoSizePxToRatio(logoSizeRatioToPx(d.logo.sizeRatio))
+                                          : logoSizePxToRatio(DEFAULT_LOGO_SIZE_PX),
+                                      shape:
+                                        d.logo?.mode === "image"
+                                          ? (d.logo.shape ?? "circle")
+                                          : "circle",
+                                    },
                             }))
                           }
                           style={[
                             styles.frameBox,
                             (design.logo?.mode === "image" &&
                               design.logo.assetRef === option.asset) ||
-                              (design.logo?.mode === "none" && option.id === "none")
+                            (design.logo?.mode === "none" && option.id === "none")
                               ? styles.shapeBoxActive
                               : null,
                           ]}
@@ -560,7 +658,6 @@ export default function CreateScreen() {
                               }
                               setDesign((d) => ({
                                 ...d,
-                                errorCorrectionLevel: "H",
                                 logo: {
                                   mode: "image",
                                   assetRef: result,
@@ -625,9 +722,9 @@ export default function CreateScreen() {
                                 logo:
                                   d.logo?.mode === "image"
                                     ? {
-                                      ...d.logo,
-                                      sizeRatio: logoSizePxToRatio(next),
-                                    }
+                                        ...d.logo,
+                                        sizeRatio: logoSizePxToRatio(next),
+                                      }
                                     : { mode: "none" },
                               }));
                             },
@@ -932,32 +1029,37 @@ function TinyColorInput({
   label,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  disabled?: boolean;
 }) {
   const pickerValue = /^#[0-9a-fA-F]{6}$/.test(value) ? value : "#000000";
 
   return (
-    <View style={styles.tinyCol}>
+    <View style={[styles.tinyCol, disabled && { opacity: 0.5 }]}>
       <Text style={styles.tinyLabel}>{label}</Text>
       <View style={styles.tinyInputBox}>
-        {createElement("input", {
-          "aria-label": `${label} picker`,
-          type: "color",
-          value: pickerValue,
-          onChange: (event: { currentTarget: { value: string } }) =>
-            onChange(event.currentTarget.value),
-          style: {
-            background: "transparent",
-            border: "0",
-            cursor: "pointer",
-            height: 28,
-            padding: 0,
-            width: 32,
-          },
-        })}
+        <View style={{ width: 32, height: 28, marginRight: 8 }}>
+          {createElement("input", {
+            "aria-label": `${label} picker`,
+            disabled,
+            type: "color",
+            value: pickerValue,
+            onChange: (event: { currentTarget: { value: string } }) =>
+              onChange(event.currentTarget.value),
+            style: {
+              background: "transparent",
+              border: "0",
+              cursor: disabled ? "default" : "pointer",
+              height: "100%",
+              padding: 0,
+              width: "100%",
+            },
+          })}
+        </View>
         <TextInput
           style={styles.tinyInput}
           value={value}
@@ -965,6 +1067,7 @@ function TinyColorInput({
           autoCapitalize="none"
           placeholder="#000000"
           placeholderTextColor={palette.muted}
+          editable={!disabled}
         />
       </View>
       <View style={styles.miniSwatchRow}>
@@ -972,6 +1075,7 @@ function TinyColorInput({
           <Pressable
             key={`${label}-${color}`}
             accessibilityLabel={`Use ${color}`}
+            disabled={disabled}
             onPress={() => onChange(color)}
             style={[
               styles.miniSwatch,
@@ -993,6 +1097,355 @@ function frameStyleForOption(id: QrStickerStyle): "none" | "circle" | "rounded" 
     return "rounded";
   }
   return "none";
+}
+
+function PatternSwatch({ color, id }: { color: string; id: QrBodyStyle }) {
+  const fill = color || "#355f5d";
+  const stroke = fill;
+  const common = {
+    fill,
+    shapeRendering: "geometricPrecision",
+  };
+  const children: ReturnType<typeof createElement>[] = [];
+  const add = (tag: string, props: Record<string, unknown>) => {
+    children.push(createElement(tag, { key: children.length, ...props }));
+  };
+
+  switch (id) {
+    case "square":
+      add("rect", { ...common, x: 24, y: 24, width: 52, height: 52 });
+      break;
+    case "rounded":
+      add("rect", { ...common, x: 23, y: 23, width: 54, height: 54, rx: 13, ry: 13 });
+      break;
+    case "dot":
+      add("circle", { ...common, cx: 50, cy: 50, r: 27 });
+      break;
+    case "heart":
+      add("path", {
+        ...common,
+        d: "M50 78C26 59 20 40 31 29C40 20 48 25 50 37C52 25 60 20 69 29C80 40 74 59 50 78Z",
+      });
+      break;
+    case "diamond":
+      add("path", { ...common, d: "M50 18L82 50L50 82L18 50Z" });
+      break;
+    case "spade":
+      add("path", {
+        ...common,
+        d: "M50 18C27 36 18 54 31 65C40 73 48 65 50 55C52 65 60 73 69 65C82 54 73 36 50 18Z",
+      });
+      add("path", { ...common, d: "M44 58H56L66 82H34Z" });
+      break;
+    case "club":
+      add("circle", { ...common, cx: 50, cy: 32, r: 15 });
+      add("circle", { ...common, cx: 34, cy: 56, r: 15 });
+      add("circle", { ...common, cx: 66, cy: 56, r: 15 });
+      add("path", { ...common, d: "M50 53L62 82H38Z" });
+      break;
+    case "star":
+      add("path", {
+        ...common,
+        d: "M50 17L59 39H83L64 54L72 78L50 64L28 78L36 54L17 39H41Z",
+      });
+      break;
+    case "triangle":
+      add("path", { ...common, d: "M50 18L82 79H18Z" });
+      break;
+    case "hexagon":
+      add("path", { ...common, d: "M33 18H67L85 50L67 82H33L15 50Z" });
+      break;
+    case "pentagon":
+      add("path", { ...common, d: "M50 17L82 42L70 82H30L18 42Z" });
+      break;
+    case "x":
+      add("path", {
+        ...common,
+        d: "M24 16L50 40L76 16L84 24L60 50L84 76L76 84L50 60L24 84L16 76L40 50L16 24Z",
+      });
+      break;
+    case "o":
+      add("circle", {
+        cx: 50,
+        cy: 50,
+        fill: "none",
+        r: 25,
+        shapeRendering: "geometricPrecision",
+        stroke,
+        strokeWidth: 12,
+      });
+      break;
+    case "twinkle":
+      add("path", { ...common, d: "M50 12L60 40L88 50L60 60L50 88L40 60L12 50L40 40Z" });
+      break;
+  }
+
+  return createElement(
+    "svg",
+    {
+      "aria-hidden": true,
+      focusable: false,
+      viewBox: "0 0 100 100",
+      style: { height: 42, width: 42 },
+    },
+    ...children,
+  );
+}
+
+function MarkerCornerEditor({
+  corner,
+  design,
+  label,
+  setDesign,
+}: {
+  corner: MarkerCorner;
+  design: Partial<QrDesignConfigV1>;
+  label: string;
+  setDesign: Dispatch<SetStateAction<Partial<QrDesignConfigV1>>>;
+}) {
+  const selectedStyle = markerStyleForCorner(design, corner);
+  const outerColor = markerOuterColorForCorner(design, corner);
+  const innerColor = markerInnerColorForCorner(design, corner);
+
+  return (
+    <View style={styles.markerCornerPanel}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View style={styles.markerCornerGrid}>
+        {MARKER_STYLES.map((style) => (
+          <Pressable
+            key={`${corner}-${style}`}
+            accessibilityLabel={`${label} ${labelize(style)}`}
+            onPress={() => setDesign((d) => setMarkerStyleForCorner(d, corner, style))}
+            style={[styles.markerMiniBox, selectedStyle === style && styles.shapeBoxActive]}
+          >
+            <MarkerSwatch color={outerColor} id={style} size={30} />
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.colorInputRow}>
+        <TinyColorInput
+          label="Outer color"
+          value={outerColor}
+          onChange={(v) => setDesign((d) => setMarkerOuterColorForCorner(d, corner, v))}
+        />
+        <TinyColorInput
+          label="Inner color"
+          value={innerColor}
+          onChange={(v) => setDesign((d) => setMarkerInnerColorForCorner(d, corner, v))}
+        />
+      </View>
+    </View>
+  );
+}
+
+function markerStyleForCorner(design: Partial<QrDesignConfigV1>, corner: MarkerCorner): QrEyeStyle {
+  if (corner === "top-left") {
+    return design.eyeTopLeftStyle ?? design.eyeStyle ?? "leaf";
+  }
+  if (corner === "top-right") {
+    return design.eyeTopRightStyle ?? design.eyeStyle ?? "leaf";
+  }
+  return design.eyeBottomLeftStyle ?? design.eyeStyle ?? "leaf";
+}
+
+function markerOuterColorForCorner(
+  design: Partial<QrDesignConfigV1>,
+  corner: MarkerCorner,
+): string {
+  if (corner === "top-left") {
+    return design.eyeTopLeftOuterColor ?? design.eyeColorOuter ?? "#355f5d";
+  }
+  if (corner === "top-right") {
+    return design.eyeTopRightOuterColor ?? design.eyeColorOuter ?? "#355f5d";
+  }
+  return design.eyeBottomLeftOuterColor ?? design.eyeColorOuter ?? "#355f5d";
+}
+
+function markerInnerColorForCorner(
+  design: Partial<QrDesignConfigV1>,
+  corner: MarkerCorner,
+): string {
+  if (corner === "top-left") {
+    return design.eyeTopLeftInnerColor ?? design.eyeColorInner ?? "#355f5d";
+  }
+  if (corner === "top-right") {
+    return design.eyeTopRightInnerColor ?? design.eyeColorInner ?? "#355f5d";
+  }
+  return design.eyeBottomLeftInnerColor ?? design.eyeColorInner ?? "#355f5d";
+}
+
+function setMarkerStyleForCorner(
+  design: Partial<QrDesignConfigV1>,
+  corner: MarkerCorner,
+  style: QrEyeStyle,
+): Partial<QrDesignConfigV1> {
+  if (corner === "top-left") {
+    return { ...design, eyeTopLeftStyle: style };
+  }
+  if (corner === "top-right") {
+    return { ...design, eyeTopRightStyle: style };
+  }
+  return { ...design, eyeBottomLeftStyle: style };
+}
+
+function setMarkerOuterColorForCorner(
+  design: Partial<QrDesignConfigV1>,
+  corner: MarkerCorner,
+  color: string,
+): Partial<QrDesignConfigV1> {
+  if (corner === "top-left") {
+    return { ...design, eyeTopLeftOuterColor: color };
+  }
+  if (corner === "top-right") {
+    return { ...design, eyeTopRightOuterColor: color };
+  }
+  return { ...design, eyeBottomLeftOuterColor: color };
+}
+
+function setMarkerInnerColorForCorner(
+  design: Partial<QrDesignConfigV1>,
+  corner: MarkerCorner,
+  color: string,
+): Partial<QrDesignConfigV1> {
+  if (corner === "top-left") {
+    return { ...design, eyeTopLeftInnerColor: color };
+  }
+  if (corner === "top-right") {
+    return { ...design, eyeTopRightInnerColor: color };
+  }
+  return { ...design, eyeBottomLeftInnerColor: color };
+}
+
+function MarkerSwatch({ color, id, size = 42 }: { color: string; id: QrEyeStyle; size?: number }) {
+  const fill = color || "#355f5d";
+  const bg = "#ffffff";
+  const normalized = id === "dot" ? "circle" : id === "leaf" ? "leaf-top-left" : id;
+  const children: ReturnType<typeof createElement>[] = [];
+  const add = (tag: string, props: Record<string, unknown>) => {
+    children.push(createElement(tag, { key: children.length, ...props }));
+  };
+
+  if (normalized === "dotted-square") {
+    add("rect", { fill, height: 54, width: 54, x: 23, y: 23 });
+    add("rect", { fill: bg, height: 34, width: 34, x: 33, y: 33 });
+    add("rect", { fill, height: 18, width: 18, x: 41, y: 41 });
+  } else if (normalized === "circle") {
+    add("circle", { cx: 50, cy: 50, fill, r: 34 });
+    add("circle", { cx: 50, cy: 50, fill: bg, r: 23 });
+    add("circle", { cx: 50, cy: 50, fill, r: 13 });
+  } else if (normalized === "diamond") {
+    add("path", { d: "M50 14L86 50L50 86L14 50Z", fill });
+    add("path", { d: "M50 28L72 50L50 72L28 50Z", fill: bg });
+    add("path", { d: "M50 38L62 50L50 62L38 50Z", fill });
+  } else if (normalized.startsWith("teardrop")) {
+    add("path", { d: markerTeardropPath(normalized, 16, 16, 68, 68), fill });
+    add("path", { d: markerTeardropPath(normalized, 29, 29, 42, 42), fill: bg });
+    add("path", { d: markerTeardropPath(normalized, 40, 40, 20, 20), fill });
+  } else {
+    add("path", { d: markerOuterPath(normalized), fill });
+    add("path", { d: markerMiddlePath(normalized), fill: bg });
+    add("path", { d: markerInnerPath(normalized), fill });
+  }
+
+  return createElement(
+    "svg",
+    {
+      "aria-hidden": true,
+      focusable: false,
+      viewBox: "0 0 100 100",
+      style: { height: size, width: size },
+    },
+    ...children,
+  );
+}
+
+function markerOuterPath(style: QrEyeStyle): string {
+  return markerRoundedPath(style, 16, 16, 68, 68, 18);
+}
+
+function markerMiddlePath(style: QrEyeStyle): string {
+  return markerRoundedPath(style, 29, 29, 42, 42, 11);
+}
+
+function markerInnerPath(style: QrEyeStyle): string {
+  return markerRoundedPath(style, 40, 40, 20, 20, 6);
+}
+
+function markerTeardropPath(style: QrEyeStyle, x: number, y: number, w: number, h: number): string {
+  const p = (n: number) => Number(n.toFixed(2));
+  const direction = style === "teardrop" ? "teardrop-top-right" : style;
+  const px = (unitX: number) =>
+    direction === "teardrop-top-left" || direction === "teardrop-bottom-left"
+      ? x + w * (1 - unitX)
+      : x + w * unitX;
+  const py = (unitY: number) =>
+    direction === "teardrop-bottom-right" || direction === "teardrop-bottom-left"
+      ? y + h * (1 - unitY)
+      : y + h * unitY;
+  return [
+    `M${p(px(0.42))} ${p(py(0))}`,
+    `L${p(px(1))} ${p(py(0))}`,
+    `L${p(px(1))} ${p(py(0.58))}`,
+    `C${p(px(1))} ${p(py(0.84))} ${p(px(0.82))} ${p(py(1))} ${p(px(0.52))} ${p(py(1))}`,
+    `C${p(px(0.22))} ${p(py(1))} ${p(px(0))} ${p(py(0.78))} ${p(px(0))} ${p(py(0.5))}`,
+    `C${p(px(0))} ${p(py(0.22))} ${p(px(0.2))} ${p(py(0))} ${p(px(0.42))} ${p(py(0))}`,
+    "Z",
+  ].join("");
+}
+
+function markerRoundedPath(
+  style: QrEyeStyle,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  let tl = 4;
+  let tr = 4;
+  let br = 4;
+  let bl = 4;
+  switch (style) {
+    case "rounded":
+      tl = tr = br = bl = r;
+      break;
+    case "round-top-left":
+      tl = r;
+      break;
+    case "round-top-right":
+      tr = r;
+      break;
+    case "round-bottom-right":
+      br = r;
+      break;
+    case "round-bottom-left":
+      bl = r;
+      break;
+    case "leaf-top-left":
+      tl = bl = r * 1.35;
+      break;
+    case "leaf-top-right":
+      tr = br = r * 1.35;
+      break;
+    case "leaf-bottom-right":
+      tl = br = r * 1.35;
+      break;
+    case "leaf-bottom-left":
+      tr = bl = r * 1.35;
+      break;
+    case "cut-top-left":
+      return `M${x} ${y + r}L${x + r} ${y}H${x + w}V${y + h}H${x}Z`;
+    case "cut-top-right":
+      return `M${x} ${y}H${x + w - r}L${x + w} ${y + r}V${y + h}H${x}Z`;
+    case "cut-bottom-right":
+      return `M${x} ${y}H${x + w}V${y + h - r}L${x + w - r} ${y + h}H${x}Z`;
+    case "cut-bottom-left":
+      return `M${x} ${y}H${x + w}V${y + h}H${x + r}L${x} ${y + h - r}Z`;
+    case "square":
+      tl = tr = br = bl = 0;
+      break;
+  }
+  return `M${x + tl} ${y}H${x + w - tr}Q${x + w} ${y} ${x + w} ${y + tr}V${y + h - br}Q${x + w} ${y + h} ${x + w - br} ${y + h}H${x + bl}Q${x} ${y + h} ${x} ${y + h - bl}V${y + tl}Q${x} ${y} ${x + tl} ${y}Z`;
 }
 
 function FrameSwatch({ color, id }: { color: string; id: QrStickerStyle }) {
@@ -1254,6 +1707,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  warningCopy: {
+    color: "#b54708",
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
   swatchRow: {
     flexDirection: "row",
     gap: spacing.sm,
@@ -1347,6 +1806,33 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
   },
+  segmentedControl: {
+    alignSelf: "flex-start",
+    backgroundColor: palette.panel,
+    borderColor: palette.border,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    padding: 3,
+  },
+  segmentButton: {
+    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  segmentButtonActive: {
+    backgroundColor: palette.surface,
+    borderColor: palette.border,
+    borderWidth: 1,
+  },
+  segmentButtonText: {
+    color: palette.muted,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  segmentButtonTextActive: {
+    color: palette.accent,
+  },
   swatchWrap: {
     padding: 2,
     borderRadius: radii.md,
@@ -1426,6 +1912,26 @@ const styles = StyleSheet.create({
   },
   shapeBoxActive: {
     borderColor: "#16a34a",
+  },
+  markerCustomStack: {
+    gap: spacing.lg,
+  },
+  markerCornerPanel: {
+    gap: spacing.md,
+  },
+  markerCornerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
+  markerMiniBox: {
+    alignItems: "center",
+    borderColor: palette.border,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: "center",
+    width: 44,
   },
   shapeText: {
     fontSize: 11,
